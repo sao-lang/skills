@@ -20,9 +20,9 @@ references/
 
 | 文件 | 何时读 | 职责 |
 |---|---|---|
-| `references/01-routing/routing.md` | S1 | 场景路由规划器——把用户的话解析成执行图（结构算子→语义三问→I/O 契约→置信度） |
+| `references/01-routing/routing.md` | S1（读全文） | 场景路由规划器——把用户的话解析成执行图（结构算子→语义三问→I/O 契约→置信度） |
 | `references/01-routing/router-prompt.md` | 需跨 agent 复用路由时 | routing 的自包含提示词版，可注入 Codex/CC/OpenCode/Droid |
-| `references/01-routing/scenarios.md` | S1 之后 | 13 场景详细流程 + 工程能力链 + 场景 I/O 契约表 |
+| `references/01-routing/scenarios.md` | S1 只读「I/O 契约表」节；执行到具体场景时读该场景节 | 13 场景详细流程 + 工程能力链 + 场景 I/O 契约表。**不要整份加载** |
 | `references/01-routing/overview.md` | S0 / 收尾 | 会话记录格式（overviews/日期/文件），写入前脱敏 |
 | `references/01-routing/skill-matrix.md` | 需查阶段加载表/工具来源时 | 阶段→skill 加载矩阵 + 外部工具清单 + 跨 agent 安装 |
 
@@ -31,7 +31,7 @@ references/
 | 文件 | 何时读 | 职责 |
 |---|---|---|
 | `references/02-engineering/engineering-catalog.md` | 想知道某个 superpowers skill 去哪了 | 15 个 skill 逐个去向 + 10 个具名能力的输入输出契约 |
-| `references/02-engineering/engineering-workflow.md` | S2 / 隔离 / 收尾 | brainstorm（先调查再开口+回述+红旗）、writing-plans（Interfaces+Self-Review 五问）、worktree、finish 详解 |
+| `references/02-engineering/engineering-workflow.md` | 按节读：S2 读 brainstorm+plan、S3 读 worktree、S5 读 finish | brainstorm（先调查再开口+回述+红旗）、writing-plans（Interfaces+Self-Review 五问）、worktree、finish 详解。**不要整份加载** |
 | `references/02-engineering/engineering-tdd.md` | S3 | RED-GREEN-REFACTOR + Verify RED/GREEN 强制细节 + 5 借口 + 红旗 |
 | `references/02-engineering/engineering-debugging.md` | 场景 8 解 bug | 4 阶段根因法 + 完成前验证 |
 | `references/02-engineering/engineering-code-review.md` | S5 / 派子代理时 | 评审严重度分级 + subagent 派单契约/两段式/fix-loop 护栏 |
@@ -69,6 +69,7 @@ references/
 
 ## 加载优先级与冲突
 
+0. **大文件按节读（省 token）**：`routing.md` 读全文；`scenarios.md` 路由时只读 I/O 契约表、执行到具体场景才读该节；`engineering-workflow.md` 按 S2/S3/S5 只读对应节。三个文件都不要整份灌进上下文。
 1. **工程纪律 vs 编码规则正交**：前者管"先写测试再实现"，后者管"实现写成什么样"，同时遵守。
 2. **流程主控唯一**：conductor 自己执行全部工程阶段，A/B 类文档是它的步骤说明，不是外部 skill。
 3. **工具是配角**：grill-design/graphify/code-quality-review 等只在指定阶段被调用，不占能力链节点。

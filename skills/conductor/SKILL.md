@@ -43,7 +43,10 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 详细步骤见 `references/01-routing/scenarios.md`（含场景 I/O 契约表，链式组合做类型校验）。
 
-> **references 导航**：30 份知识文档"何时读哪份"的索引见 `references/05-meta/README.md`（按流程/工程纪律/编码规则/门禁/元信息五类）——不要一次性全读，按索引渐进加载。
+> **references 导航**（省 token 硬纪律）：30 份文档"何时读哪份"见 `references/05-meta/README.md`（五类）。**按阶段与粒度渐进加载，禁止一次性全读**：
+> - `routing.md` / `scenarios.md`：S1 路由只需读 routing 全文 + scenarios 的**「I/O 契约表」**一节判衔接；**执行到某个具体场景时，才读 scenarios 对应那一节**，不整份加载。
+> - `engineering-workflow.md`：S2 读 brainstorm+plan 两节、S3 读 worktree、S5 读 finish——**只读当前阶段那一节**，不整份加载。
+> - 其余 reference 按 `README.md` 索引的触发条件加载。
 
 ## 阶段 → skill 加载矩阵
 
