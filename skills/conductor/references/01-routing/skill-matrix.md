@@ -28,11 +28,8 @@
 
 ## 2. Skill 清单与仓库地址
 
-> **工程纪律已内置**：原 `superpowers` 的方法论已提取为 conductor 自己的
-> `references/engineering-{workflow,tdd,debugging,code-review}.md`，由 conductor 直接执行，
-> 不再依赖外部 superpowers skill——**没有第二套工作流**。
-> 下表是 conductor 会调用的**外部工具 skill**，已全部随项目放在 `.agents/skills/`（项目自包含），
-> 无需单独安装。用 `preflight.py` 可随时复核。
+> 下表是 conductor 调用的**外部工具 skill**（工程纪律已内化，见 §4；无第二套工作流）。
+> 全部随项目放在 `.agents/skills/`（项目自包含），无需单独安装；`preflight.py` 可复核。
 
 | Skill | 用途 | 仓库 / 来源 | 备注 |
 |---|---|---|---|

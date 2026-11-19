@@ -1,26 +1,12 @@
 #!/usr/bin/env python3
-"""技术债台账：扫描源码里的债标记，聚合出「可量化、可追踪」的债清单草稿。
+"""技术债台账：扫描源码债标记，聚合成可量化的债清单草稿（S4/S5 收尾与排期用）。
 
-用途：conductor 把散落的 TODO/FIXME/HACK 与 overview 未完成项收敛成一份台账——
-按类型/文件分组、算「债指数」加权、给优先级建议，作为 S4/S5 收尾与排期依据，
-避免以"技术债"名义静默放行（对应 SKILL.md 铁律与 overview 纪律第 5 条）。
+债标记与权重（见 WEIGHTS）：FIXME/SAFETY=3、HACK/XXX=2、TODO/DEBT=1。
+按类型和文件分组，算「债指数」（权重和）与热点文件，给优先级建议。
+目的：把散落的 TODO/FIXME 与 overview 未完成项收敛成台账，避免以"技术债"名义静默放行。
 
-定位：启发式草稿，需人工核对与补充影响面；不自动改代码、不判定能否放行。
-
-债标记（默认）：
-  TODO    待办功能/未完成
-  FIXME   已知缺陷
-  HACK    临时绕过/脆弱实现
-  XXX     高风险需注意
-  DEBT    显式技术债
-  SAFETY  安全相关豁免（应优先处理）
-
-债指数（可量化）：
-  按标记权重求和（FIXME/SAFETY=3, HACK/XXX=2, TODO/DEBT=1），
-  给出总量与「热点文件」（债最多处），用于对比趋势与排期。
-
-输出：Markdown（默认）或 JSON（--format json，便于脚本消费/历史对比）。
-退出码恒为 0（草稿）；--fail-over <N> 时债指数超 N 返回 1（用于 CI 卡口）。
+定位：启发式草稿，需人工核对影响面；不改代码、不判定能否放行。
+输出 md（默认）或 json（--format）；退出码恒 0，--fail-over <N> 超阈值返回 1（CI 卡口）。
 """
 from __future__ import annotations
 
