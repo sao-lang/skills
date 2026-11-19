@@ -154,15 +154,28 @@
 - 方案：overview 分 L0 索引卡（≤12 行：场景/闸门/产物/未完成项/下一步）+ L1 摘要 + L2 详情引用；>30 行详情独立成 `.xxx.md`。S0 续接先只读 L0，按需读 L1/L2，禁止全量。
 - 已写入：`references/01-routing/overview.md`（模板+加载协议+纪律第6条 L0 必填）、`SKILL.md`（S0 加载协议 + 会话记录节）。
 
+### 五项新能力 + SKILL.md 瘦身（🟢 已激活 2026-11-20）
+- 起因：用户反馈每次加载 conductor 消耗大量 token（SKILL.md 20KB 每次必读），且缺变更影响分析/技术债台账/接口迁移守卫/发布编排/缺陷复现入口。
+- 形态决策：全部做成**脚本 + reference 内化**，不新建独立 skill——脚本按需执行、reference 按需加载，都不占每次常驻 token，符合"唯一主控 + 项目自包含"。
+- 新增能力：
+  - `scripts/impact_analysis.py`：符号/文件/diff → 引用者 + 建议测试草稿（场景 5/7，S1 影响面）。
+  - `scripts/debt_ledger.py` + `references/04-guards/tech-debt-ledger.md`：技术债标记扫描 + 债指数量化 + 台账字段（S4/S5，进 overview 未完成项）。原 P2「技术债治理」在此落地。
+  - `references/04-guards/contract-migration.md`：接口契约四同步 + DB 迁移可逆性/锁表/兼容清单（场景 6/12，S2/S4）。
+  - `references/04-guards/release-checklist.md` + `scripts/release_notes.py`：版本/CHANGELOG/tag/回滚清单 + conventional commits 生成草稿（场景 12/S5）。
+  - `engineering-debugging.md` 增强「最小复现构造」章节（场景 8）——原 P2 未列，因与已有 debugging skill 重复，选择增强而非新建。
+- 独立 review 完整规则从 SKILL.md 下沉到 `references/04-guards/independent-review.md`，SKILL.md 锁5/铁律8 只留指针。
+- **SKILL.md 瘦身**：20,002 → 11,539 字节（-42%），201 → 115 行；铁律8条/13场景/门禁机制/全部 reference 指针保留，解释性文字（起因/根因/分工细节）下沉到 reference。
+- 挂载同步：README 索引（26→30 份，D 类 6→10）、skill-matrix（阶段矩阵+脚本表）、scenarios（场景 5/6/8/12 + 门禁指针 + 缺口台账法）、overview 模板（技术债字段）。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）
-- 技术债治理（针对已知欠账清单批量处理）
-- 依赖升级 / 迁移（运行时/框架升级 + 废弃 API 排查）
-- 独立 code review（只要分级清单，不进修复）
+- ~~技术债治理~~（🟢 已落地，见上「五项新能力」）
+- 依赖升级 / 迁移（运行时/框架升级 + 废弃 API 排查）—— 部分由 `contract-migration.md` 覆盖
+- 独立 code review（只要分级清单，不进修复——已有 code-quality-review + metago）
 - 会话续接（读 handoff + overview 恢复上下文）
 - 原型 / POC（明确标记丢弃 or 转正式，禁止混入生产）
-- `knowledge-graph-rebuilder`：把 overviews 会话记录做成可查询实体-关系图谱
+- ~~`knowledge-graph-rebuilder`~~（用户已明确放弃，不要复活）
 
 ## 四、激活原则
 

@@ -11,7 +11,7 @@
 
 > 凡有代码改动的场景（1/4/5/6/7/8/13），进入 finish/交付前必须由**全新上下文子代理**跑一次
 > `code-quality-review`（七维 + 接线四问，重点查功能遗漏/功能断点），Blocker 清零才准交付；
-> 执行者 S4 自查不可替代。规则全文见 `SKILL.md`「独立 review 门禁」。只读（9/10）与纯文档（2/3/11）不触发。
+> 执行者 S4 自查不可替代。规则全文见 `references/04-guards/independent-review.md`。只读（9/10）与纯文档（2/3/11）不触发。
 > **机器校验**：交付前跑 `review_gate.py --overview <path>`，核对 overview 的「独立 review 结果」章节 +
 > Blocker 清零结论 + 报告文件真实存在；退出码非 0 禁止 finish。非触发场景用 `--waived` 显式豁免。
 
@@ -108,7 +108,7 @@
 
 - **工程能力链**：`brainstorm`（轻，确认变更范围）→ `plan`（拆变更任务）→ `tdd`（锁行为+实现）→ `review` → `verify` → `finish`。
 - **契约传递**：变更要求→影响面→任务计划→实现→评审→验证证据。
-- **工具**：影响面分析（受影响模块 / 调用链 / 契约）；回归检查清单。
+- **工具**：`scripts/impact_analysis.py --symbols/--files/--diff` 出影响面草稿（引用者 + 建议跑的测试，需人工核实）；graphify 可用时以其精确调用图为准；涉接口改动的加 `references/04-guards/contract-migration.md`；回归检查清单。
 - **禁止**：禁止在未列影响面前改动；禁止破坏既有公共契约（除非规格明确要求）。
 - **下一站**：回归测试全绿 → review → 收尾。
 
@@ -119,7 +119,7 @@
   `review`（逐条核对接线）→ `verify` → `finish`。若接线断裂触发 `debug` 定位。
 - **契约传递**：新设计→差异清单→行为测试→实现→接线核对证据。
 - **工具**：
-  1. 加载 `references/04-guards/architecture-contracts.md`，先做**设计差异清单**：逐条列出"新设计 vs 现状"的契约变化（新增/删除/改签名/改数据流）。
+  1. 加载 `references/04-guards/architecture-contracts.md` 做**设计差异清单**（逐条列"新设计 vs 现状"契约变化）；若差异涉及接口签名或 DB 迁移，加挂 `references/04-guards/contract-migration.md` 核契约四同步与迁移可逆性。
   2. 对每条差异，先写"行为测试"锁定新契约（红），再改实现（绿）。
   3. 改完后按差异清单逐条核对接线（谁调用、谁消费、信号有人接），写入 overview。
 - **禁止**：
@@ -140,8 +140,8 @@
 
 - **工程能力链**：`debug`（4 阶段根因）→ `tdd`（复现测试先红后绿）→ `verify`（原 bug 测试 + 回归）→ `review` → `finish`。
 - **契约传递**：故障现象→根因→复现测试→修复→回归证据。
-- **工具**：根因台账（现象 / 假设 / 证据 / 结论）；回归证据（复现测试先红后绿）。
-- **禁止**：禁止未定位根因就改代码（猜改）；禁止只修表象不加复现测试。
+- **工具**：`engineering-debugging.md` 的**最小复现构造**（issue→缩到最小→写成必红的测试→才追根因）；根因台账（现象/假设/证据/结论）；回归证据（复现测试先红后绿）。
+- **禁止**：禁止未造出可运行的最小复现就猜改；禁止只修表象不加复现测试。
 - **下一站**：复现测试转绿 + 无新回归 → review → 收尾。
 
 ## 场景 9 · 拷问代码 / 设计（纯只读）
@@ -186,8 +186,8 @@
 
 - **路径**：验证路径 —— 跳过新功能设计，S4 全量验证 → S5 交付判定。
 - **工程能力链**：无（只验证，不写新代码）。
-- **本外壳主导**：`preflight.py` → `verify.py --lang <每个语言>` → `scan_gaps.py` → `code-quality-review` + `metago-code-review-deep`（若项目有 gate_check 脚本一并跑）。
-- **出口**：门禁全绿 + 全部证据入 overview，否则**禁止合并/发布**。
+- **本外壳主导**：`preflight.py` → `verify.py --lang <每个语言>` → `scan_gaps.py` → `debt_ledger.py` → `code-quality-review` + `metago-code-review-deep`（若项目有 gate_check 脚本一并跑）。
+- **出口**：门禁全绿 + 全部证据入 overview，否则**禁止合并/发布**。涉及发布时按 `references/04-guards/release-checklist.md` 走版本/CHANGELOG/tag/回滚预案，`scripts/release_notes.py --since <tag>` 出草稿。
 - **禁止**：禁止带 Critical/阻塞项收尾；禁止用"测试大概没问题"代替退出码。
 - **下一站**：全绿 → 交付（合并/开 PR/保留）→ 写 overview + handoff。
 
@@ -217,7 +217,11 @@
 ```bash
 python .agents/skills/conductor/scripts/scan_gaps.py --path src     # 缺口台账草稿
 python .agents/skills/conductor/scripts/verify.py --lang <lang>    # 验证命令退出码
+python .agents/skills/conductor/scripts/debt_ledger.py --path src  # 技术债台账草稿（债指数/热点）
 ```
+
+> 技术债的登记与量化口径见 `references/04-guards/tech-debt-ledger.md`——
+> 债标记 ≠ 已登记，未关闭的债必须进 overview「未完成项」，禁止以"技术债"名义静默放行。
 
 逐条核对（每项需拿证据：文件:行号 / 测试输出 / 覆盖率），拿不出证据不得标完成：
 

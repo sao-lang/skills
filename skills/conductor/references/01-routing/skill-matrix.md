@@ -8,11 +8,11 @@
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
 | S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）、建 overview md | 禁止直接写代码 | 预检完成 + overview 文件已建 |
-| S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站 | 禁止跳过声明 | 路由已向用户声明 |
-| S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
+| S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿 | 禁止跳过声明 | 路由已向用户声明 |
+| S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md`；涉接口/迁移加挂 `references/04-guards/contract-migration.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
 | S3 TDD 实现 | conductor | 读 `references/02-engineering/engineering-tdd.md` + `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules | 无失败测试不写实现 | 红转绿、全量测试绿 |
-| S4 自省补强 | conductor | `scripts/scan_gaps.py` → `scripts/verify.py --lang` → `code-quality-review` + 缺口台账法；拷问代码加挂 `grill-me`；安全核对 `references/04-guards/security-redlines.md`、测试核对 `references/04-guards/test-strategy.md` | 未达标不许进 review | 遗漏/断点/覆盖率/通过率/安全五项达标 |
-| S5 review 收尾 | conductor | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）、解 bug 读 `references/02-engineering/engineering-debugging.md`；深度审查加挂 `metago-code-review-deep`；收尾 `handoff` + 写 overview | Critical 未清零不许收尾 | 全绿 + 交接文档已写 |
+| S4 自省补强 | conductor | `scripts/scan_gaps.py` → `scripts/verify.py --lang` → `code-quality-review` + 缺口台账法；`scripts/debt_ledger.py` 技术债台账；拷问代码加挂 `grill-me`；安全核对 `references/04-guards/security-redlines.md`、测试核对 `references/04-guards/test-strategy.md`、接口/迁移核对 `references/04-guards/contract-migration.md` | 未达标不许进 review | 遗漏/断点/覆盖率/通过率/安全五项达标 |
+| S5 review 收尾 | conductor | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）、解 bug 读 `references/02-engineering/engineering-debugging.md`；独立 review 门禁见 `references/04-guards/independent-review.md`；发版走 `references/04-guards/release-checklist.md` + `scripts/release_notes.py`；深度审查加挂 `metago-code-review-deep`；收尾 `handoff` + 写 overview | Critical 未清零不许收尾 | 全绿 + 交接文档已写 |
 
 ### 确定性脚本（scripts/，非 skill，直接执行）
 
@@ -22,6 +22,9 @@
 | `verify.py` | 执行 `coding-rules-<lang>.md` 的验证命令，汇总退出码为证据 | `python scripts/verify.py --lang <lang>` |
 | `scan_gaps.py` | 扫 TODO/pass/fake/协议无实现/install 无调用，生成缺口台账草稿 | `python scripts/scan_gaps.py --path src` |
 | `review_gate.py` | 校验 overview 的独立 review 证据（章节/Blocker 清零/报告文件真实存在），防"声称审查但无证据" | `python scripts/review_gate.py --overview <path>`；非改码场景加 `--waived --waiver-reason "<理由>"` |
+| `impact_analysis.py` | 变更影响分析：从符号/改动文件/stdin diff 找引用者与建议跑的测试，辅助迭代/重构的影响面评估 | `python scripts/impact_analysis.py --symbols Foo,bar` / `--files src/a.py` / 管道 `--diff` |
+| `debt_ledger.py` | 技术债台账：扫 TODO/FIXME/HACK 等标记，算债指数与热点文件，出草稿 | `python scripts/debt_ledger.py --path src`；`--format json`；`--fail-over <N>` 卡口 |
+| `release_notes.py` | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python scripts/release_notes.py --since <tag> --repo <path>` |
 
 ## 2. Skill 清单与仓库地址
 

@@ -58,6 +58,7 @@ overviews/
 - 覆盖率：<X%>（阈值 <Y%>）
 - Linter / Formatter / Type：<命令> — 退出码 0 / 非 0
 - 缺口台账：功能遗漏 □ / 功能断点 □ / 覆盖盲区 □（各附证据）
+- 技术债：债指数 <N>（debt_ledger.py）/ 未关闭项数 <N>（详见 `.debts.md` 或 L1）
 - Code review：<Critical/Major/Minor 数>
 ### 未完成项与下一步（完整）
 - <...>
