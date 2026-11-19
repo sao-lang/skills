@@ -99,10 +99,9 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 2. 无失败测试不算实现。
 3. 自省未过不进 review。
 4. 拿不出证据（测试行号 / linter 退出码 / 覆盖率）不得标完成。
-5. 禁魔法字符串：语义字符串一律用枚举或具名常量（见 common 规则 §2）。
-6. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
-7. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落，退出码非 0，禁止进 review、禁止标完成。
-8. 改码场景交付前必经独立 review：全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；`review_gate.py` 机器校验证据，退出码非 0 禁止交付（见 `independent-review.md`）。
+5. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
+6. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落，退出码非 0，禁止进 review、禁止标完成。
+7. 改码场景交付前必经独立 review：全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；`review_gate.py` 机器校验证据，退出码非 0 禁止交付（见 `independent-review.md`）。
 
 ## 会话记录（overviews）
 
