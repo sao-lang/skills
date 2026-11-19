@@ -1,6 +1,6 @@
 # conductor references 索引
 
-> 25 份知识文档（含本索引），按需加载（渐进式披露）。本索引回答"什么情况读哪份"。
+> 26 份知识文档（含本索引），按需加载（渐进式披露）。本索引回答"什么情况读哪份"。
 > 加载纪律：只在本表指定的阶段/触发条件下读对应文件，不要一次性全读。
 
 ## 目录结构（物理归类）
@@ -10,7 +10,7 @@ references/
 ├── 01-routing/       A 类：流程与路由（5 份）
 ├── 02-engineering/   B 类：工程纪律（5 份）
 ├── 03-coding-rules/  C 类：编码规则（8 份：common + 7 语言）
-├── 04-guards/        D 类：规则与门禁（5 份）
+├── 04-guards/        D 类：规则与门禁（6 份）
 └── 05-meta/          E 类：本索引 + roadmap（2 份）
 ```
 
@@ -51,6 +51,7 @@ references/
 | 文件 | 何时读 | 职责 |
 |---|---|---|
 | `references/04-guards/examples-to-spec.md` | 用户举例/参考 X 那样/改这里时 | 样例→完整规格：归纳意图→6 维外推→分类确认→落地核对 |
+| `references/04-guards/design-spec-template.md` | S2 写设计规格时（场景 1/2/3/4） | 规格模板：设计意图+技术栈+架构五要素+Approaches+未决清单+定稿自检 |
 | `references/04-guards/git-commit-rules.md` | S3 绿后 / S5 提交前 | commit 时机、message 格式、暂存纪律（禁 add -A）、红线、检查清单 |
 | `references/04-guards/security-redlines.md` | S4 安全核对 / 涉及密钥注入时 | 密钥脱敏、不可信输入 fail-closed、危险路由、成本闸门 |
 | `references/04-guards/test-strategy.md` | S4 / 测试相关场景 | 测试金字塔、Mock 边界、覆盖率达标口径、假绿识别 |

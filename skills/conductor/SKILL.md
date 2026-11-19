@@ -48,7 +48,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 详细步骤见 `references/01-routing/scenarios.md`（十三场景）。路径与阶段的对应关系见下节矩阵。
 
-> **references 导航**：25 份知识文档的"何时读哪份"索引见 `references/05-meta/README.md`（按流程/工程纪律/编码规则/门禁/元信息分五类）——
+> **references 导航**：26 份知识文档的"何时读哪份"索引见 `references/05-meta/README.md`（按流程/工程纪律/编码规则/门禁/元信息分五类）——
 > 不要一次性全读，按索引指定的阶段与触发条件渐进加载。
 
 ## 阶段 → skill 加载矩阵
@@ -59,7 +59,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 |---|---|---|
 | S0 会话开始 | 本 skill | `scripts/preflight.py` 预检依赖 → **确认加载 `handoff` 并调用** → 建 overview md |
 | S1 场景路由 | 本 skill | 按 `references/01-routing/routing.md` 规划执行图 + 声明 skill 组 + 禁止项 + 下一站；**识别样例触发信号**（用户举例/参考X那样），命中则声明启用 `references/04-guards/examples-to-spec.md` |
-| S2 设计计划 | 本 skill | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构类加 `architecture-contracts`；**按 `references/04-guards/examples-to-spec.md` 四步法补全样例外覆盖** |
+| S2 设计计划 | 本 skill | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；**写规格用 `references/04-guards/design-spec-template.md`（设计意图/技术栈/架构/Approaches/未决清单）**；拷问设计加挂 `grill-design`；架构类加 `architecture-contracts`；**按 `references/04-guards/examples-to-spec.md` 四步法补全样例外覆盖** |
 | S3 TDD 实现 | 本 skill | 读 `references/02-engineering/engineering-tdd.md`（RED-GREEN-REFACTOR）+ `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules；**按补全清单核关联项/同模式代码**；每个绿循环按 `references/04-guards/git-commit-rules.md` 提交 |
 | S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码 → `code-quality-review`；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据** |
 | S4 分析（只读变体） | 本 skill | `graphify` / `scan_gaps.py` / review，**不跑 verify**（无代码改动可验） |
