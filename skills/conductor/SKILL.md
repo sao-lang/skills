@@ -61,7 +61,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 | S1 场景路由 | 本 skill | 按 `references/01-routing/routing.md` 规划执行图 + 声明 skill 组 + 禁止项 + 下一站；**识别样例触发信号**（用户举例/参考X那样），命中则声明启用 `references/04-guards/examples-to-spec.md` |
 | S2 设计计划 | 本 skill | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；**写规格用 `references/04-guards/design-spec-template.md`（设计意图/技术栈/架构/Approaches/未决清单）**；拷问设计加挂 `grill-design`；架构类加 `architecture-contracts`；**按 `references/04-guards/examples-to-spec.md` 四步法补全样例外覆盖** |
 | S3 TDD 实现 | 本 skill | 读 `references/02-engineering/engineering-tdd.md`（RED-GREEN-REFACTOR）+ `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules；**按补全清单核关联项/同模式代码**；每个绿循环按 `references/04-guards/git-commit-rules.md` 提交 |
-| S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码 → `code-quality-review`；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据** |
+| S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码（**内置 coverage-gate：无覆盖率命令直接 FAIL；只认 verify.py 输出为测试证据，手跑裸 pytest/vitest 不算**，见 `test-strategy.md` §5）→ `code-quality-review`；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据** |
 | S4 分析（只读变体） | 本 skill | `graphify` / `scan_gaps.py` / review，**不跑 verify**（无代码改动可验） |
 | S5 review 收尾 | 本 skill | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）；解 bug 读 `references/02-engineering/engineering-debugging.md`；深度审查加挂 `metago-code-review-deep`；按 `references/04-guards/git-commit-rules.md` 提交；收尾 `handoff` + 写 overview |
 
@@ -140,6 +140,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 4. 拿不出证据（测试行号 / linter 退出码 / 覆盖率）不得标完成。
 5. 禁魔法字符串：语义字符串一律用枚举或具名常量（见 common 规则 §2）。
 6. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
+7. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落（命令行或配置），退出码非 0，禁止进 review、禁止标完成。
 
 ## 会话记录（overviews）
 

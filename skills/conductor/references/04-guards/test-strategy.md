@@ -42,10 +42,15 @@
 - 只测正常路径，不测失败/边界/异常折叠。
 - 测试依赖真实时间/网络/随机，结果不稳定（flaky）。
 
-## 5. 按语言常用命令
+## 5. 按语言常用命令（唯一证据来源：verify.py）
 
-见各 `coding-rules-<lang>.md` 的"验证命令"一节，统一由 `verify.py --lang <lang>` 执行。
-本质要求：**覆盖率命令必须带阈值参数**（如 `--cov-fail-under=80`），否则不算门禁。
+见各 `coding-rules-<lang>.md` 的"验证命令"一节，**必须由 `verify.py --lang <lang>` 统一执行**。
+
+**硬纪律（防止"裸跑冒充达标"）**：
+- **只认可 `verify.py` 的输出作为 S4 测试证据**——AI 手跑的裸命令（`pytest -q`、`vitest run`、`go test` 不含覆盖率）不算门禁证据，即使全绿也不得写进 overview 的"验证结果"。
+- `verify.py` 内置 coverage-gate：命令集里没有覆盖率命令直接 FAIL、退出码非 0。裸跑测试过不了这关。
+- **覆盖率阈值二选一**：命令行参数（如 `pytest --cov-fail-under=80`、`cargo llvm-cov --fail-under-lines 80`）**或**项目配置（vitest.config 的 `thresholds`、`coverage.py` 的 `fail_under`、CI 脚本）。配置式阈值必须在本台账里写明配置文件与阈值行号，拿不出即视为未达标。
+- 本项目踩过的坑：M04 落地时 AI 手跑 `pytest -q` 得到 144 passed 就宣称自省完成，未跑覆盖率——规则文件里的 `pytest --cov=src --cov-fail-under=80` 被绕过。上述纪律即为堵此漏洞。
 
 ## 6. 使用方式
 

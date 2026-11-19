@@ -43,5 +43,5 @@ range over int / func（1.22）、`min`/`max`/`clear` 内置、泛型、`errors.
 gofmt -l .                         # 格式（有输出即失败）
 go vet ./...                       # 静态检查
 staticcheck ./...                  # lint
-go test ./... -cover               # 测试 + 覆盖率
+go test ./... -coverprofile=coverage.out   # 测试 + 覆盖率（阈值在项目脚本/CI 固化，见 test-strategy.md）
 ```

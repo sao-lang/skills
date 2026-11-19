@@ -44,5 +44,6 @@ pub fn reserve(&mut self, estimated_cost: f64) -> Result<Reservation, BudgetErro
 cargo fmt --check                  # 格式
 cargo clippy -- -D warnings        # lint（警告即失败）
 cargo check                        # 类型
-cargo test --all-features          # 测试
+cargo test --all-features          # 测试（需配 tarpaulin/cargo-llvm-cov 覆盖率，见下）
+cargo llvm-cov --all-features --fail-under-lines 80   # 覆盖率 ≥80 门禁（需 cargo install cargo-llvm-cov）
 ```

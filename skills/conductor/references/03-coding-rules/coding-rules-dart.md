@@ -42,6 +42,5 @@ records、patterns / destructuring、sealed class、`extension` type（3.3）、
 ```bash
 dart format --set-exit-if-changed .  # 格式（有变更即失败）
 dart analyze                         # 静态 + lint
-dart test                            # 测试
-# Flutter 项目追加：flutter test --coverage
+dart test --coverage=coverage        # 测试 + 覆盖率（Flutter 用 flutter test --coverage；阈值在项目脚本/CI 固化）
 ```

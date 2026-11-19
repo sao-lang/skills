@@ -4,7 +4,11 @@
 用途：conductor 的 S4 自省阶段。把"AI 声称遵守规则"变成"工具退出码为证据"。
 输出可直接贴进 overview 的"验证结果"一节。
 
-退出码：0 = 全部命令通过；1 = 有失败或命令缺失。
+覆盖率门禁：命令集里必须存在带覆盖率的测试命令（pytest --cov / vitest --coverage /
+go test -coverprofile 等），只跑裸测试不算 S4 证据——拦截"测试全绿冒充覆盖率达标"。
+阈值可由命令参数或项目配置提供，配置式阈值需在 test-strategy.md 的人工台账里核对。
+
+退出码：0 = 全部命令通过且覆盖率门禁通过；1 = 有失败 / 命令缺失 / 未跑覆盖率。
 """
 from __future__ import annotations
 
@@ -20,6 +24,11 @@ from pathlib import Path
 REFS = Path(__file__).resolve().parents[1] / "references" / "03-coding-rules"
 LANGS = ("python", "typescript", "react", "vue", "go", "rust", "dart")
 
+# 覆盖率门禁：每门语言必须有一条"测试 + 覆盖率"命令，且带阈值参数。
+# 只跑裸测试（pytest -q / go test / vitest run 无覆盖率）不算 S4 验证证据。
+COVERAGE_SIGNALS = ("--cov", "--coverage", "-cover", "llvm-cov", "coverage=coverage")
+THRESHOLD_SIGNALS = ("--cov-fail-under", "fail-under", "threshold", "min=", "coverage-min")
+
 
 @dataclass(frozen=True)
 class Result:
@@ -27,6 +36,30 @@ class Result:
     code: int
     ok: bool
     note: str = ""
+
+
+def coverage_gate(cmds: list[str]) -> tuple[bool, str]:
+    """覆盖率门禁：验证命令集里必须存在'测试 + 覆盖率'命令。
+
+    拦截 S4 最常见的偷懒：只跑裸 pytest -q / vitest run / go test，
+    拿'测试全绿'冒充覆盖率达标。阈值可由命令参数（--cov-fail-under /
+    --fail-under）或项目配置（vitest.config 的 thresholds 等）提供——
+    本检查只强制"跑了覆盖率"，阈值来源的核对交给 test-strategy.md 的人工台账。
+    """
+    coverage_cmds = [c for c in cmds if any(s in c.lower() for s in COVERAGE_SIGNALS)]
+    if not coverage_cmds:
+        return False, (
+            "未发现任何覆盖率命令。裸跑测试不算 S4 验证证据——"
+            "必须用带覆盖率的命令（如 pytest --cov / vitest --coverage / "
+            "go test -coverprofile）并重跑，或显式登记豁免理由。"
+        )
+    with_threshold = [c for c in coverage_cmds if any(s in c.lower() for s in THRESHOLD_SIGNALS)]
+    detail = f"检出 {len(coverage_cmds)} 条覆盖率命令"
+    if with_threshold:
+        detail += f"，其中 {len(with_threshold)} 条命令行自带阈值参数"
+    else:
+        detail += "；均未带命令行阈值，须确认阈值已在项目配置中固化（见 test-strategy.md）"
+    return True, detail
 
 
 def extract_commands(md: Path) -> list[str]:
@@ -81,6 +114,10 @@ def main() -> int:
 
     cwd = Path(args.cwd).resolve()
     print(f"# 验证结果 · {args.lang}（{cwd}）\n")
+
+    gate_ok, gate_note = coverage_gate(cmds)
+    print(f"- [{'PASS' if gate_ok else 'FAIL'}] coverage-gate — {gate_note}")
+
     results = [run_one(c, cwd, args.timeout) for c in cmds]
     for r in results:
         mark = "PASS" if r.ok else "FAIL"
@@ -88,7 +125,7 @@ def main() -> int:
     passed = sum(1 for r in results if r.ok)
     print(f"\n小结：{passed}/{len(results)} 通过。")
     print("> 退出码为客观证据；非 0 项禁止进 review、禁止标完成。")
-    return 0 if all(r.ok for r in results) else 1
+    return 0 if gate_ok and all(r.ok for r in results) else 1
 
 
 if __name__ == "__main__":
