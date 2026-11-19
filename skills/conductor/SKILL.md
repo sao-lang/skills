@@ -61,9 +61,9 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 | S1 场景路由 | 本 skill | 按 `references/01-routing/routing.md` 规划执行图 + 声明 skill 组 + 禁止项 + 下一站；**识别样例触发信号**（用户举例/参考X那样），命中则声明启用 `references/04-guards/examples-to-spec.md` |
 | S2 设计计划 | 本 skill | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；**写规格用 `references/04-guards/design-spec-template.md`（设计意图/技术栈/架构/Approaches/未决清单）**；拷问设计加挂 `grill-design`；架构类加 `architecture-contracts`；**按 `references/04-guards/examples-to-spec.md` 四步法补全样例外覆盖** |
 | S3 TDD 实现 | 本 skill | 读 `references/02-engineering/engineering-tdd.md`（RED-GREEN-REFACTOR）+ `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules；**按补全清单核关联项/同模式代码**；每个绿循环按 `references/04-guards/git-commit-rules.md` 提交 |
-| S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码（**内置 coverage-gate：无覆盖率命令直接 FAIL；只认 verify.py 输出为测试证据，手跑裸 pytest/vitest 不算**，见 `test-strategy.md` §5）→ `code-quality-review`；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据** |
-| S4 分析（只读变体） | 本 skill | `graphify` / `scan_gaps.py` / review，**不跑 verify**（无代码改动可验） |
-| S5 review 收尾 | 本 skill | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）；解 bug 读 `references/02-engineering/engineering-debugging.md`；深度审查加挂 `metago-code-review-deep`；按 `references/04-guards/git-commit-rules.md` 提交；收尾 `handoff` + 写 overview |
+| S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码（**内置 coverage-gate：无覆盖率命令直接 FAIL；只认 verify.py 输出为测试证据，手跑裸 pytest/vitest 不算**，见 `test-strategy.md` §5）；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据**。**本阶段的自省是执行者自查（L1/L2），不可替代 S5 的独立 review** |
+| S4 分析（只读变体） | 本 skill | `graphify` / `scan_gaps.py` / review，**不跑 verify**（无代码改动可验），**不触发独立 review 门禁** |
+| S5 review 收尾 | 本 skill | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）；解 bug 读 `references/02-engineering/engineering-debugging.md`；**所有改码场景交付前必经：派全新上下文子代理跑 `code-quality-review`（独立自省门禁，见下「独立 review 门禁」）；阻塞项未清零禁止 finish**；深度审查加挂 `metago-code-review-deep`；按 `references/04-guards/git-commit-rules.md` 提交；收尾 `handoff` + 写 overview |
 
 确定性脚本（scripts/，非 skill）：`preflight.py`（依赖预检）、`verify.py --lang <lang>`（验证命令汇总）、`scan_gaps.py`（缺口台账草稿）。脚本输出即证据，直接写入 overview。
 
@@ -82,7 +82,10 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 | 改码 | 1/4/5/6/7/8 | ✓ | ✓ | ✓ | ✓ | 改码变体 | ✓ |
 | 只读 | 9/10 | ✓ | ✓ | — | — | 只读变体 | —（写 overview 后结束） |
 | 文档 | 2/3/11 | ✓ | ✓ | 核差异 | S3' 只改文档 | 核签名 | ✓ |
-| 验证 | 12/13 | ✓ | ✓ | — | 13 补测试 / 12 跳过 | ✓ | ✓ |
+| 验证 | 12/13 | ✓ | ✓ | — | 13 补测试 / 12 跳过 | ✓ | ✓（含独立 review 门禁） |
+
+> S5 的 ✓ 对所有**有代码改动**的场景（改码路径 1/4/5/6/7/8 + 13）都含「独立 review 门禁」（见下），
+> 由全新上下文子代理执行；只读路径 9/10 与纯文档路径 2/3/11 不触发。
 
 **只读出口**：只读路径的出口是"发现清单 / 代码地图 / 证据台账已交付且可追溯"，**不是"测试全绿"**。禁止对无代码改动的场景套用"未达标不许进 review"的门禁，否则空转。
 
@@ -113,6 +116,42 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 例外必须显式声明并记入 overview（如生成代码、第三方文件、vendor 边界），禁止以"技术债"名义静默放行。
 
+## 独立 review 门禁（改码场景交付前必经）
+
+> 起因：项目反复出现"coding 收尾时自查说通过、用户单独叫一次自省却查出重大问题"。
+> 根因是 S4 的自省由**写代码的执行者本人**完成（运动员当裁判），有确认偏误、只看 L1 信号。
+> 本门禁把"交付前的深度自省"从执行者自查中剥离，交给**独立上下文**，从机制上堵住。
+
+- **锁 5 · 交付前独立 review**：凡涉及代码改动的场景，**finish/交付前必须由独立子代理跑一次 `code-quality-review`**；阻塞项（Blocker/Critical）未清零，禁止 finish、禁止标完成、禁止交付给用户。
+
+### 触发范围（按"有无代码改动"判定，不按场景名）
+
+| 触发 | 场景 | 说明 |
+|---|---|---|
+| ✅ 必须 | 1 初始化 / 4 开发 / 5 迭代 / 6 设计驱动重构 / 7 重构 / 8 解 bug | 改码路径，全部触发 |
+| ✅ 必须 | 13 测试补课 | 写了测试代码，触发 |
+| ✅ 已含 | 12 门禁验收 | 本就含全套 review，不重复派单但阻塞项必须清零 |
+| ❌ 不触发 | 9 拷问 / 10 代码库理解 | 只读，无代码改动 |
+| ❌ 不触发 | 2 架构设计 / 3 补充设计 / 11 文档同步 | 纯文档产出，无生产代码改动 |
+
+### 执行方式（独立性是硬要求）
+
+1. **派全新上下文子代理**：不带 coding 会话历史，只给它——(a) 设计规格 / 任务 brief 的路径（意图源），(b) 改动文件清单或 diff（`git diff <base>..HEAD`），(c) 报告写回路径。**禁止让写代码的执行者自己审自己**。
+2. **七维扫描**：按 `code-quality-review` 的七维（正确性/错误处理/并发/资源/性能/安全/可维护性）+ 接线四问（`architecture-contracts.md`）审；重点看**功能遗漏与功能断点**（L3），不只是代码风格。
+3. **分级输出**：Blocker / Should / Nit（Nit ≤3），每条带 `文件:行号` + 后果 + 改法，写到 overview 的「独立 review 结果」一节。
+
+### 通过标准与失败处理
+
+- **通过**：Blocker = 0 → 可进入 finish。Should 建议修，Nit 可留。
+- **失败**：有任一 Blocker → 触发 fix loop：主代理把 finding 交给执行者修（守 surgical changes），改完回到 S3 的验证步骤确认仍绿，**再派一次全新子代理复审**（禁止用同一份 review 报告复用作废结论）；直至 Blocker 清零或按轮次上限裁决并记入 overview。
+- **证据**：overview 必须留——子代理的 review 报告路径 + Blocker 清零结论 + 每轮 fix 的行号证据。拿不出 = 门禁未过。
+
+### 与 S4 自查的分工（不要混淆）
+
+- S4 自查（执行者）：跑脚本、拿退出码、缺口台账草稿、覆盖率证据——**快、机械、L1/L2**。
+- S5 独立 review（子代理）：契约映射、接线、功能遗漏/断点、七维深审——**慢、独立、L3**。
+- 两者**都要做，不可互相替代**。S4 过了不代表 S5 可省；S5 是交付前的最后一道独立闸门。
+
 ## 代码理解工具（graphify）
 
 场景 10（代码库理解）与场景 9（拷问）用 `graphify` 替代 grep/read 循环——本地 tree-sitter 建图，查询默认卡 2000 token，边标 `EXTRACTED`/`INFERRED` 可追溯。
@@ -141,6 +180,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 5. 禁魔法字符串：语义字符串一律用枚举或具名常量（见 common 规则 §2）。
 6. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
 7. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落（命令行或配置），退出码非 0，禁止进 review、禁止标完成。
+8. 改码场景交付前必经独立 review：由全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；执行者自查（S4）不可替代（见「独立 review 门禁」）。
 
 ## 会话记录（overviews）
 

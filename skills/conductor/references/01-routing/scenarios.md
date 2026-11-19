@@ -7,6 +7,12 @@
 > 方法论详情见 `engineering-{workflow,tdd,debugging,code-review}.md`。
 > 能力名是流程节点，不是外部 skill——不再加载任何外部流程 skill。
 
+## 交付前独立 review 门禁（所有改码场景必做）
+
+> 凡有代码改动的场景（1/4/5/6/7/8/13），进入 finish/交付前必须由**全新上下文子代理**跑一次
+> `code-quality-review`（七维 + 接线四问，重点查功能遗漏/功能断点），Blocker 清零才准交付；
+> 执行者 S4 自查不可替代。规则全文见 `SKILL.md`「独立 review 门禁」。只读（9/10）与纯文档（2/3/11）不触发。
+
 ## 通用前置（所有场景必做）
 
 1. 依赖预检：运行 `python .agents/skills/conductor/scripts/preflight.py --project-root .`，缺失项先解决或显式登记例外。
