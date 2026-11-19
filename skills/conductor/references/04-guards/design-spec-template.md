@@ -2,8 +2,8 @@
 
 > 用途：conductor 场景 1/2/3/4 的 `brainstorm` 产出物，也是 S2 `plan` 的 `Spec:` 输入——
 > **规格与计划同行**，计划里的每条任务都要能指回本规格的一条编号要求。
-> 纪律来源：`engineering-workflow.md`（Approaches 必备）、`scenarios.md` 场景 2（架构五要素）、
-> `architecture-contracts.md`（分层与接线四问）、`examples-to-spec.md`（样例之外覆盖）、
+> 纪律来源：`references/02-engineering/engineering-workflow.md`（Approaches 必备）、`references/01-routing/scenarios.md` 场景 2（架构五要素）、
+> `references/04-guards/architecture-contracts.md`（分层与接线四问）、`references/04-guards/examples-to-spec.md`（样例之外覆盖）、
 > `grill-design`（设计树拷问，每分支必须有结论）。
 >
 > **规模裁剪**：精简版用 §1/2/3/5/6/10/12；项目级用全节（§8 各子项按涉及程度填，不涉及写"不涉及"）。
@@ -169,9 +169,9 @@
 
 ## §11 约束与红线
 
-- 安全：密钥脱敏、不可信输入 fail-closed、危险路由、成本闸门（引用 `security-redlines.md`）。
+- 安全：密钥脱敏、不可信输入 fail-closed、危险路由、成本闸门（引用 `references/04-guards/security-redlines.md`）。
 - 兼容：既有公共契约不得破坏（除非规格明确要求）。
-- 测试策略：行为测试覆盖到哪一层，覆盖率口径（引用 `test-strategy.md`）。
+- 测试策略：行为测试覆盖到哪一层，覆盖率口径（引用 `references/04-guards/test-strategy.md`）。
 
 ## §12 验收标准与证据
 
@@ -193,7 +193,7 @@
 
 ## §14 下游交接
 
-- 下一场景：补充设计 / 项目开发 / 设计驱动重构（见 `scenarios.md` 场景 2 的下一站）。
+- 下一场景：补充设计 / 项目开发 / 设计驱动重构（见 `references/01-routing/scenarios.md` 场景 2 的下一站）。
 - 计划头 `Spec:` 应指向本文件路径。
 - 本规格的未决清单若未清空 → 拷问（`grill-design`）先解决，禁止带洞进写代码。
 

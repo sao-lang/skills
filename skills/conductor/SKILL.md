@@ -57,11 +57,11 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 | 阶段 | 主控 | 加载 / 调用 |
 |---|---|---|
-| S0 会话开始 | 本 skill | `scripts/preflight.py` 预检依赖 → **确认加载 `handoff` 并调用** → 建 overview md；**续接旧会话时按 `overview.md` 的分层加载协议：先只读最近 overview 的 L0 索引卡（~10 行），需要细节再按路径读 L1/L2，禁止一上来全量加载整份 overview（省 token）** |
+| S0 会话开始 | 本 skill | `scripts/preflight.py` 预检依赖 → **确认加载 `handoff` 并调用** → 建 overview md；**续接旧会话时按 `references/01-routing/overview.md` 的分层加载协议：先只读最近 overview 的 L0 索引卡（~10 行），需要细节再按路径读 L1/L2，禁止一上来全量加载整份 overview（省 token）** |
 | S1 场景路由 | 本 skill | 按 `references/01-routing/routing.md` 规划执行图 + 声明 skill 组 + 禁止项 + 下一站；**识别样例触发信号**（用户举例/参考X那样），命中则声明启用 `references/04-guards/examples-to-spec.md` |
 | S2 设计计划 | 本 skill | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；**写规格用 `references/04-guards/design-spec-template.md`（设计意图/技术栈/架构/Approaches/未决清单）**；拷问设计加挂 `grill-design`；架构类加 `architecture-contracts`；**按 `references/04-guards/examples-to-spec.md` 四步法补全样例外覆盖** |
 | S3 TDD 实现 | 本 skill | 读 `references/02-engineering/engineering-tdd.md`（RED-GREEN-REFACTOR）+ `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules；**按补全清单核关联项/同模式代码**；每个绿循环按 `references/04-guards/git-commit-rules.md` 提交 |
-| S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码（**内置 coverage-gate：无覆盖率命令直接 FAIL；只认 verify.py 输出为测试证据，手跑裸 pytest/vitest 不算**，见 `test-strategy.md` §5）；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据**。**本阶段的自省是执行者自查（L1/L2），不可替代 S5 的独立 review** |
+| S4 自省补强（改码变体） | 本 skill | `scripts/scan_gaps.py` 生成台账 → `scripts/verify.py` 拿退出码（**内置 coverage-gate：无覆盖率命令直接 FAIL；只认 verify.py 输出为测试证据，手跑裸 pytest/vitest 不算**，见 `references/04-guards/test-strategy.md` §5）；拷问代码加挂 `grill-me`；**核对样例补全项是否都落地且有证据**。**本阶段的自省是执行者自查（L1/L2），不可替代 S5 的独立 review** |
 | S4 分析（只读变体） | 本 skill | `graphify` / `scan_gaps.py` / review，**不跑 verify**（无代码改动可验），**不触发独立 review 门禁** |
 | S5 review 收尾 | 本 skill | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）；解 bug 读 `references/02-engineering/engineering-debugging.md`；**所有改码场景交付前必经：派全新上下文子代理跑 `code-quality-review`（独立自省门禁，见下「独立 review 门禁」）；阻塞项未清零禁止 finish；并跑 `review_gate.py --overview <path>` 机器校验证据，退出码非 0 禁止 finish（非改码场景加 --waived）**；深度审查加挂 `metago-code-review-deep`；按 `references/04-guards/git-commit-rules.md` 提交；收尾 `handoff` + 写 overview |
 
@@ -98,7 +98,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 3. 工程纪律（`references/02-engineering/engineering-tdd.md`）与规则**正交**：前者管"先写测试再写实现"，规则管"实现写成什么样"，两者同时遵守。
 4. S4 是本 skill 真正"用"规则的环节：跑验证命令拿退出码。
 
-规则文件：`references/03-coding-rules/coding-rules-common.md` + `references/coding-rules-{python,typescript,react,vue,go,rust,dart}.md`。
+规则文件：`references/03-coding-rules/coding-rules-common.md` + `references/03-coding-rules/coding-rules-{python,typescript,react,vue,go,rust,dart}.md`。
 
 **样例补全规则**（`references/04-guards/examples-to-spec.md`）同属知识文档：用户举例只覆盖部分时，
 按"归纳意图→推导覆盖面→分类确认→落地核对"四步补全，防止"用户举 3 个就只做 3 个"。
@@ -137,7 +137,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 ### 执行方式（独立性是硬要求）
 
 1. **派全新上下文子代理**：不带 coding 会话历史，只给它——(a) 设计规格 / 任务 brief 的路径（意图源），(b) 改动文件清单或 diff（`git diff <base>..HEAD`），(c) 报告写回路径。**禁止让写代码的执行者自己审自己**。
-2. **七维扫描**：按 `code-quality-review` 的七维（正确性/错误处理/并发/资源/性能/安全/可维护性）+ 接线四问（`architecture-contracts.md`）审；重点看**功能遗漏与功能断点**（L3），不只是代码风格。
+2. **七维扫描**：按 `code-quality-review` 的七维（正确性/错误处理/并发/资源/性能/安全/可维护性）+ 接线四问（`references/04-guards/architecture-contracts.md`）审；重点看**功能遗漏与功能断点**（L3），不只是代码风格。
 3. **分级输出**：Blocker / Should / Nit（Nit ≤3），每条带 `文件:行号` + 后果 + 改法，写到 overview 的「独立 review 结果」一节。
 
 ### 通过标准与失败处理

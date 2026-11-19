@@ -147,7 +147,7 @@
 ### review_gate.py 机器强制独立 review（🟢 已激活 2026-11-19）
 - 背景：独立 review 门禁虽写入 SKILL.md，但仍是纪律门禁靠自觉；用户多次观察到 AI 跳过步骤。
 - 方案：新增 `scripts/review_gate.py --overview <path>`，机器校验 overview 的「独立 review 结果」章节 + Blocker 清零结论 + 报告路径引用 + 报告文件真实存在（防假证据）；非改码场景 `--waived` 显式豁免。退出码非 0 禁止 finish。
-- 已写入：`SKILL.md`（脚本清单/S5/独立review门禁小节/铁律8）、`skill-matrix.md`（脚本表）、`scenarios.md`（门禁总述）。5 组测试覆盖（无章节/无结论/报告不存在/完整/豁免）全通过。
+- 已写入：`SKILL.md`（脚本清单/S5/独立review门禁小节/铁律8）、`references/01-routing/skill-matrix.md`（脚本表）、`references/01-routing/scenarios.md`（门禁总述）。5 组测试覆盖（无章节/无结论/报告不存在/完整/豁免）全通过。
 
 ### overview 分层加载（🟢 已激活 2026-11-19）
 - 背景：实际 overview 半天从 91 行涨到 183 行 / 21.7KB，全量加载浪费 token；规范要求"引用不复制"却未执行，完整 review 报告被抄进主文件。
