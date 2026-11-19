@@ -15,6 +15,7 @@
 - 定位：治本项目 G07/G13/G15 类"文档-代码不一致"；加载 `grill-design` + `architecture-contracts`。
 - 产出：文档-代码差异清单逐条勾销，拿行号证据。
 - 已写入：同上三处。
+- 2026-11-19 扩展：场景 11 更名「文档/注释同步」，覆盖代码内注释/docstring 补全与修订（不改行为→不触发 TDD 与独立 review 门禁）；同步更新 SKILL.md 场景表、scenarios.md I/O 契约表与场景 11、routing.md 锚点表与消歧条款。
 
 ### 场景 12 · 门禁验收 / 发布（验证路径）
 - 定位：独立化散落在 S5 的门禁；加载 preflight + verify + scan_gaps + review 全套。

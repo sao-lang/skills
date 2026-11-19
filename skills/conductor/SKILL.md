@@ -42,7 +42,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 | 解 bug | systematic-debugging → TDD 复现 → review | 根因台账、回归证据 |
 | 拷问代码/设计 | 不跑工程阶段（纯只读） | grill-design / grill-me / code-quality-review，出清单不改码 |
 | 代码库理解 | 不跑工程阶段（纯只读） | `graphify` 查图 + scan_gaps + architecture-contracts，出代码地图/调用链 |
-| 文档同步 | 局部（只核差异，不跑代码 TDD） | grill-design + architecture-contracts，出文档-代码差异清单 |
+| 文档/注释同步 | 局部（只核差异，不跑代码 TDD） | grill-design + architecture-contracts，出文档/注释-代码差异清单；含代码内注释/docstring 补全与修订 |
 | 门禁验收/发布 | 不跑工程阶段（只验证） | preflight + verify + scan_gaps + review 全套，出门禁报告 |
 | 测试补课 | TDD 变体（只补测试，不写新实现） | references/04-guards/test-strategy.md，出新增测试 + 覆盖率证据 |
 
