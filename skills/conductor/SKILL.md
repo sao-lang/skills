@@ -57,7 +57,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 | 阶段 | 主控 | 加载 / 调用 |
 |---|---|---|
-| S0 会话开始 | 本 skill | `scripts/preflight.py` 预检依赖 → **确认加载 `handoff` 并调用** → 建 overview md |
+| S0 会话开始 | 本 skill | `scripts/preflight.py` 预检依赖 → **确认加载 `handoff` 并调用** → 建 overview md；**续接旧会话时按 `overview.md` 的分层加载协议：先只读最近 overview 的 L0 索引卡（~10 行），需要细节再按路径读 L1/L2，禁止一上来全量加载整份 overview（省 token）** |
 | S1 场景路由 | 本 skill | 按 `references/01-routing/routing.md` 规划执行图 + 声明 skill 组 + 禁止项 + 下一站；**识别样例触发信号**（用户举例/参考X那样），命中则声明启用 `references/04-guards/examples-to-spec.md` |
 | S2 设计计划 | 本 skill | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；**写规格用 `references/04-guards/design-spec-template.md`（设计意图/技术栈/架构/Approaches/未决清单）**；拷问设计加挂 `grill-design`；架构类加 `architecture-contracts`；**按 `references/04-guards/examples-to-spec.md` 四步法补全样例外覆盖** |
 | S3 TDD 实现 | 本 skill | 读 `references/02-engineering/engineering-tdd.md`（RED-GREEN-REFACTOR）+ `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules；**按补全清单核关联项/同模式代码**；每个绿循环按 `references/04-guards/git-commit-rules.md` 提交 |
@@ -185,6 +185,8 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 ## 会话记录（overviews）
 
 每轮会话一个 md，按日期分目录，存于项目根 `overviews/YYYY-MM-DD/`。格式与字段见 `references/01-routing/overview.md`。写入前脱敏（无密钥 / PII / token）。
+
+**分层读写**：每份 overview 顶部必有 ≤12 行的 L0 索引卡（场景/闸门/交付产物/未完成项/下一步）。续接时先只读 L0，需要再按路径读 L1 摘要与 L2 详情文件；完整 review 报告、问题清单等 >30 行的详情独立成 `.xxx.md`，主文件只留引用——禁止把整份 overview 全量灌进上下文。
 
 ## 跨 agent 使用说明
 

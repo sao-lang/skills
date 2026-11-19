@@ -144,6 +144,11 @@
 - 整理 references：新增 references/05-meta/README.md 索引（25 份按五类导航、加载优先级、冲突规则）；
   来源致谢里的上游文件名加限定词避免误当本地引用；SKILL.md 挂索引指针。
 
+### overview 分层加载（🟢 已激活 2026-11-19）
+- 背景：实际 overview 半天从 91 行涨到 183 行 / 21.7KB，全量加载浪费 token；规范要求"引用不复制"却未执行，完整 review 报告被抄进主文件。
+- 方案：overview 分 L0 索引卡（≤12 行：场景/闸门/产物/未完成项/下一步）+ L1 摘要 + L2 详情引用；>30 行详情独立成 `.xxx.md`。S0 续接先只读 L0，按需读 L1/L2，禁止全量。
+- 已写入：`references/01-routing/overview.md`（模板+加载协议+纪律第6条 L0 必填）、`SKILL.md`（S0 加载协议 + 会话记录节）。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）
