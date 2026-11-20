@@ -175,6 +175,13 @@
 - 路径 4→5（新增文档·清理变体）；场景 13→14；同步 router-prompt（自包含提示词加时序规则+场景14，管线编号4→5顺延）、SKILL.md 场景表+矩阵、scenarios I/O契约+详情、README、roadmap 计数。
 - 挂载同步：engineering-catalog（13→14）、meta README（13→14）、roadmap 抬头（十四场景+五路径）。
 
+### overview 会话指针锚定（🟢 已激活 2026-11-20）
+- 起因：用户反馈 overview 每轮对话一个导致文档爆炸；先加了语义判定（记什么/不记什么、一会话一文档），但语义判定是软约束不可靠。用户要求"用会话 ID 做文件名 hash，同会话不同对话按规则找文件"。
+- 关键决策：**不用任何厂商环境变量**（`CODEBUDDY_SESSION_ID` 等各家不统一，无跨 agent 通用 key）。用户拍板用**会话指针文件** `.conductor-session.json` 自维护会话 UUID——零外部依赖、所有 agent 都能读写文件、支持跨天、边界用户显式控制。
+- 新增 `scripts/overview_path.py`：S0 跑它定位 overview——读指针 UUID 取前 8 位 hash 做文件名前缀，同会话多轮归同一文件（与主题无关）；`--new-session` 开新会话、`--end-session` 结束、`--detect-only` 看状态。会话 ID 用 Python 标准库 uuid4，无外部依赖。
+- 挂载：SKILL.md（触发后第一步+S0阶段+会话记录节）、overview.md（新建vs追加段重写为指针机制）、scenarios 通用前置、skill-matrix（阶段表+脚本表）、README（脚本数 8→9）。
+- 注：`.conductor-session.json` 是本地会话状态，建议加入项目 .gitignore（非项目资产）。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

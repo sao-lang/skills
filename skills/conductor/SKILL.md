@@ -17,7 +17,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 ## 触发后必须先做的两件事
 
-1. **建/续会话记录**：按 `references/01-routing/overview.md` 在 `overviews/YYYY-MM-DD/` 记录。**默认追加到当天已有主文件**（同一会话的多轮对话不新建），仅确认是全新会话才新建——判定规则见 overview.md「新建 vs 追加」。
+1. **定位 overview 文件**：S0 跑 `scripts/overview_path.py --project-root . --topic "<主题>"`，按返回的 `action`（append/create）与 `path` 建/续会话记录。脚本用会话指针 `.conductor-session.json` 锚定——同会话多轮自动归到同一文件，换任务时带 `--new-session`。详见 `references/01-routing/overview.md`。
 2. **路由 = 规划执行图**（`references/01-routing/routing.md`）：把用户的话解析成执行图（节点=场景，边=链/分支，模式=路径）。
    - 五层：结构算子定拓扑 → 语义三问定场景+路径 → `scenarios.md` 的 I/O 契约校验衔接 → 置信度+**假设明示**+待澄清 → 高≥0.8 执行/中 0.5–0.8 确认/低<0.5 问用户。
    - 失败降级到只读场景 9/10，**绝不猜改码场景硬跑**；每节点完成后重规划；用户一句话纠正即重路由。**未声明不推进。**
@@ -55,7 +55,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 | 阶段 | 主控 | 加载 / 调用 |
 |---|---|---|
-| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 按 `overview.md`「新建 vs 追加」判定：同会话追加到当天主文件、全新会话才新建；续接先读 L0（~10 行），按需读 L1/L2，禁止全量 |
+| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 跑 `overview_path.py` 定位/建 overview（会话指针锚定，见 overview.md）；续接先读 L0（~10 行），按需读 L1/L2，禁止全量 |
 | S1 场景路由 | 本 skill | `routing.md` 规划执行图 + 声明 skill 组/禁止项/下一站；命中样例信号（举例/参考X那样）启用 `examples-to-spec.md`；改码/迭代场景跑 `impact_analysis.py` 出影响面草稿 |
 | S2 设计计划 | 本 skill | `engineering-workflow.md`（brainstorm+plan）；写规格用 `design-spec-template.md`；拷问加 `grill-design`；架构类加 `architecture-contracts`；按 `examples-to-spec.md` 补全样例；涉接口/迁移加 `contract-migration.md` |
 | S3 TDD 实现 | 本 skill | `engineering-tdd.md` + `engineering-workflow.md`（worktree/subagent）；挂 ponytail+caveman+coding-rules；按影响面清单核关联项；绿后按 `git-commit-rules.md` 提交 |
@@ -63,7 +63,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 | S4 分析（只读） | 本 skill | graphify / scan_gaps / review；**不跑 verify、不触发独立 review 门禁** |
 | S5 review 收尾 | 本 skill | `engineering-code-review.md`+`engineering-workflow.md`（finish）；解 bug 读 `engineering-debugging.md`；**改码场景交付前必经独立 review（见下）**；深度审查加 `metago-code-review-deep`；发布走 `release-checklist.md`+`release_notes.py`；按 `git-commit-rules.md` 提交；收尾 handoff + 写 overview |
 
-**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿。
+**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `overview_path.py --topic <主题>` 会话指针定位 overview（换任务 `--new-session`）· `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿。
 
 ### 场景 × 阶段矩阵（S1 硬输出，决定跳过哪些阶段）
 
@@ -107,7 +107,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 ## 会话记录（overviews）
 
-**一个会话一个 md**（不是一轮一个），存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。同一会话的多轮对话**追加到同一主文件的时间戳小节**，只有换任务/换天/用户要求才新建（判定见 overview.md「新建 vs 追加」）。**按 overview.md「记什么/不记什么」过滤**：与项目无关的对话、未采纳未落实的调研/方案、中间试错一律不写；每个问题带状态（已解决/待跟进/已否决）。
+**一个会话一个 md**（不是一轮一个），由 `scripts/overview_path.py` 用会话指针 `.conductor-session.json` 定位：同会话多轮归同一文件，换任务带 `--new-session`。存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。**按 overview.md「记什么/不记什么」过滤**：与项目无关的对话、未采纳未落实的调研/方案、中间试错一律不写；每个问题带状态（已解决/待跟进/已否决）。
 **分层读写**：每份 overview 顶部必有 ≤12 行 L0 索引卡（场景/闸门/产物/未完成项/下一步）；续接先只读 L0，按需读 L1/L2；>30 行详情独立成 `.xxx.md` 主文件只留路径——禁止把整份 overview 全量灌进上下文。
 
 ## 代码理解工具（graphify）

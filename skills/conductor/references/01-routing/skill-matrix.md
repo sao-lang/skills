@@ -7,7 +7,7 @@
 
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
-| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）、按 overview.md 判定建/续 overview md | 禁止直接写代码 | 预检完成 + 本会话 overview 已建或已续 |
+| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）→ `scripts/overview_path.py` 定位/建 overview（会话指针锚定） | 禁止直接写代码 | 预检完成 + 本会话 overview 已定位 |
 | S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿 | 禁止跳过声明 | 路由已向用户声明 |
 | S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md`；涉接口/迁移加挂 `references/04-guards/contract-migration.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
 | S3 TDD 实现 | conductor | 读 `references/02-engineering/engineering-tdd.md` + `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules | 无失败测试不写实现 | 红转绿、全量测试绿 |
@@ -21,10 +21,11 @@
 | `preflight.py` | 预检外部 skill + 语言验证工具是否就位，缺失给安装命令 | `python scripts/preflight.py --project-root .` |
 | `verify.py` | 执行 `coding-rules-<lang>.md` 的验证命令，汇总退出码为证据 | `python scripts/verify.py --lang <lang>` |
 | `scan_gaps.py` | 扫 TODO/pass/fake/协议无实现/install 无调用，生成缺口台账草稿 | `python scripts/scan_gaps.py --path src` |
-| `review_gate.py` | 校验 overview 的独立 review 证据（章节/Blocker 清零/报告文件真实存在），防"声称审查但无证据" | `python scripts/review_gate.py --overview <path>`；非改码场景加 `--waived --waiver-reason "<理由>"` |
+| `review_gate.py` | 校验 overview 的独立 review 证据（章节/Blocker 清零/内嵌报告章节或外部报告文件存在），防"声称审查但无证据" | `python scripts/review_gate.py --overview <path>`；非改码场景加 `--waived --waiver-reason "<理由>"` |
 | `impact_analysis.py` | 变更影响分析：从符号/改动文件/stdin diff 找引用者与建议跑的测试，辅助迭代/重构的影响面评估 | `python scripts/impact_analysis.py --symbols Foo,bar` / `--files src/a.py` / 管道 `--diff` |
 | `debt_ledger.py` | 技术债台账：扫 TODO/FIXME/HACK 等标记，算债指数与热点文件，出草稿 | `python scripts/debt_ledger.py --path src`；`--format json`；`--fail-over <N>` 卡口 |
 | `release_notes.py` | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python scripts/release_notes.py --since <tag> --repo <path>` |
+| `overview_path.py` | overview 路径定位：用会话指针 `.conductor-session.json` 锚定，同会话多轮归同一文件（跨 agent 通用，零环境变量依赖） | `python scripts/overview_path.py --project-root . --topic "<主题>"`；换任务加 `--new-session`；结束加 `--end-session` |
 
 ## 2. Skill 清单与仓库地址
 

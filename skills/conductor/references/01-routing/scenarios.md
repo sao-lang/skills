@@ -10,13 +10,13 @@
 凡有代码改动的场景（1/4/5/6/7/8/13），finish/交付前必须由**全新上下文子代理**跑 `code-quality-review`
 （七维+接线四问，重点查功能遗漏/断点），Blocker 清零才准交付；执行者 S4 自查不可替代。
 只读(9/10)、纯文档(2/3/11)不触发。**规则全文**见 `references/04-guards/independent-review.md`。
-**机器校验**：`review_gate.py --overview <path>` 核对 overview 的「独立 review 结果」章节+Blocker 清零+报告文件存在；
+**机器校验**：`review_gate.py --overview <path>` 核对 overview 的「独立 review 结果」章节+Blocker 清零+review 证据（内嵌报告章节有分级/证据，或外部报告文件存在）；
 退出码非 0 禁止 finish；非触发场景用 `--waived` 显式豁免。
 
 ## 通用前置（所有场景必做）
 
 1. 依赖预检：`python .agents/skills/conductor/scripts/preflight.py --project-root .`，缺失项先解决或登记例外。
-2. 建/续 overview：`overviews/YYYY-MM-DD/YYYYMMDD-HHMM-主题.md`（见 `overview.md`「新建 vs 追加」——同会话追加到当天主文件，不每轮新建）。
+2. 定位 overview：跑 `scripts/overview_path.py --project-root . --topic "<主题>"`，按返回 path/action 建或续（会话指针 `.conductor-session.json` 锚定，同会话归同一文件；换任务加 `--new-session`）。详见 `overview.md`。
 3. 读上次 handoff（若有）：定位 suggested skills 与未完成项。
 4. 路由声明：向用户说清"场景 / 加载 skill / 禁止项 / 下一站"（见 routing.md §4.5）。
 5. **场景链**（多动作）：按链声明每段场景+路径+闸门，逐段执行。前段产出写入 overview、后段先读；

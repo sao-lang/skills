@@ -25,7 +25,7 @@ L3（功能遗漏 / 功能断点 / 接线断裂）靠自觉。本门禁把"交�
 1. **派全新上下文子代理**：不带 coding 会话历史，只给它——
    (a) 设计规格 / 任务 brief 的路径（意图源），
    (b) 改动文件清单或 diff（`git diff <base>..HEAD`），
-   (c) 报告写回路径。**禁止让写代码的执行者自己审自己**。
+   (c) 报告写回位置——**主 overview 的 `## 独立 review 报告` 章节**（报告内嵌，不另建 .review.md）。**禁止让写代码的执行者自己审自己**。
 2. **七维扫描**：按 `code-quality-review` 的七维（正确性/错误处理/并发/资源/性能/安全/可维护性）
    + 接线四问（`references/04-guards/architecture-contracts.md`）审；重点看**功能遗漏与功能断点**（L3），
    不只是代码风格。
@@ -38,13 +38,13 @@ L3（功能遗漏 / 功能断点 / 接线断裂）靠自觉。本门禁把"交�
 - **失败**：有任一 Blocker → 触发 fix loop：主代理把 finding 交给执行者修（守 surgical changes），
   改完回到 S3 的验证步骤确认仍绿，**再派一次全新子代理复审**（禁止用同一份 review 报告复用作废结论）；
   直至 Blocker 清零或按轮次上限裁决并记入 overview。
-- **证据**：overview 必须留——子代理的 review 报告路径 + Blocker 清零结论 + 每轮 fix 的行号证据。
+- **证据**：主 overview 必须留——`## 独立 review 报告` 章节（内嵌完整报告，多轮用 `### Round N`）+ Blocker 清零结论 + 每轮 fix 的行号证据。**不生成独立 .review.md 文件**。
   拿不出 = 门禁未过。
 
 ## 机器强制
 
 `scripts/review_gate.py --overview <path>` 自动核对上述证据——检查「独立 review 结果」章节、
-Blocker 清零结论、报告路径引用及报告文件真实存在（防假证据）；任一缺失退出码非 0，
+Blocker 清零结论、以及 review 证据（内嵌报告章节有分级/证据，或外部报告文件真实存在——兼容旧文档）；任一缺失退出码非 0，
 **禁止 finish / 标完成**。非改码场景（只读/纯文档）用 `--waived --waiver-reason "<理由>"`
 显式豁免，禁止默默跳过。
 

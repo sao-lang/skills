@@ -22,12 +22,31 @@ import re
 import sys
 from pathlib import Path
 
-# 章节标题识别（大小写不敏感，允许"独立 review 结果 / 独立审查 / independent review"）
+# 「独立 review」章节总识别（历史格式含"门禁证据/第2轮/结果"等，统一归为结果章节）
 SECTION_PATTERNS = (
     r"独立\s*review",
     r"独立\s*审查",
     r"independent\s*review",
 )
+# 内嵌报告章节识别（报告正文直接写进 overview，替代外部 .md 文件）——优先于结果章节
+REPORT_SECTION_PATTERNS = (
+    r"独立\s*review\s*报告",
+    r"独立\s*审查\s*报告",
+    r"review\s*报告\s*附录",
+    r"independent\s*review\s*report",
+)
+
+
+def is_report_heading(line: str) -> bool:
+    return bool(re.match(r"^##\s", line) and any(re.search(p, line, re.I) for p in REPORT_SECTION_PATTERNS))
+
+
+def is_result_heading(line: str) -> bool:
+    return bool(
+        re.match(r"^##\s", line)
+        and any(re.search(p, line, re.I) for p in SECTION_PATTERNS)
+        and not is_report_heading(line)
+    )
 # Blocker 清零结论识别
 CLEAR_PATTERNS = (
     r"blocker\s*[=:]\s*0",
@@ -56,24 +75,47 @@ def read_text(path: Path) -> str:
         return ""
 
 
-def find_section_body(text: str) -> str | None:
-    """提取「独立 review 结果」章节正文（从标题到下一个同级 ## 标题）。"""
+def _section_body(text: str, heading_pred) -> str | None:
+    """按标题判定函数提取某类 ## 章节正文（到下一个同级 ## 标题）。"""
     lines = text.splitlines()
     start = None
     for i, line in enumerate(lines):
-        if any(re.search(p, line, re.I) for p in SECTION_PATTERNS) and (
-            line.lstrip().startswith("#") or "独立" in line
-        ):
+        if heading_pred(line):
             start = i + 1
             break
     if start is None:
         return None
     body: list[str] = []
     for line in lines[start:]:
-        if re.match(r"^##\s", line) and not any(re.search(p, line, re.I) for p in SECTION_PATTERNS):
+        if re.match(r"^##\s", line):
             break
         body.append(line)
     return "\n".join(body)
+
+
+def find_section_body(text: str) -> str | None:
+    """提取「独立 review 结果」章节（排除内嵌报告章节）。
+
+    多轮 review 的历史文档可能有多个结果章节（第1轮 Blocker>0、第2轮清零）。
+    优先取标题含"最终/final/清零"的章节，避免误判中间状态为未通过。
+    """
+    final_pred = lambda line: is_result_heading(line) and bool(
+        re.search(r"最终|final|清零后|结论", line, re.I)
+    )
+    return _section_body(text, final_pred) or _section_body(text, is_result_heading)
+
+
+def find_embedded_report(text: str) -> str | None:
+    """提取内嵌的「独立 review 报告」——从标题抓到文件末尾。
+
+    报告正文自带 `## 一、结论` 等小节标题，若按常规 `##` 截断会只抓到开头、
+    丢失分级/finding 证据。报告通常是主文件最后一章，故一直读到末尾。
+    """
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if is_report_heading(line):
+            return "\n".join(lines[i + 1:])
+    return None
 
 
 def check(overview: Path, waived: bool, waiver_reason: str) -> tuple[bool, list[str]]:
@@ -112,23 +154,33 @@ def check(overview: Path, waived: bool, waiver_reason: str) -> tuple[bool, list[
         ok = False
         notes.append("FAIL — 章节内无明确的 Blocker 清零结论（须写明 Blocker = 0 / 无阻塞项）")
 
-    # 检查 3 + 4：报告路径引用 + 文件真实存在
-    refs = re.findall(REPORT_PATH_PATTERN, body)
-    report_refs = [r for r in refs if r.lower().endswith(".md")]
-    if not report_refs:
-        ok = False
-        notes.append("FAIL — 未发现 review 报告路径引用（须在章节内写 `xxx.review.md`）")
+    # 检查 3 + 4：报告证据存在（内嵌章节 或 外部报告文件，二选一）
+    embedded = find_embedded_report(text)
+    if embedded and len(embedded.strip()) >= 80 and re.search(
+        r"blocker|should|nit|finding|文件:行号|证据|file:line", embedded, re.I
+    ):
+        notes.append(f"PASS — 发现内嵌「独立 review 报告」章节（{len(embedded)} 字符，含分级/证据）")
     else:
-        notes.append(f"PASS — 发现报告路径引用：{report_refs[0]}")
-        # 报告相对 overview 所在目录解析
-        report_path = (overview.parent / report_refs[0]).resolve()
-        if report_path.is_file():
-            notes.append(f"PASS — 报告文件存在：{report_path.name}")
-        else:
+        # 回退：外部 .md 报告路径引用 + 文件真实存在（兼容历史文档）
+        refs = re.findall(REPORT_PATH_PATTERN, body)
+        report_refs = [r for r in refs if r.lower().endswith(".md")]
+        if not report_refs:
             ok = False
             notes.append(
-                f"FAIL — 报告文件不存在：{report_path}（写了路径但没生成 = 假证据）"
+                "FAIL — 未发现 review 证据：既无内嵌「独立 review 报告」章节，"
+                "也无外部报告路径引用（须内嵌报告正文或在章节内写 `xxx.review.md`）"
             )
+        else:
+            notes.append(f"PASS — 发现报告路径引用：{report_refs[0]}")
+            all_exist = True
+            for ref in report_refs:
+                rp = (overview.parent / ref).resolve()
+                if not rp.is_file():
+                    ok = False
+                    all_exist = False
+                    notes.append(f"FAIL — 报告文件不存在：{rp}（写了路径但没生成 = 假证据）")
+            if all_exist:
+                notes.append(f"PASS — {len(report_refs)} 个报告文件均存在")
 
     return ok, notes
 
