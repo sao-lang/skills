@@ -52,6 +52,18 @@
 - **覆盖率阈值二选一**：命令行参数（如 `pytest --cov-fail-under=80`、`cargo llvm-cov --fail-under-lines 80`）**或**项目配置（vitest.config 的 `thresholds`、`coverage.py` 的 `fail_under`、CI 脚本）。配置式阈值必须在本台账里写明配置文件与阈值行号，拿不出即视为未达标。
 - 本项目踩过的坑：M04 落地时 AI 手跑 `pytest -q` 得到 144 passed 就宣称自省完成，未跑覆盖率——规则文件里的 `pytest --cov=src --cov-fail-under=80` 被绕过。上述纪律即为堵此漏洞。
 
+## 5.5 真实环境依赖（无环境 ≠ 砍功能）
+
+> 与 `architecture-contracts.md` §4.5 同源，此处补测试侧动作。
+
+- **S0 探测**：跑 `python scripts/env_probe.py --project-root .`，把 `docker_available` / `real_test_dirs` /
+  `needs_real_env` 写进 overview 环境节。它回答"这项目有没有依赖真实环境的功能、当前能不能验证"。
+- **实现纪律**：无真实环境时，**依赖它的功能照做**（生产 adapter 写进 src/），只是把"只能在真实环境验证"
+  的部分登记为「待真实环境验证」未完成项——**禁止砍功能、禁止只写 fake 标完成**（见 architecture-contracts §4.5）。
+- **用户要求真实测试时**：跑 `env_probe` 给的 `recommended_real_test_cmd`（真实入口，如 `tests/integration/`），
+  **不是复用原来的 mock/unit 命令**。若真实测试暴露功能当初被砍了 → 先补实现再验证。
+- **证据分级**：fake 绿只证明单元逻辑；生产路径的真实消费必须由真实入口的测试证明，两者不能互相替代。
+
 ## 6. 使用方式
 
 - TDD 阶段：按金字塔选测试层级；边界处注入 fake，核心逻辑写真测试。

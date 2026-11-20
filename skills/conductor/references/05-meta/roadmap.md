@@ -182,6 +182,13 @@
 - 挂载：SKILL.md（触发后第一步+S0阶段+会话记录节）、overview.md（新建vs追加段重写为指针机制）、scenarios 通用前置、skill-matrix（阶段表+脚本表）、README（脚本数 8→9）。
 - 注：`.conductor-session.json` 是本地会话状态，建议加入项目 .gitignore（非项目资产）。
 
+### 环境依赖功能不砍 + 真实测试入口（🟢 已激活 2026-11-20）
+- 起因：用户反馈——没开 Docker 时 AI 把只能在真实环境验证的功能直接砍掉不写；开了 Docker 叫它跑真实测试，它仍复用原 mock 命令。核心是"实现功能"与"验证功能"被混淆。
+- 核心规则（`architecture-contracts.md` §4.5）：**无真实环境 ≠ 砍功能**——依赖 Docker/DB/Redis 的功能照常写生产 adapter，只在真实环境能验证的部分登记「待真实环境验证」未完成项；禁止"环境不支持所以不做"和"只写 fake 标完成"两错误出口。用户要真实测试时跑真实入口（`tests/integration/`），不是复用 mock 命令；若发现功能被砍先补实现。
+- 新增 `scripts/env_probe.py`：探测 docker daemon / compose 文件 / 集成测试目录 / DB-Redis 依赖信号，输出 needs_real_env + recommended_real_test_cmd，供 S0 写 overview 环境节、用户要真实测试时给入口。故意不纳入 httpx/requests（外部 API 适配器有正常默认实现，纳入会误报）。
+- 挂载：SKILL.md（S0/S2/S4 阶段 + 脚本清单 + 铁律第8条）、scenarios 通用前置 2b、skill-matrix（S0+脚本表）、test-strategy §5.5、README（脚本9→10+特性行）。
+- 断点模式清单加「环境缺失砍功能」（对照设计规格查生产代码是否仍有真实实现）。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

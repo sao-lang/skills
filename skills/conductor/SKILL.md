@@ -55,15 +55,15 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 | 阶段 | 主控 | 加载 / 调用 |
 |---|---|---|
-| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 跑 `overview_path.py` 定位/建 overview（会话指针锚定，见 overview.md）；续接先读 L0（~10 行），按需读 L1/L2，禁止全量 |
+| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 跑 `overview_path.py` 定位/建 overview（会话指针锚定，见 overview.md）→ 跑 `env_probe.py` 探测真实环境需求/可用性写入 overview 环境节；续接先读 L0（~10 行），按需读 L1/L2，禁止全量 |
 | S1 场景路由 | 本 skill | `routing.md` 规划执行图 + 声明 skill 组/禁止项/下一站；命中样例信号（举例/参考X那样）启用 `examples-to-spec.md`；改码/迭代场景跑 `impact_analysis.py` 出影响面草稿 |
-| S2 设计计划 | 本 skill | `engineering-workflow.md`（brainstorm+plan）；写规格用 `design-spec-template.md`；拷问加 `grill-design`；架构类加 `architecture-contracts`；按 `examples-to-spec.md` 补全样例；涉接口/迁移加 `contract-migration.md` |
+| S2 设计计划 | 本 skill | `engineering-workflow.md`（brainstorm+plan）；写规格用 `design-spec-template.md`；拷问加 `grill-design`；架构类加 `architecture-contracts`（含 §4.5：依赖真实环境的功能必须进计划，不许因无环境预先砍掉）；按 `examples-to-spec.md` 补全样例；涉接口/迁移加 `contract-migration.md` |
 | S3 TDD 实现 | 本 skill | `engineering-tdd.md` + `engineering-workflow.md`（worktree/subagent）；挂 ponytail+caveman+coding-rules；按影响面清单核关联项；绿后按 `git-commit-rules.md` 提交 |
-| S4 自省补强（改码） | 本 skill | `scan_gaps.py`→`verify.py`（覆盖率门禁，只认其输出为测试证据，见 `test-strategy.md` §5）→`debt_ledger.py`（技术债台账）；拷问加 grill-me；安全核对 `security-redlines.md`；接口/迁移核对 `contract-migration.md`；**执行者自查 L1/L2，不替代 S5** |
+| S4 自省补强（改码） | 本 skill | `scan_gaps.py`→`verify.py`（覆盖率门禁，只认其输出为测试证据，见 `test-strategy.md` §5）→`debt_ledger.py`（技术债台账）；拷问加 grill-me；安全核对 `security-redlines.md`；接口/迁移核对 `contract-migration.md`；**按 `architecture-contracts.md` §4.5 核对依赖真实环境的功能是否仍在生产代码里（没环境≠砍功能）**；**执行者自查 L1/L2，不替代 S5** |
 | S4 分析（只读） | 本 skill | graphify / scan_gaps / review；**不跑 verify、不触发独立 review 门禁** |
 | S5 review 收尾 | 本 skill | `engineering-code-review.md`+`engineering-workflow.md`（finish）；解 bug 读 `engineering-debugging.md`；**改码场景交付前必经独立 review（见下）**；深度审查加 `metago-code-review-deep`；发布走 `release-checklist.md`+`release_notes.py`；按 `git-commit-rules.md` 提交；收尾 handoff + 写 overview |
 
-**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `overview_path.py --topic <主题>` 会话指针定位 overview（换任务 `--new-session`）· `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿。
+**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `overview_path.py --topic <主题>` 会话指针定位 overview（换任务 `--new-session`）· `env_probe.py` 真实环境需求/可用性探测（S0 写 overview，用户要真实测试时给入口命令）· `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿。
 
 ### 场景 × 阶段矩阵（S1 硬输出，决定跳过哪些阶段）
 
@@ -104,6 +104,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 5. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
 6. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落，退出码非 0，禁止进 review、禁止标完成。
 7. 改码场景交付前必经独立 review：全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；`review_gate.py` 机器校验证据，退出码非 0 禁止交付（见 `independent-review.md`）。
+8. **无真实环境 ≠ 砍功能**：依赖 Docker/DB/Redis 的功能照常写生产实现，只在真实环境能验证的部分登记"待验证"未完成项；禁止以"环境不支持"为由删功能或只写 fake 标完成（见 `architecture-contracts.md` §4.5）。用户要真实测试时跑真实入口（如 `tests/integration/`），不复用 mock 命令。
 
 ## 会话记录（overviews）
 

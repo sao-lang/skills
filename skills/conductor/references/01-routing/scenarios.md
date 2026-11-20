@@ -17,6 +17,7 @@
 
 1. 依赖预检：`python .agents/skills/conductor/scripts/preflight.py --project-root .`，缺失项先解决或登记例外。
 2. 定位 overview：跑 `scripts/overview_path.py --project-root . --topic "<主题>"`，按返回 path/action 建或续（会话指针 `.conductor-session.json` 锚定，同会话归同一文件；换任务加 `--new-session`）。详见 `overview.md`。
+2b. 环境探测：跑 `scripts/env_probe.py --project-root .`，把真实环境需求/可用性（docker、集成测试目录、依赖信号）写入 overview 环境节。**依赖真实环境的功能必须留在计划内**（见 `architecture-contracts.md` §4.5），不许因当前无环境预先砍掉。
 3. 读上次 handoff（若有）：定位 suggested skills 与未完成项。
 4. 路由声明：向用户说清"场景 / 加载 skill / 禁止项 / 下一站"（见 routing.md §4.5）。
 5. **场景链**（多动作）：按链声明每段场景+路径+闸门，逐段执行。前段产出写入 overview、后段先读；

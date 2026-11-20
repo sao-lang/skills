@@ -7,7 +7,7 @@
 
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
-| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）→ `scripts/overview_path.py` 定位/建 overview（会话指针锚定） | 禁止直接写代码 | 预检完成 + 本会话 overview 已定位 |
+| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）→ `scripts/overview_path.py` 定位/建 overview（会话指针锚定）→ `scripts/env_probe.py` 探测真实环境需求/可用性 | 禁止直接写代码 | 预检完成 + overview 已定位 + 环境需求已记录 |
 | S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿 | 禁止跳过声明 | 路由已向用户声明 |
 | S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md`；涉接口/迁移加挂 `references/04-guards/contract-migration.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
 | S3 TDD 实现 | conductor | 读 `references/02-engineering/engineering-tdd.md` + `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules | 无失败测试不写实现 | 红转绿、全量测试绿 |
@@ -26,6 +26,7 @@
 | `debt_ledger.py` | 技术债台账：扫 TODO/FIXME/HACK 等标记，算债指数与热点文件，出草稿 | `python scripts/debt_ledger.py --path src`；`--format json`；`--fail-over <N>` 卡口 |
 | `release_notes.py` | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python scripts/release_notes.py --since <tag> --repo <path>` |
 | `overview_path.py` | overview 路径定位：用会话指针 `.conductor-session.json` 锚定，同会话多轮归同一文件（跨 agent 通用，零环境变量依赖） | `python scripts/overview_path.py --project-root . --topic "<主题>"`；换任务加 `--new-session`；结束加 `--end-session` |
+| `env_probe.py` | 真实环境探测：docker 可用性、集成测试目录、DB/Redis 依赖信号，给真实测试入口命令（防"无环境砍功能"） | `python scripts/env_probe.py --project-root .` |
 
 ## 2. Skill 清单与仓库地址
 
