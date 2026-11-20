@@ -22,7 +22,7 @@ references/
 |---|---|---|
 | `references/01-routing/routing.md` | S1（读全文） | 场景路由规划器——把用户的话解析成执行图（结构算子→语义三问→I/O 契约→置信度） |
 | `references/01-routing/router-prompt.md` | 需跨 agent 复用路由时 | routing 的自包含提示词版，可注入 Codex/CC/OpenCode/Droid |
-| `references/01-routing/scenarios.md` | S1 只读「I/O 契约表」节；执行到具体场景时读该场景节 | 13 场景详细流程 + 工程能力链 + 场景 I/O 契约表。**不要整份加载** |
+| `references/01-routing/scenarios.md` | S1 只读「I/O 契约表」节；执行到具体场景时读该场景节 | 14 场景详细流程 + 工程能力链 + 场景 I/O 契约表。**不要整份加载** |
 | `references/01-routing/overview.md` | S0 / 收尾 | 会话记录格式（overviews/日期/文件），写入前脱敏 |
 | `references/01-routing/skill-matrix.md` | 需查阶段加载表/工具来源时 | 阶段→skill 加载矩阵 + 外部工具清单 + 跨 agent 安装 |
 

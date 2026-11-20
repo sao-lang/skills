@@ -3,7 +3,7 @@
 > 本文件回答两个问题：**superpowers 的每个 skill 去哪了？**、**conductor 的流程靠哪些能力跑起来？**
 > 来源：obra/superpowers（15 个 skill）+ 本地压缩重制版（5 份 reference）。
 > 整合原则：不是把 skill 文件塞进项目，而是把每个 skill **内化为 conductor 的具名工程能力**，
-> 挂进 13 场景的具体阶段。能力是 conductor 流程里的节点，有名字、有输入输出契约、有详情文件。
+> 挂进 14 场景的具体阶段。能力是 conductor 流程里的节点，有名字、有输入输出契约、有详情文件。
 
 ## 1. 全景盘点（15 个 skill 逐个交代去向）
 
