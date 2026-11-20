@@ -104,7 +104,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 5. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
 6. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落，退出码非 0，禁止进 review、禁止标完成。
 7. 改码场景交付前必经独立 review：全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；`review_gate.py` 机器校验证据，退出码非 0 禁止交付（见 `independent-review.md`）。
-8. **无真实环境 ≠ 砍功能**：依赖 Docker/DB/Redis 的功能照常写生产实现，只在真实环境能验证的部分登记"待验证"未完成项；禁止以"环境不支持"为由删功能或只写 fake 标完成（见 `architecture-contracts.md` §4.5）。用户要真实测试时跑真实入口（如 `tests/integration/`），不复用 mock 命令。
+8. **真实环境优先**：照真实基础设施写生产实现（非照 fake 简化语义），测试默认跑真实入口（如 `tests/integration/`）；无环境不砍功能、不只写 fake 标完成（见 `architecture-contracts.md` §4.5）。**测试报错先分根因**：代码 bug 自己修；环境缺失（连不上/容器起不来/缺驱动）则明确告知用户"AI 解决不了、属环境依赖"，登记「环境阻断」后可暂忽略该项，禁止静默跳过或改断言/换 fake 造假绿（见 `test-strategy.md` §5.5 原则三）。
 
 ## 会话记录（overviews）
 

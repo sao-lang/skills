@@ -168,7 +168,7 @@ python .agents/skills/conductor/scripts/debt_ledger.py --path src  # 技术债�
 1. **功能遗漏**：设计/需求每条承诺有无对应实现？（对照 `architecture-contracts.md`）
 2. **功能断点**：模块"接口就绪"是否真被装配层调用？（scan_gaps 的 install 无调用者/协议无实现是弱信号，需人工确认）
 3. **测试覆盖率**：达阈值？按 `test-strategy.md` 达标口径核对，警惕假绿。
-4. **通过率**：测试全绿？有无 flaky/skip/xfail 掩盖？
+4. **通过率**：测试全绿？有无 flaky/skip/xfail 掩盖？若报错，先判根因——代码 bug 必须修；环境缺失（Docker/DB 连不上）则按 `test-strategy.md` §5.5 原则三告知用户、登记「环境阻断」后可暂忽略，禁止静默跳过或伪装成通过。
 5. **规则符合**：魔法字符串、注释完整性、类型明确、长度基线——以 `verify.py` 退出码为证据。
 6. **安全红线**：按 `security-redlines.md` 核对密钥/注入/危险路由/成本闸门。
 7. **样例补全**：`examples-to-spec.md` 的补全项是否都落地、有证据？禁止只做列举项就宣称完成。
