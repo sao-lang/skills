@@ -7,12 +7,12 @@
 
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
-| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）→ `scripts/overview_path.py` 定位/建 overview（会话指针锚定）→ `scripts/env_probe.py` 探测真实环境需求/可用性 | 禁止直接写代码 | 预检完成 + overview 已定位 + 环境需求已记录 |
-| S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿 | 禁止跳过声明 | 路由已向用户声明 |
+| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）→ `scripts/overview_path.py` 定位/建 overview（会话指针锚定）→ `scripts/env_probe.py` 探测真实环境需求/可用性 → 隐含待办清单场景跑 `scripts/commitment_ledger.py init` 采集承诺（见 `commitment-ledger.md`） | 禁止直接写代码 | 预检完成 + overview 已定位 + 环境需求已记录 + 承诺已采集 |
+| S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿；场景7 跑 `scripts/migration_ledger.py init` 建迁移台账 | 禁止跳过声明 | 路由已向用户声明 |
 | S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md`；涉接口/迁移加挂 `references/04-guards/contract-migration.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
 | S3 TDD 实现 | conductor | 读 `references/02-engineering/engineering-tdd.md` + `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules | 无失败测试不写实现 | 红转绿、全量测试绿 |
-| S4 自省补强 | conductor | `scripts/scan_gaps.py` → `scripts/verify.py --lang` → `code-quality-review` + 缺口台账法；`scripts/debt_ledger.py` 技术债台账；拷问代码加挂 `grill-me`；安全核对 `references/04-guards/security-redlines.md`、测试核对 `references/04-guards/test-strategy.md`、接口/迁移核对 `references/04-guards/contract-migration.md` | 未达标不许进 review | 遗漏/断点/覆盖率/通过率/安全五项达标 |
-| S5 review 收尾 | conductor | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）、解 bug 读 `references/02-engineering/engineering-debugging.md`；独立 review 门禁见 `references/04-guards/independent-review.md`；发版走 `references/04-guards/release-checklist.md` + `scripts/release_notes.py`；深度审查加挂 `metago-code-review-deep`；收尾 `handoff` + 写 overview | Critical 未清零不许收尾 | 全绿 + 交接文档已写 |
+| S4 自省补强 | conductor | `scripts/scan_gaps.py` → `scripts/verify.py --lang` → `code-quality-review` + 缺口台账法；`scripts/debt_ledger.py` 技术债台账；有台账的场景跑 `scripts/commitment_ledger.py check --strict` 零未勾销门禁（场景7 用 `migration_ledger.py check --path src --strict`，见 `commitment-ledger.md`）；拷问代码加挂 `grill-me`；安全核对 `references/04-guards/security-redlines.md`、测试核对 `references/04-guards/test-strategy.md`、接口/迁移核对 `references/04-guards/contract-migration.md` | 未达标不许进 review | 遗漏/断点/覆盖率/通过率/安全五项达标（场景7 另加台账全收口） |
+| S5 review 收尾 | conductor | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）、解 bug 读 `references/02-engineering/engineering-debugging.md`；独立 review 门禁见 `references/04-guards/independent-review.md`；有台账的场景 `scripts/commitment_ledger.py check --strict` 须退出 0（见 `commitment-ledger.md`）；发版走 `references/04-guards/release-checklist.md` + `scripts/release_notes.py`；深度审查加挂 `metago-code-review-deep`；收尾 `handoff` + 写 overview | Critical 未清零 / 台账未收口不许收尾 | 全绿 + 台账零未勾销 + 交接文档已写 |
 
 ### 确定性脚本（scripts/，非 skill，直接执行）
 
@@ -27,6 +27,8 @@
 | `release_notes.py` | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python scripts/release_notes.py --since <tag> --repo <path>` |
 | `overview_path.py` | overview 路径定位：用会话指针 `.conductor-session.json` 锚定，同会话多轮归同一文件（跨 agent 通用，零环境变量依赖） | `python scripts/overview_path.py --project-root . --topic "<主题>"`；换任务加 `--new-session`；结束加 `--end-session` |
 | `env_probe.py` | 真实环境探测：docker 可用性、集成测试目录、DB/Redis 依赖信号，给真实测试入口命令（防"无环境砍功能"） | `python scripts/env_probe.py --project-root .` |
+| `commitment_ledger.py` | 承诺台账（全场景防漏引擎）：init 多来源采集（--from-modules/--from-list/--stdin/--manual）、next 断点、check --strict 零未勾销门禁、show 概览 | `python scripts/commitment_ledger.py init --ledger .commitment-ledger.json --from-list docs/spec.md`；impact 输出管道 `--stdin`；收尾 `check --ledger ... --modules src --strict`（见 `commitment-ledger.md`） |
+| `migration_ledger.py` | 场景7 兼容 shim（底层委托 commitment_ledger，固定 source=module）：init 扫码建台账、next 断点、check --strict 收口门禁 | `python scripts/migration_ledger.py init --path src --project <名>`；新增模块 `--merge`；续接 `next`；收尾 `check --path src --strict`（见 `migration-integrity.md`） |
 
 ## 2. Skill 清单与仓库地址
 

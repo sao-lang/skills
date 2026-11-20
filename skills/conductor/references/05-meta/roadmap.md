@@ -189,6 +189,25 @@
 - 挂载：SKILL.md（S0/S2/S4 阶段 + 脚本清单 + 铁律第8条）、scenarios 通用前置 2b、skill-matrix（S0+脚本表）、test-strategy §5.5、README（脚本9→10+特性行）。
 - 断点模式清单加「环境缺失砍功能」（对照设计规格查生产代码是否仍有真实实现）。
 
+### 迁移完整性守卫 · 场景7 防漏/防断点（🟢 已激活 2026-11-21）
+- 起因：用户提问"主线已定后，怎么保证迁移中 AI 不漏模块、功能无遗漏和断点"。核心认知：风险不在方向，在边角没被枚举出来；AI 上下文会丢会压缩，靠记忆必漏。需把记忆外置成机器可校验的台账。
+- 形态决策：沿用"脚本 + reference 内化"，不新建独立 skill（符合唯一主控 + 项目自包含）。
+- 新增 `scripts/migration_ledger.py`：三子命令——`init` 扫码建台账（清单来自代码非印象，kind 区分 entry/route/module/config，deps 弱信号仅供排序）、`next` 按依赖层序输出下一批（中断项优先=断点续接）、`check --strict` 收尾门禁（pending/in_progress/verified 无有效证据/skipped 无理由/drift 漏登记一律 FAIL）。证据支持 `report:` 路径并校验文件真实存在（防假完成，同 review_gate 哲学）。
+- 新增 `references/04-guards/migration-integrity.md`：五步法（盘点→行为基线→逐块迁移+差分→闸门→断点）+ 台账状态机 + 会话级约束提示词 + 完成判定。
+- 挂载：SKILL.md（场景表第7行/S1建台账/S4收口门禁/脚本清单/铁律第9条）、scenarios（场景7 能力链重写+I/O契约+缺口台账命令）、skill-matrix（S1/S4+脚本表）、05-meta README（索引+计数 30→31、D类 10→11）。
+- 测试：依赖层序（repo→service→main）、假证据拦截、report 文件存在校验、drift 检测、`init --merge` 保留已迁状态且新模块进 pending——全通过。
+- 台账文件 `.migration-ledger.json` 是项目本地状态，建议加入 .gitignore。
+
+### 承诺台账收敛 · 全场景防漏（🟢 已激活 2026-11-21）
+- 起因：用户问"所有场景怎么避免 AI 漏东西"。核心认知：漏东西的本质跨场景相同——隐含承诺没被逐条勾销。不在 14 场景逐个打补丁，改在 S0/S4/S5 三个公共节点建横切防线（加新场景自动继承）。
+- 形态决策：把上一轮的场景7专用台账**泛化为全场景引擎**，不新建第二套。
+- 新增 `scripts/commitment_ledger.py`：统一引擎（存储/状态机/门禁/断点）+ 多来源采集器（--from-modules 源码扫描 / --from-list 文档列表项 / --from-json / --stdin 供 impact_analysis 与 review 输出灌入 / --manual）；四子命令 init/next/check/show。防膨胀三纪律内化：机器扫优先、门禁只卡三个出口、skipped+reason 豁免留痕。
+- `scripts/migration_ledger.py` 降级为兼容 shim（固定 source=module，底层委托统一引擎），既有场景7文档与调用不破。
+- 新增 `references/04-guards/commitment-ledger.md`（通用框架：五类根因→三道防线→场景适配表→防膨胀→收敛后分工）；`migration-integrity.md` 降级为场景7特化指针（先读通用文档）。
+- 挂载：SKILL.md（全场景横切行 + S0 采集/S4 核证据/S5 零未勾销 + 脚本清单 + 铁律9泛化）、scenarios（通用前置 5b + 缺口台账命令 + 场景7工具指针）、skill-matrix（S0/S4/S5 + 脚本表 11→12）、05-meta README（索引 + 计数 31→32、D类 11→12）、routing/router-prompt（场景7 迁移信号已在上一轮加）。
+- 测试：通用台账多来源采集、stdin 灌入、增量合并保留已迁状态+新项进 pending、假证据拦截、drift、check --strict、shim 兼容（PASS/FAIL 各路径）全通过。
+- 收敛后分工：commitment_ledger=引擎；migration_ledger=场景7 shim；examples-to-spec/impact_analysis/scan_gaps=提取器；contract-migration/architecture-contracts/independent-review=换眼验证；test-strategy/verify.py=证据来源。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

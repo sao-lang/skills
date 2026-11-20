@@ -23,6 +23,10 @@
 5. **场景链**（多动作）：按链声明每段场景+路径+闸门，逐段执行。前段产出写入 overview、后段先读；
    设计闸门——段1 拷问设计(9)、段2 按设计写代码(6)时，设计漏洞未解决**禁止写代码**，先问用户是否补设计；
    只读段结束不自动进改码段，遇闸门停下问。
+5b. **承诺台账采集**（凡有隐含待办清单的场景 4/5/6/7/8/9/11/12）：按 `commitment-ledger.md` 跑
+   `commitment_ledger.py init`——规格/差异/finding 用 `--from-list`/`--stdin` 采集，模块用 `migration_ledger.py init`，
+   机器能扫的自动扫、人只补语义；台账写入 overview 交付产物。新会话先 `next`/`show` 定位断点。
+   防膨胀：只卡 S0/S4/S5 三个出口，不插到每一步。
 6. **样例补全识别**：用户举例（比如/例如/参考X那样/改这里）时按 `examples-to-spec.md` 判断是否启用——
    启用则在声明中说明，设计/实现阶段按四步法补全"样例之外覆盖"，补全项分类确认后再落地。
 
@@ -39,7 +43,7 @@
 | 4 项目开发 | 规格+设计 | 新功能代码+测试 | 改码 |
 | 5 迭代 | 已有功能+变更要求 | 调整后代码 | 改码 |
 | 6 设计驱动重构 | 设计文档（须已解决已知问题） | 符合设计的代码改动 | 改码 |
-| 7 重构 | 现有代码+行为测试 | 等价重构的代码 | 改码 |
+| 7 重构 | 现有代码+行为测试 | 等价重构的代码 + 全收口迁移台账 | 改码 |
 | 8 解 bug | 故障现象+复现 | 修复+回归测试 | 改码 |
 | 9 拷问设计/代码 | 设计文档或代码 | **问题清单**（带行号/严重度） | 只读 |
 | 10 代码库理解 | 代码库 | **代码地图+调用链+断点清单** | 只读 |
@@ -96,10 +100,17 @@
 - **下一站**：差异清单逐条勾销+全绿→review→收尾；发现新设计有漏洞→补充设计场景。
 
 ## 场景 7 · 项目重构
-- **能力链**：`tdd`（先补行为测试锁等价性）→改结构→`review`→`verify`（行为等价证据）→`finish`。
-- **契约**：现有代码+行为测试→等价重构代码→等价性证据。
-- **工具**：`impact_analysis.py` 出影响面；ponytail 砍复杂度（YAGNI 七级梯）；变更前后行为等价性证据。
-- **禁止**：**夹带新功能**；无测试保护改结构；扩大 diff 到无关代码。**下一站**：行为等价+全绿→review→收尾。
+- **能力链**：`inventory`（盘点建台账）→`tdd`（行为基线锁等价性）→逐块改结构+差分→`review`→`verify`（行为等价证据）→`finish`。
+- **契约**：现有代码+行为测试→等价重构代码→等价性证据+**全收口的迁移台账**。
+- **工具**：**迁移完整性守卫**——先读 `references/04-guards/commitment-ledger.md`（通用框架）再读 `references/04-guards/migration-integrity.md`（场景7特化），主用 `migration_ledger.py`（底层=承诺台账 shim）：
+  ①`init` 扫码建台账（清单来自代码非 AI 印象，`kind` 区分 entry/route/module/config，入口路由优先迁）；
+  ②基线 characterization test 锁行为（证据填台账 `evidence`）；③逐块迁移+新旧差分对跑，一次一项；
+  ④`check --path src --strict` 收尾门禁（pending/in_progress/无证据/skipped 无理由/drift 一律 FAIL）；
+  ⑤中断写 `status=in_progress`+`checkpoint`，换会话先 `next` 定位续接点。
+  `impact_analysis.py` 出影响面；ponytail 砍复杂度（YAGNI 七级梯）；涉接口/DB 加 `contract-migration.md`。
+- **禁止**：**夹带新功能**；无测试保护改结构；扩大 diff 到无关代码；**只搬看得见的模块、不核台账**；
+  **迁移中新增模块不跑 `init --merge` 纳入台账**（即 drift 漏登记）；为过闸门把 pending 刷成 verified（evidence 会露馅）。
+- **下一站**：`check --strict` 退出 0 + 行为等价 + 独立 review 清零 → review→收尾。
 
 ## 场景 8 · 解 bug
 - **能力链**：`debug`（4阶段根因）→`tdd`（复现测试先红后绿）→`verify`（原bug测试+回归）→`review`→`finish`。
@@ -161,6 +172,8 @@
 python .agents/skills/conductor/scripts/scan_gaps.py --path src     # 缺口台账草稿
 python .agents/skills/conductor/scripts/verify.py --lang <lang>    # 验证命令退出码
 python .agents/skills/conductor/scripts/debt_ledger.py --path src  # 技术债台账草稿
+python .agents/skills/conductor/scripts/commitment_ledger.py check --ledger .commitment-ledger.json --strict  # 承诺台账收口门禁（全场景，零未勾销）
+python .agents/skills/conductor/scripts/migration_ledger.py check --ledger .migration-ledger.json --path src --strict  # 迁移收口门禁（场景7 shim）
 ```
 > 技术债登记口径见 `tech-debt-ledger.md`——债标记≠已登记，未关闭项必须进 overview「未完成项」。
 
