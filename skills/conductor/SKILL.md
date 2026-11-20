@@ -107,7 +107,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 ## 会话记录（overviews）
 
-**一个会话一个 md**（不是一轮一个），存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。同一会话的多轮对话**追加到同一主文件的时间戳小节**，只有换任务/换天/用户要求才新建（判定见 overview.md「新建 vs 追加」）。
+**一个会话一个 md**（不是一轮一个），存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。同一会话的多轮对话**追加到同一主文件的时间戳小节**，只有换任务/换天/用户要求才新建（判定见 overview.md「新建 vs 追加」）。**按 overview.md「记什么/不记什么」过滤**：与项目无关的对话、未采纳未落实的调研/方案、中间试错一律不写；每个问题带状态（已解决/待跟进/已否决）。
 **分层读写**：每份 overview 顶部必有 ≤12 行 L0 索引卡（场景/闸门/产物/未完成项/下一步）；续接先只读 L0，按需读 L1/L2；>30 行详情独立成 `.xxx.md` 主文件只留路径——禁止把整份 overview 全量灌进上下文。
 
 ## 代码理解工具（graphify）
