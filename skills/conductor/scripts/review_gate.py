@@ -14,6 +14,9 @@
   4. 引用的报告文件真实存在（防"写了路径但没生成"的假证据）
 
 退出码：0 = 门禁通过（证据齐全 或 显式豁免）；1 = 证据缺失 / 有未清零 Blocker。
+
+lite 档（--lite）：不派独立子代理，改查 overview 的「轻量复核（lite）」章节——
+档位标记 + Blocker 清零 + ≥3 条复核项 + ≥2 条带行号/退出码的证据，防"省成本"变成省门禁。
 """
 from __future__ import annotations
 
@@ -34,6 +37,16 @@ REPORT_SECTION_PATTERNS = (
     r"独立\s*审查\s*报告",
     r"review\s*报告\s*附录",
     r"independent\s*review\s*report",
+)
+# lite 档轻量复核章节
+LITE_SECTION_PATTERNS = (
+    r"轻量\s*复核",
+    r"轻量\s*review",
+    r"lite\s*review",
+)
+LITE_TIER_PATTERN = r"档位\s*[:：]\s*lite"
+LITE_EVIDENCE_PATTERN = re.compile(
+    r"(退出码\s*[01]|[:：]\s*\d+|file\s*:\s*line)", re.I
 )
 
 
@@ -185,6 +198,68 @@ def check(overview: Path, waived: bool, waiver_reason: str) -> tuple[bool, list[
     return ok, notes
 
 
+def find_lite_section(text: str) -> str | None:
+    """提取 lite 档「轻量复核」章节正文（到下一个同级 ## 标题）。"""
+    def is_lite_heading(line: str) -> bool:
+        return bool(
+            re.match(r"^##\s", line)
+            and any(re.search(p, line, re.I) for p in LITE_SECTION_PATTERNS)
+        )
+    return _section_body(text, is_lite_heading)
+
+
+def check_lite(overview: Path) -> tuple[bool, list[str]]:
+    """lite 档门禁：轻量复核章节 + 档位 + Blocker 清零 + 三项复核 + 证据。"""
+    notes: list[str] = []
+    if not overview.is_file():
+        return False, [f"FAIL — overview 文件不存在：{overview}"]
+    text = read_text(overview)
+    if not text:
+        return False, [f"FAIL — overview 读取失败或为空：{overview}"]
+
+    body = find_lite_section(text)
+    if body is None:
+        return False, [
+            "FAIL — 未发现「轻量复核（lite）」章节。lite 档不派独立子代理，"
+            "但必须写三问复核（意图一致/边界与错误/证据）到该章节；"
+            "若已超 lite 条件请升档走独立 review。"
+        ]
+
+    ok = True
+    notes.append("PASS — 发现「轻量复核（lite）」章节")
+
+    if re.search(LITE_TIER_PATTERN, body, re.I):
+        notes.append("PASS — 发现档位标记：lite")
+    else:
+        ok = False
+        notes.append("FAIL — 章节内缺少 `档位: lite` 标记，无法确认适用 lite 门禁")
+
+    if any(re.search(p, body, re.I) for p in BLOCKED_PATTERNS):
+        ok = False
+        notes.append("FAIL — 轻量复核发现未清零 Blocker，必须升 standard 派独立子代理")
+    elif any(re.search(p, body, re.I) for p in CLEAR_PATTERNS):
+        notes.append("PASS — 发现 Blocker 清零结论")
+    else:
+        ok = False
+        notes.append("FAIL — 章节内无明确的 Blocker = 0 / 无阻塞项结论")
+
+    bullets = re.findall(r"^\s*[-*+]\s+(.+)$", body, re.M)
+    if len(bullets) >= 3:
+        notes.append(f"PASS — 复核项 {len(bullets)} 条（要求 ≥3）")
+    else:
+        ok = False
+        notes.append(f"FAIL — 复核项仅 {len(bullets)} 条（要求 ≥3：意图一致/边界与错误/证据）")
+
+    evidenced = [b for b in bullets if LITE_EVIDENCE_PATTERN.search(b)]
+    if len(evidenced) >= 2:
+        notes.append(f"PASS — {len(evidenced)} 条复核项带行号或退出码证据（要求 ≥2）")
+    else:
+        ok = False
+        notes.append("FAIL — 带 `文件:行号` 或 `退出码 N` 的复核项不足 2 条，禁止 finish")
+
+    return ok, notes
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="conductor 独立 review 门禁")
     ap.add_argument("--overview", required=True, help="本轮 overview 文件路径")
@@ -194,12 +269,26 @@ def main() -> int:
         help="显式声明豁免（只读/纯文档场景，或确有理由不做独立 review）",
     )
     ap.add_argument("--waiver-reason", default="", help="豁免理由（写入输出与 overview 证据）")
+    ap.add_argument(
+        "--lite",
+        action="store_true",
+        help="lite 档：校验 overview 的「轻量复核（lite）」章节，替代独立子代理 review",
+    )
     args = ap.parse_args()
 
-    overview = Path(args.overview).resolve()
-    ok, notes = check(overview, args.waived, args.waiver_reason)
+    if args.lite and args.waived:
+        print("# review 门禁\n\n- FAIL — --lite 与 --waived 不能同时使用（lite 档也必须留复核证据）")
+        return 1
 
-    print("# 独立 review 门禁\n")
+    overview = Path(args.overview).resolve()
+    if args.lite:
+        ok, notes = check_lite(overview)
+        title = "# 轻量复核门禁（lite 档）"
+    else:
+        ok, notes = check(overview, args.waived, args.waiver_reason)
+        title = "# 独立 review 门禁"
+
+    print(f"{title}\n")
     for n in notes:
         print(f"- {n}")
     print()

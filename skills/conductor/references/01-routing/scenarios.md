@@ -4,26 +4,27 @@
 > **主控统一为 conductor**：每场景写成一条**工程能力链**（如 `brainstorm`→`plan`→`tdd`）。
 > 能力是 conductor 内化的工程节点（来源/契约见 `engineering-catalog.md`，方法见 `engineering-*.md`），不是外部 skill。
 > **加载纪律**：S1 路由时只需读下方「I/O 契约表」判定衔接；执行到某个具体场景时，再读该场景那一节。不要整份通读。
+> **成本档位**：执行前先按 `cost-tiers.md` 判 lite/standard/full——lite 跳过下方通用前置 2b/3/5b、S5 不派独立子代理（改用 `review_gate.py --lite`）；standard/full 照常。档位与"省掉"必须写进 S1 声明。
 
-## 交付前独立 review 门禁（所有改码场景必做）
+## 交付前独立 review 门禁（standard/full 改码场景必做；lite 走轻量复核）
 
 凡有代码改动的场景（1/4/5/6/7/8/13），finish/交付前必须由**全新上下文子代理**跑 `code-quality-review`
 （七维+接线四问，重点查功能遗漏/断点），Blocker 清零才准交付；执行者 S4 自查不可替代。
-只读(9/10)、纯文档(2/3/11)不触发。**规则全文**见 `references/04-guards/independent-review.md`。
+只读(9/10)、纯文档(2/3/11)不触发；**lite 档例外**：不派子代理，写 overview 的「轻量复核（lite）」章节（三问+证据）并跑 `review_gate.py --overview <path> --lite`。**规则全文**见 `references/04-guards/independent-review.md`。
 **机器校验**：`review_gate.py --overview <path>` 核对 overview 的「独立 review 结果」章节+Blocker 清零+review 证据（内嵌报告章节有分级/证据，或外部报告文件存在）；
-退出码非 0 禁止 finish；非触发场景用 `--waived` 显式豁免。
+退出码非 0 禁止 finish；非触发场景用 `--waived` 显式豁免；lite 用 `--lite`（与 `--waived` 互斥）。
 
 ## 通用前置（所有场景必做）
 
 1. 依赖预检：`python .agents/skills/conductor/scripts/preflight.py --project-root .`，缺失项先解决或登记例外。
 2. 定位 overview：跑 `scripts/overview_path.py --project-root . --topic "<主题>"`，按返回 path/action 建或续（会话指针 `.conductor-session.json` 锚定，同会话归同一文件；换任务加 `--new-session`）。详见 `overview.md`。
-2b. 环境探测：跑 `scripts/env_probe.py --project-root .`，把真实环境需求/可用性（docker、集成测试目录、依赖信号）写入 overview 环境节。**依赖真实环境的功能必须留在计划内**（见 `architecture-contracts.md` §4.5），不许因当前无环境预先砍掉。
-3. 读上次 handoff（若有）：定位 suggested skills 与未完成项。
+2b. 环境探测（lite 跳过；standard 只在有真实环境依赖信号时跑；full 必跑）：跑 `scripts/env_probe.py --project-root .`，把真实环境需求/可用性（docker、集成测试目录、依赖信号）写入 overview 环境节。**依赖真实环境的功能必须留在计划内**（见 `architecture-contracts.md` §4.5），不许因当前无环境预先砍掉。
+3. 读上次 handoff（lite 跳过，除非续接且 L0 信息不足）：定位 suggested skills 与未完成项。
 4. 路由声明：向用户说清"场景 / 加载 skill / 禁止项 / 下一站"（见 routing.md §4.5）。
 5. **场景链**（多动作）：按链声明每段场景+路径+闸门，逐段执行。前段产出写入 overview、后段先读；
    设计闸门——段1 拷问设计(9)、段2 按设计写代码(6)时，设计漏洞未解决**禁止写代码**，先问用户是否补设计；
    只读段结束不自动进改码段，遇闸门停下问。
-5b. **承诺台账采集**（凡有隐含待办清单的场景 4/5/6/7/8/9/11/12）：按 `commitment-ledger.md` 跑
+5b. **承诺台账采集**（lite 跳过——前提确无隐含清单；凡有隐含待办清单的场景 4/5/6/7/8/9/11/12 必做）：按 `commitment-ledger.md` 跑
    `commitment_ledger.py init`——规格/差异/finding 用 `--from-list`/`--stdin` 采集，模块用 `migration_ledger.py init`，
    机器能扫的自动扫、人只补语义；台账写入 overview 交付产物。新会话先 `next`/`show` 定位断点。
    防膨胀：只卡 S0/S4/S5 三个出口，不插到每一步。

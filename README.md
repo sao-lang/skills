@@ -24,10 +24,11 @@
 |---|---|
 | **唯一主控** | 工程纪律已内化，不再有"治理外壳 + 外部工程内核"两套工作流；外部 skill 只是被调用的工具 |
 | **14 场景 + 5 路径** | 初始化/架构/设计/开发/迭代/重构/解 bug/拷问/理解/文档同步/门禁/测试补课/文档清理等；路径=改码/只读/文档/文档·清理变体/验证，决定跳过哪些阶段 |
-| **S0–S5 阶段机** | 会话开始 → 场景路由 → 设计计划 → TDD 实现 → 自省补强 → review 收尾 |
+| **S0–S5 阶段机** | 会话开始 → 场景路由（同时判成本档位）→ 设计计划 → TDD 实现 → 自省补强 → review 收尾 |
+| **成本档位 lite/standard/full** | 小改动只跑必要步骤（省掉 handoff/env_probe/台账/影响面/独立子代理），高风险仍跑全套；入口 SKILL.md 已压到 3.7k 字符，判档与"省掉"写进路由声明可纠正 |
 | **结构化路由** | 不靠关键词匹配，用"语义三问 + 有限结构算子"把一句话解析成执行图，带置信度、假设明示、可纠正 |
 | **五道锁 + 铁律** | 写码前/中/后、提交前、交付前独立 review，把"建议"变"门禁" |
-| **确定性脚本** | 10 个 Python 脚本做预检、环境探测、验证、缺口扫描、review 证据校验、影响面、技术债、发布说明、overview 路径定位 |
+| **确定性脚本** | 14 个 Python 脚本做预检、环境探测、验证、缺口扫描、review 证据校验（含 lite 档）、影响面、技术债、承诺/迁移台账、源码纯净、发布说明、overview 路径定位 |
 | **真实环境纪律** | 无 Docker/DB 时**不砍功能**：生产实现照写，只在真实环境能验证的部分标「待验证」；用户要真实测试时跑真实入口（如 `tests/integration/`），不复用 mock 命令 |
 | **会话记录** | **一个会话一个 overview**，由会话指针 `.conductor-session.json` 锚定（同会话多轮归同一文件，跨 agent 通用、零环境变量依赖；换任务 `--new-session`），按"记什么/不记什么"过滤，问题带状态；分层加载（L0 索引卡 / L1 摘要 / L2 详情引用） |
 
@@ -35,13 +36,15 @@
 
 ```mermaid
 flowchart LR
-    A[S0 会话开始<br/>预检+交接+建 overview] --> B[S1 场景路由<br/>解析执行图+声明]
+    A[S0 会话开始<br/>预检+按档建 overview] --> B[S1 场景路由<br/>执行图+档位+声明]
     B --> C[S2 设计计划<br/>brainstorm+plan]
     C --> D[S3 TDD 实现<br/>RED-GREEN-REFACTOR]
     D --> E[S4 自省补强<br/>缺口+覆盖率+安全]
     E --> F{S5 交付门禁}
-    F -->|改码场景| G[独立 review<br/>Blocker 清零]
+    F -->|standard/full 改码| G[独立 review 子代理<br/>Blocker 清零]
+    F -->|lite 改码| L[轻量复核<br/>review_gate --lite]
     G --> H[finish<br/>合并/PR/保留/丢弃]
+    L --> H
     F -->|只读/文档| H
 ```
 
@@ -53,8 +56,8 @@ flowchart LR
 skills/
 ├── conductor/                  ← 核心主控 skill
 │   ├── SKILL.md                ← AI 加载入口（触发元数据 + 门禁 + 阶段矩阵）
-│   ├── references/             ← 33 份按需加载文档（五类）
-│   │   ├── 01-routing/         ← 路由、场景、overview 规范、skill 矩阵
+│   ├── references/             ← 34 份按需加载文档（五类）
+│   │   ├── 01-routing/         ← 路由、成本档位、场景、overview 规范、skill 矩阵
 │   │   ├── 02-engineering/     ← 工程纪律（内化自 superpowers）
 │   │   ├── 03-coding-rules/    ← 通用 + 7 种语言编码规则
 │   │   ├── 04-guards/          ← 规则与门禁（安全/接线/技术债/发布等）
@@ -228,8 +231,9 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 
 本 skill 刻意做了分层，避免每次任务把全部文档塞进上下文：
 
-- `SKILL.md` 是唯一每次加载的入口，已精简到约 11KB。
-- `references/` 33 份文档按阶段/触发条件加载；大文件（routing/scenarios/workflow）按节读，不整份加载。
+- `SKILL.md` 是唯一每次加载的入口，已从 9.8k 字符压到约 3.7k 字符（-63%），细节下沉到 reference。
+- `references/` 34 份文档按阶段/触发条件加载；大文件（routing/scenarios/workflow）按节读，不整份加载。
+- **成本档位**：S1 判 lite/standard/full，lite 省掉 handoff/env_probe/台账/影响面/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。
 - overview 采用 L0 索引卡（≤12 行）+ L1 摘要 + L2 详情引用，续接先只读 L0。
 
 ### 安全与隐私

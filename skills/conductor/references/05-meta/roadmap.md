@@ -237,6 +237,16 @@
 - 测试：无注释占位命中、有依赖注释跳过、未用参数命中、abstract/_前缀/docstring 豁免、集成合并、--no-intent、strict 全通过。
 - 关键决策：行级模式（正则）与函数级语义（AST）分脚本、统一门禁——职责清晰且存量基线/豁免机制复用。
 
+### 成本档位 · lite / standard / full（🟢 已激活 2026-11-21）
+- 起因：用户反馈"一次运行最低四五十积分就没了"。诊断：入口 SKILL.md 9834 字符每轮全量注入；S0 强制 handoff/env_probe/承诺台账；S5 强制全新上下文独立 review 子代理——小改动跑全套是结构性空转，不是某一条规则写错。
+- 形态决策：不删门禁，改为**按风险判档**——低风险小改动走 lite，高风险仍走 full；省掉的每一步必须在路由声明列出来，可纠正、可审计。
+- 新增 `references/01-routing/cost-tiers.md`：三档判定条件（规模/接口/清单/环境/设计/用户要求/置信度）、逐节点裁剪表、不可裁底线、lite 一行式声明、三问轻量复核与升档规则。
+- `review_gate.py` 加 `--lite`：校验 overview 的「轻量复核（lite）」章节（档位标记 + Blocker 清零 + ≥3 条复核项 + ≥2 条行号/退出码证据），与 `--waived` 互斥，防"省成本"变"省门禁"。
+- 入口瘦身：SKILL.md 9834 → 3668 字符（-63%），场景表压缩、阶段矩阵改为要点、脚本清单收为一行；细节全部下沉到既有 reference，铁律与五道锁保留但合并为短句。
+- 挂载：SKILL.md（成本档位表 + S0–S5 按档裁剪 + 锁5 + 参考计数 33→34）、routing.md（§2.3 判档顺序 + 决策/声明模板加档位与"省掉"）、router-prompt.md（档位字段 + 管线 3.5）、scenarios.md（顶层裁切说明 + 通用前置 2b/3/5b 条件化 + review 门禁 lite 例外）、independent-review.md（档位裁切引言）、skill-matrix.md（矩阵裁剪说明 + review_gate --lite）、05-meta README（A 类 5→6、总数 33→34）、根 README。
+- 测试：`review_gate.py --lite` 的 PASS/FAIL（缺章节/缺档位/未清零/复核项不足/证据不足/与 --waived 冲突）全通过；原默认门禁与 `--waived` 路径保持兼容。
+- 关键决策：省的是**重复声明、全量工程文档、无关扫描、外部 skill 与独立子代理**；不省规格确认、TDD、verify.py 证据、source_purity 门禁、review 门禁与 overview L0。lite 一旦越界立即升档，不能用补跑糊弄。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

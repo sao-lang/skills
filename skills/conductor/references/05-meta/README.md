@@ -1,13 +1,13 @@
 # conductor references 索引
 
-> 33 份知识文档（含本索引），按需加载（渐进式披露）。本索引回答"什么情况读哪份"。
+> 34 份知识文档（含本索引），按需加载（渐进式披露）。本索引回答"什么情况读哪份"。
 > 加载纪律：只在本表指定的阶段/触发条件下读对应文件，不要一次性全读。
 
 ## 目录结构（物理归类）
 
 ```
 references/
-├── 01-routing/       A 类：流程与路由（5 份）
+├── 01-routing/       A 类：流程与路由（6 份）
 ├── 02-engineering/   B 类：工程纪律（5 份）
 ├── 03-coding-rules/  C 类：编码规则（8 份：common + 7 语言）
 ├── 04-guards/        D 类：规则与门禁（13 份）
@@ -23,6 +23,7 @@ references/
 | `references/01-routing/routing.md` | S1（读全文） | 场景路由规划器——把用户的话解析成执行图（结构算子→语义三问→I/O 契约→置信度） |
 | `references/01-routing/router-prompt.md` | 需跨 agent 复用路由时 | routing 的自包含提示词版，可注入 Codex/CC/OpenCode/Droid |
 | `references/01-routing/scenarios.md` | S1 只读「I/O 契约表」节；执行到具体场景时读该场景节 | 14 场景详细流程 + 工程能力链 + 场景 I/O 契约表。**不要整份加载** |
+| `references/01-routing/cost-tiers.md` | S1 判档时（与 routing 同时） | 成本档位 lite/standard/full：判定条件、裁剪表、lite 轻量复核证据；专治小改动跑全套空转 |
 | `references/01-routing/overview.md` | S0 / 收尾 | 会话记录格式（overviews/日期/文件），写入前脱敏 |
 | `references/01-routing/skill-matrix.md` | 需查阶段加载表/工具来源时 | 阶段→skill 加载矩阵 + 外部工具清单 + 跨 agent 安装 |
 
@@ -72,7 +73,7 @@ references/
 
 ## 加载优先级与冲突
 
-0. **大文件按节读（省 token）**：`routing.md` 读全文；`scenarios.md` 路由时只读 I/O 契约表、执行到具体场景才读该节；`engineering-workflow.md` 按 S2/S3/S5 只读对应节。三个文件都不要整份灌进上下文。
+0. **大文件按节读（省 token）**：`routing.md` + `cost-tiers.md` 在 S1 读全文；`scenarios.md` 路由时只读 I/O 契约表、执行到具体场景才读该节；`engineering-workflow.md` 按 S2/S3/S5 只读对应节。三个大文件都不要整份灌进上下文。
 1. **工程纪律 vs 编码规则正交**：前者管"先写测试再实现"，后者管"实现写成什么样"，同时遵守。
 2. **流程主控唯一**：conductor 自己执行全部工程阶段，A/B 类文档是它的步骤说明，不是外部 skill。
 3. **工具是配角**：grill-design/graphify/code-quality-review 等只在指定阶段被调用，不占能力链节点。

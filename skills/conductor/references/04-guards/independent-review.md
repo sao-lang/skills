@@ -1,7 +1,8 @@
 # 独立 review 门禁 · 完整规则
 
 > 用途：conductor 交付前的最后一道独立闸门。**凡涉及代码改动的场景，finish 前必须由全新上下文子代理跑一次独立 code-quality-review，Blocker 清零才准交付。**
-> SKILL.md 只保留一句话指针 + 铁律第 7 条，完整规则在此；本文件由 S5 阶段加载。
+> SKILL.md 只保留一句话指针 + 铁律第 6 条，完整规则在此；本文件由 S5 阶段加载。
+> **档位裁切**：standard/full 走本文件全文；lite 档不派子代理，按 `cost-tiers.md` §4 写「轻量复核（lite）」章节并跑 `review_gate.py --lite`。升档后本节规则自动恢复。
 
 ## 起因与根因
 

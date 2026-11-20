@@ -1,122 +1,58 @@
 ---
 name: conductor
-description: 通用的 AI 开发工作流主控 skill。当收到开发、重构、迁移、修 bug、项目初始化、迭代、架构设计、拷问代码/设计，或"怎么保证不漏需求/模块/调用方/回归""迁移别漏东西""别在源码里写内存版/假实现""别用 Any/object"类防漏与源码纯净需求时，本 skill 应被加载：它是唯一的流程主控，内置完整工程纪律（头脑风暴/写计划/worktree/子代理/TDD/系统化调试/代码评审/收尾），并负责场景路由、会话记录、承诺台账（全场景防漏：S0 采集承诺→S4 核证据→S5 零未勾销门禁）/缺口台账自省、影响面与技术债治理、门禁与交接。适用于 Claude Code、Codex、OpenCode、Droid 等支持 SKILL.md 的通用 agent。
+description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块/调用方""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：内化工程纪律（brainstorm→plan→TDD→review→finish），负责场景路由与成本分档、承诺台账、证据门禁、独立 review、会话记录。适用于支持 SKILL.md 的 agent。
 ---
 
 # conductor · 开发工作流主控
 
-> 指挥家：本 skill 亲自执棒整条开发流程（路由→工程纪律→门禁→交接）；需要专门工具时调用
-> grill-design / code-quality-review / graphify / handoff 等，它们只按本 skill 指定的阶段被加载。
+> 唯一流程主控：工程纪律已内化在 `references/02-engineering/`，外部 skill 只在指定阶段按档位作工具。
+> **省成本第一原则：先判档，再执行**——能 lite 不 standard，能 standard 不 full；省掉的步骤必须在路由声明里写明。
 
-## 定位（必读）
+## 触发后必须先做
 
-- **唯一流程主控**：不再有"治理外壳 + 外部工程内核"两套工作流。
-- **工程纪律已内化**：brainstorm → plan → worktree → 子代理 → TDD → 调试 → review → finish，
-  固化在 `references/02-engineering/engineering-*.md`，由 conductor 自己执行。
-- **外部 skill 只是工具**：不定义阶段，只在指定阶段被加载。
+1. **定位 overview**：`python scripts/overview_path.py --project-root . --topic "<主题>"` → 按返回 `action` 建/续；会话指针 `.conductor-session.json` 锚定，同会话多轮归同一文件。续接**只读 L0（≤12 行）**，必要时再看 L1/L2。格式见 `references/01-routing/overview.md`。
+2. **路由并声明**：按 `references/01-routing/routing.md` 把用户的话解析成执行图，声明「场景 / 路径 / 成本档位 / 脚本 / 禁止项 / 下一站」。**未声明不推进**；置信度低先问用户，失败降级只读，绝不猜改码场景硬跑。
 
-## 触发后必须先做的两件事
+## 成本档位（S1 先判，写进声明）
 
-1. **定位 overview 文件**：S0 跑 `scripts/overview_path.py --project-root . --topic "<主题>"`，按返回的 `action`（append/create）与 `path` 建/续会话记录。脚本用会话指针 `.conductor-session.json` 锚定——同会话多轮自动归到同一文件，换任务时带 `--new-session`。详见 `references/01-routing/overview.md`。
-2. **路由 = 规划执行图**（`references/01-routing/routing.md`）：把用户的话解析成执行图（节点=场景，边=链/分支，模式=路径）。
-   - 五层：结构算子定拓扑 → 语义三问定场景+路径 → `scenarios.md` 的 I/O 契约校验衔接 → 置信度+**假设明示**+待澄清 → 高≥0.8 执行/中 0.5–0.8 确认/低<0.5 问用户。
-   - 失败降级到只读场景 9/10，**绝不猜改码场景硬跑**；每节点完成后重规划；用户一句话纠正即重路由。**未声明不推进。**
-   - 跨 agent 复用：`references/01-routing/router-prompt.md` 是上述规划器的自包含提示词，可单独注入任意 agent。
+| 档位 | 适用 | 保留 | 省掉 |
+|---|---|---|---|
+| **lite** | 单文件 ≤30 行改动 / 单函数 bug / 小注释或文档同步；无跨模块契约、无隐含清单、本地可验证 | preflight、overview L0、规格确认、TDD、`verify.py`、`source_purity`、轻量复核（`review_gate.py --lite`） | handoff、env_probe、承诺台账、影响面、独立 review 子代理、外部 grill/handoff skill、完整工程文档 |
+| **standard**（默认） | 单模块功能改动 / 普通迭代 / 多函数 bug | lite 全部 + 独立 review 子代理 + 承诺台账（有清单时）+ 环境探测（有真实环境依赖时） | 架构拷问、影响面（无跨模块时）、full 全套 |
+| **full** | 多模块 / 架构 / 迁移重构 / 高风险 / 用户要求零遗漏或深度审查 | 完整 S0–S5 + 独立 review + 承诺台账 + 影响面 + 相关 guard 文档 | 无 |
 
-## 十四场景与流程裁剪
+任一 lite 条件被打破立即升档；用户说"省积分 / 快一点 / 别跑全套"时取最低可用档，并在声明中列出省掉的步骤。完整判定、裁剪表与 lite 复核证据见 `references/01-routing/cost-tiers.md`。
 
-| 场景 | 走的工程阶段（本 skill 主控） | 额外加载 |
-|---|---|---|
-| 1 项目初始化 | brainstorming → writing-plans（止步） | overviews 建库、技术选型拷问 |
-| 2 架构设计 | brainstorming + 设计树（止步于架构规格） | grill-design + architecture-contracts |
-| 3 补充设计 | 局部 brainstorm（只补缺口） | 定位已有设计，禁重写既有结论 |
-| 4 项目开发 | 全程 brainstorm→plan→TDD→review→finish | S0/S4 + ponytail/caveman/coding-rules |
-| 5 项目迭代 | brainstorm（轻）→ plan → TDD → review | **impact_analysis** 影响面 + 回归检查 |
-| 6 设计驱动重构 | 核设计差异 → TDD 锁行为 → review → finish | **contract-migration** 契约核对，禁夹带 |
-| 7 项目重构 | 盘点建台账 → TDD 锁行为 → 逐块迁移+差分 → review → finish | **commitment-ledger（通用）+ migration-integrity（特化）+ migration_ledger shim**（清单来自代码/收口门禁/断点续接）+ impact_analysis + ponytail，禁夹带新功能 |
-| 全场景横切 | 凡有隐含待办清单的场景（4/5/6/7/8/9/11/12） | **commitment-ledger**：S0 采集承诺、S4 核证据、S5 零未勾销门禁；防漏靠台账不靠记忆，机器扫优先、豁免留痕 |
-| 8 解 bug | debugging → TDD 复现 → review | **最小复现构造**（engineering-debugging）+ 回归证据 |
-| 9 拷问代码/设计 | 不跑工程阶段（纯只读） | grill-design / grill-me / code-quality-review，出清单不改码 |
-| 10 代码库理解 | 不跑工程阶段（纯只读） | graphify + scan_gaps + architecture-contracts |
-| 11 文档/注释同步 | 局部（只核差异，不跑代码 TDD） | grill-design + architecture-contracts，出差异清单；含注释/docstring 补全 |
-| 12 门禁验收/发布 | 不跑工程阶段（只验证） | preflight+verify+scan_gaps+review 全套 + **release-checklist** |
-| 13 测试补课 | TDD 变体（只补测试） | test-strategy.md，出测试 + 覆盖率证据 |
-| 14 文档/资源清理 | 不跑工程阶段（S1→确认无依赖→执行→结束） | 删除/归档/移动文档、改无关文档内容；无代码改动不跑 TDD/verify；**在场景链中销毁必须排最后**（见 routing §3.5） |
+## 十四场景（细节按节读 scenarios.md）
 
-详细步骤见 `references/01-routing/scenarios.md`（含场景 I/O 契约表，链式组合做类型校验）。
+| 场景 | 路径 | 场景 | 路径 |
+|---|---|---|---|
+| 1 初始化 | 改码 | 8 解 bug | 改码 |
+| 2 架构设计 | 文档 | 9 拷问代码/设计 | 只读 |
+| 3 补充设计 | 文档 | 10 代码库理解 | 只读 |
+| 4 项目开发 | 改码 | 11 文档/注释同步 | 文档 |
+| 5 项目迭代 | 改码 | 12 门禁验收/发布 | 验证 |
+| 6 设计驱动重构 | 改码 | 13 测试补课 | 验证 |
+| 7 项目重构 | 改码 | 14 文档/资源清理 | 文档·清理 |
 
-> **references 导航**（省 token 硬纪律）：33 份文档"何时读哪份"见 `references/05-meta/README.md`（五类）。**按阶段与粒度渐进加载，禁止一次性全读**：
-> - `routing.md` / `scenarios.md`：S1 路由只需读 routing 全文 + scenarios 的**「I/O 契约表」**一节判衔接；**执行到某个具体场景时，才读 scenarios 对应那一节**，不整份加载。
-> - `engineering-workflow.md`：S2 读 brainstorm+plan 两节、S3 读 worktree、S5 读 finish——**只读当前阶段那一节**，不整份加载。
-> - 其余 reference 按 `README.md` 索引的触发条件加载。
+> 工程能力链与 I/O 契约表见 `references/01-routing/scenarios.md`：**S1 只读「I/O 契约表」，执行到某场景才读该节，不整份加载**。
 
-## 阶段 → skill 加载矩阵
+## S0–S5 必做（按档位裁剪）
 
-每步先声明主控，再声明加载项与禁止项。完整表（含 skill 仓库地址与跨 agent 安装）见 `references/01-routing/skill-matrix.md`。
+- **S0**：preflight → overview 定位/建 → handoff / env_probe / 承诺台账按档位触发 → 写 L0。
+- **S1**：执行图 + 场景/路径/档位声明；改码/迭代在 standard/full 跑 `impact_analysis.py`；场景 7 跑 `migration_ledger.py init`（新增模块必 `--merge`）。
+- **S2**：brainstorm + plan（lite 只做一句话规格确认）；**规格未确认不动手**。写规格用 `design-spec-template.md`，拷问/架构按触发加挂。
+- **S3**：TDD RED→GREEN；写码前读 `coding-rules-common.md` + 当前语言那份；绿后按 `git-commit-rules.md` 提交。
+- **S4**：`scan_gaps.py` → `verify.py`（测试证据只认它）→ `debt_ledger.py`；`source_purity.py check --strict`（fake 实现 / 动态类型 / 无注释占位；重构先 baseline + `--scope`）；有台账则 `commitment_ledger.py check --strict`。lite 只跑 verify + source_purity。
+- **S5**：改码交付按档位过 review 门禁——standard/full 用全新上下文子代理 + `review_gate.py`，lite 用 `review_gate.py --lite` 轻量复核；有台账则零未勾销才 finish；收尾写 overview + handoff（lite 只写 L1 一行）。
 
-| 阶段 | 主控 | 加载 / 调用 |
-|---|---|---|
-| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 跑 `overview_path.py` 定位/建 overview（会话指针锚定，见 overview.md）→ 跑 `env_probe.py` 探测真实环境需求/可用性写入 overview 环境节 → **凡有隐含待办清单的场景，跑 `commitment_ledger.py init` 采集承诺进台账（见 `commitment-ledger.md`，机器扫优先、人只补语义）**；续接先读 L0（~10 行），按需读 L1/L2，禁止全量 |
-| S1 场景路由 | 本 skill | `routing.md` 规划执行图 + 声明 skill 组/禁止项/下一站；命中样例信号（举例/参考X那样）启用 `examples-to-spec.md`；改码/迭代场景跑 `impact_analysis.py` 出影响面草稿；**场景7 跑 `migration_ledger.py init` 建迁移台账（新增模块必 `--merge`）** |
-| S2 设计计划 | 本 skill | `engineering-workflow.md`（brainstorm+plan）；写规格用 `design-spec-template.md`；拷问加 `grill-design`；架构类加 `architecture-contracts`（含 §4.5：依赖真实环境的功能必须进计划，不许因无环境预先砍掉）；按 `examples-to-spec.md` 补全样例；涉接口/迁移加 `contract-migration.md` |
-| S3 TDD 实现 | 本 skill | `engineering-tdd.md` + `engineering-workflow.md`（worktree/subagent）；挂 ponytail+caveman+coding-rules；按影响面清单核关联项；绿后按 `git-commit-rules.md` 提交 |
-| S4 自省补强（改码） | 本 skill | `scan_gaps.py`→`verify.py`（覆盖率门禁，只认其输出为测试证据，见 `test-strategy.md` §5）→`debt_ledger.py`（技术债台账）；拷问加 grill-me；安全核对 `security-redlines.md`；接口/迁移核对 `contract-migration.md`；**`source_purity.py check --path src --strict`（源码纯净门禁：fake 实现/动态类型多形状；重构场景先 `baseline` 再用 `--scope` 只卡新增/改到的文件，见 `source-purity.md`）**；**有台账的场景跑 `commitment_ledger.py check --strict`（零未勾销门禁，见 `commitment-ledger.md`；场景7 用 `migration_ledger.py check --path src --strict`）**；**按 `architecture-contracts.md` §4.5 核对依赖真实环境的功能是否仍在生产代码里（没环境≠砍功能）**；**执行者自查 L1/L2，不替代 S5** |
-| S4 分析（只读） | 本 skill | graphify / scan_gaps / review；**不跑 verify、不触发独立 review 门禁** |
-| S5 review 收尾 | 本 skill | `engineering-code-review.md`+`engineering-workflow.md`（finish）；解 bug 读 `engineering-debugging.md`；**改码场景交付前必经独立 review（见下）**；**有台账的场景 `commitment_ledger.py check --strict` 必须退出 0（零未勾销承诺）才准 finish，见 `commitment-ledger.md`**；深度审查加 `metago-code-review-deep`；发布走 `release-checklist.md`+`release_notes.py`；按 `git-commit-rules.md` 提交；收尾 handoff + 写 overview |
+## 五道锁与铁律
 
-**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `overview_path.py --topic <主题>` 会话指针定位 overview（换任务 `--new-session`）· `env_probe.py` 真实环境需求/可用性探测（S0 写 overview，用户要真实测试时给入口命令）· `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿 · `commitment_ledger.py init/next/check/show` 承诺台账（全场景防漏：多来源采集/断点/零未勾销门禁）· `migration_ledger.py` 场景7 兼容 shim（底层=承诺台账）· `source_purity.py scan/check/baseline/rules` 源码纯净门禁（数据驱动规则库 27 条+可自定义，fake 实现/动态类型多形状；**存量基线只卡新增/改到的文件**，带 purity-exempt 留痕）· `intent_gaps.py` 意图空白扫描（无注释跨模块占位/未用参数，函数级语义；已默认合并进 source_purity，可 `--no-intent` 关）。
+- **锁1 写码前**：未读编码规则禁止产出代码；**锁2 写码中**：边写边对照注释模板 / 类型 / 禁魔法串 / 长度基线；**锁3 写码后**：formatter/linter + `source_purity --strict` 退出码 0；**锁4 提交前**：测试绿、暂存区只含本次文件、禁 `git add -A`；**锁5 交付前**：按档位过 review 门禁。
+- **铁律**：①规格未确认不动手 ②无失败测试不算实现 ③自省未过不进 review ④拿不出证据（命令+退出码/行号）不得标完成 ⑤测试证据只认 `verify.py` ⑥改码交付必过对应档 review 门禁 ⑦真实环境优先：无环境不砍功能、不写 fake 冒充 adapter、不散落 Any/object、不留无注释跨模块占位（见 `source-purity.md`）⑧防漏靠台账：有隐含清单必建，S5 零未勾销才 finish（见 `commitment-ledger.md`）。
 
-### 场景 × 阶段矩阵（S1 硬输出，决定跳过哪些阶段）
+## 参考文档与脚本（按需，不整份读）
 
-| 路径 | 场景 | S0 | S1 | S2 | S3 | S4 | S5 |
-|---|---|---|---|---|---|---|---|
-| 改码 | 1/4/5/6/7/8 | ✓ | ✓ | ✓ | ✓ | 改码变体 | ✓ |
-| 只读 | 9/10 | ✓ | ✓ | — | — | 只读变体 | —（写 overview 后结束） |
-| 文档 | 2/3/11 | ✓ | ✓ | 核差异 | S3' 只改文档 | 核签名 | ✓ |
-| 文档·清理 | 14 | ✓ | ✓ | — | 确认无消费者依赖后执行清理 | — | —（写 overview 后结束） |
-| 验证 | 12/13 | ✓ | ✓ | — | 13 补测试/12 跳过 | ✓ | ✓（含独立 review 门禁） |
-
-**只读出口**：只读路径出口是"发现清单/代码地图/证据台账已交付且可追溯"，**不是"测试全绿"**——禁止对无代码改动的场景套用门禁，否则空转。
-
-## 代码规则如何生效
-
-规则不是第二个 skill，靠"会话级约束 + 写码事件触发"生效：S1 种下常驻一句话指针"写码前先读 `references/03-coding-rules/coding-rules-common.md` 与当前语言 `coding-rules-<lang>.md`"，规则正文直到写码那刻才读（渐进式披露）。工程纪律与规则正交：前者管"先测试再实现"，后者管"实现写成什么样"。规则文件：`coding-rules-common.md` + `coding-rules-{python,typescript,react,vue,go,rust,dart}.md`（<lang> 靠通配符引用，只读当前语言那份）。
-
-## 强制机制（五道锁）
-
-- **锁 1 · 写码前**：未读规则文件禁止产生代码；违反则该步无效、回退重做。
-- **锁 2 · 写码中**：每写函数/类/循环边写边对照注释模板、类型原则、禁魔法字符串、长度基线。
-- **锁 3 · 写码后**：跑 formatter/linter/type-checker/注释检查 + **`source_purity.py --path src --strict`**（源码纯净门禁：fake 实现 / 动态类型，见 `source-purity.md`），退出码非 0 → 禁止进 review、禁止标完成。
-- **锁 4 · 提交前**：按 `git-commit-rules.md` 核对——测试绿、暂存区只有本次文件、message 合规；**禁 `git add -A`/`.` 盲加混入他人改动**；提交后核对 HEAD。
-- **锁 5 · 交付前独立 review**：改码场景 finish 前必须由独立子代理跑 `code-quality-review`，Blocker 清零才准交付；`review_gate.py` 机器校验 overview 证据，退出码非 0 禁止交付。**完整规则见 `references/04-guards/independent-review.md`（触发范围/派单契约/通过标准/fix-loop/与S4分工）。**
-
-例外必须显式声明并记入 overview（如生成代码、第三方文件、vendor 边界），禁止以"技术债"名义静默放行——欠账一律登记（`debt_ledger.py` + `tech-debt-ledger.md`）。
-
-## skill 加载纪律
-
-声明"加载 X"时必须真的调用：① S0 跑 preflight 确认存在；② 加载失败必须显式降级并在 overview 写"缺失X/影响Y/降级Z"，禁止静默跳过或假装加载；③ 关键依赖 `handoff`（S0）缺失须告知用户并给安装命令；④ 只读路径 9/10 不强依赖 handoff，但需标注"无交接上下文"。工程纪律已内置，无外部主控依赖。
-
-## 铁律（贯穿全程）
-
-1. 规格未确认不动手。
-2. 无失败测试不算实现。
-3. 自省未过不进 review。
-4. 拿不出证据（测试行号 / linter 退出码 / 覆盖率）不得标完成。
-5. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
-6. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落，退出码非 0，禁止进 review、禁止标完成。
-7. 改码场景交付前必经独立 review：全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；`review_gate.py` 机器校验证据，退出码非 0 禁止交付（见 `independent-review.md`）。
-8. **真实环境优先**：照真实基础设施写生产实现（非照 fake 简化语义），测试默认跑真实入口（如 `tests/integration/`）；无环境不砍功能、不只写 fake 标完成（见 `architecture-contracts.md` §4.5）。**测试报错先分根因**：代码 bug 自己修；环境缺失（连不上/容器起不来/缺驱动）则明确告知用户"AI 解决不了、属环境依赖"，登记「环境阻断」后可暂忽略该项，禁止静默跳过或改断言/换 fake 造假绿（见 `test-strategy.md` §5.5 原则三）。**生产源码不得出现内存/假实现冒充 adapter，不得散落不具体类型（Any/object/裸容器等各语言多形状），不得留无注释的跨模块占位或未用参数（要写清依赖谁/给谁用，否则 AI 与后人误读）——`source_purity.py --strict` 机器判定（含 intent_gaps 函数级语义）；重构场景用存量基线只卡新增/改到的文件（禁扩大 diff），豁免须留痕（见 `source-purity.md`）。**
-9. **防漏靠台账不靠记忆**：凡有隐含待办清单的场景，以承诺台账为唯一事实源——清单来自机器扫描/已有文档（不凭印象）、新增项必增量采集纳入、收尾 `check --strict` 必须退出 0；禁止刷状态过闸门（verified 必挂证据）、禁止静默跳过（skipped 必填理由）；机器能扫的不让人填、门禁只卡 S0/S4/S5 三个出口、豁免留痕（防流程膨胀）。全场景方法见 `commitment-ledger.md`，场景7 特化见 `migration-integrity.md`。
-
-## 会话记录（overviews）
-
-**一个会话一个 md**（不是一轮一个），由 `scripts/overview_path.py` 用会话指针 `.conductor-session.json` 定位：同会话多轮归同一文件，换任务带 `--new-session`。存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。**按 overview.md「记什么/不记什么」过滤**：与项目无关的对话、未采纳未落实的调研/方案、中间试错一律不写；每个问题带状态（已解决/待跟进/已否决）。
-**分层读写**：每份 overview 顶部必有 ≤12 行 L0 索引卡（场景/闸门/产物/未完成项/下一步）；续接先只读 L0，按需读 L1/L2；>30 行详情独立成 `.xxx.md` 主文件只留路径——禁止把整份 overview 全量灌进上下文。
-
-## 代码理解工具（graphify）
-
-场景 9/10 跨文件问题（谁调用/改了波及什么）用 `graphify` 替代 grep/read 循环：`pip install graphifyy` → `graphify install` → `/graphify .` 建图，查询卡 2000 token。给的是**带源码位置的上下文**不是已验证答案，关键边须打开源码核对；不替代 `scan_gaps.py`。短会话/单文件问题不用（冷启动成本）。
-
-## 跨 agent 与会话交接
-
-本 skill 目录为通用结构：Claude Code 放 `.claude/skills/conductor/`、Codex 放 `.codex/skills/conductor/`、OpenCode 放 `.opencode/skill/conductor/`，或用 `npx skills add <repo> --skill conductor`。不依赖任何特定 agent 的内置工具名。会话交接用 `handoff`（S0/S5）。
+- 34 份 reference 的「何时读哪份」见 `references/05-meta/README.md`：`routing.md` 读全文，`scenarios.md` 与 `engineering-workflow.md` 按节，其余触发才读；编码规则写码时才读当前语言那份。
+- 14 个确定性脚本（输出即证据）：`preflight / overview_path / env_probe / verify / scan_gaps / review_gate / impact_analysis / debt_ledger / release_notes / commitment_ledger / migration_ledger / source_purity / intent_gaps / sync-global`；参数与证据口径见 `references/01-routing/skill-matrix.md`。
+- graphify（跨文件问题）与 handoff（交接）按档位调用，规则见 `skill-matrix.md`；外部 skill 缺失必须显式降级并在 overview 写「缺失 X / 影响 Y / 降级 Z」，禁止静默跳过。

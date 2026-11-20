@@ -2,6 +2,7 @@
 
 > 本文件回答两个问题：**每步加载哪个 skill**、**这些 skill 从哪来 / 怎么装**。
 > 主控原则：conductor 是唯一流程主控；工程纪律已内化为 `engineering-*.md`，外部 skill 只是被调用的工具。
+> **成本档位裁剪**：下表是 standard/full 的完整矩阵；lite 档按 `references/01-routing/cost-tiers.md` 跳过 S0 handoff/env_probe/承诺台账、S1 影响面、S5 独立子代理（改 `review_gate.py --lite`）。省掉的步骤必须写进路由声明。
 
 ## 1. 完整阶段矩阵
 
@@ -21,7 +22,7 @@
 | `preflight.py` | 预检外部 skill + 语言验证工具是否就位，缺失给安装命令 | `python scripts/preflight.py --project-root .` |
 | `verify.py` | 执行 `coding-rules-<lang>.md` 的验证命令，汇总退出码为证据 | `python scripts/verify.py --lang <lang>` |
 | `scan_gaps.py` | 扫 TODO/pass/fake/协议无实现/install 无调用，生成缺口台账草稿 | `python scripts/scan_gaps.py --path src` |
-| `review_gate.py` | 校验 overview 的独立 review 证据（章节/Blocker 清零/内嵌报告章节或外部报告文件存在），防"声称审查但无证据" | `python scripts/review_gate.py --overview <path>`；非改码场景加 `--waived --waiver-reason "<理由>"` |
+| `review_gate.py` | 校验 overview 的独立 review 证据（章节/Blocker 清零/内嵌报告章节或外部报告文件存在），防"声称审查但无证据" | `python scripts/review_gate.py --overview <path>`；非改码场景加 `--waived --waiver-reason "<理由>"`；lite 档加 `--lite`（与 `--waived` 互斥） |
 | `impact_analysis.py` | 变更影响分析：从符号/改动文件/stdin diff 找引用者与建议跑的测试，辅助迭代/重构的影响面评估 | `python scripts/impact_analysis.py --symbols Foo,bar` / `--files src/a.py` / 管道 `--diff` |
 | `debt_ledger.py` | 技术债台账：扫 TODO/FIXME/HACK 等标记，算债指数与热点文件，出草稿 | `python scripts/debt_ledger.py --path src`；`--format json`；`--fail-over <N>` 卡口 |
 | `release_notes.py` | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python scripts/release_notes.py --since <tag> --repo <path>` |
