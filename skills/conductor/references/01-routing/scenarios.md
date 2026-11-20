@@ -1,6 +1,6 @@
 # 十三场景详细流程
 
-> 每场景 = 一段"主控归属 + 加载项 + 禁止项 + 下一步"的明确指令。S0 建 overview、S5 收尾对所有场景通用。
+> 每场景 = 一段"主控归属 + 加载项 + 禁止项 + 下一步"的明确指令。S0 建/续 overview（同会话追加、新会话才建，见 overview.md）、S5 收尾对所有场景通用。
 > **主控统一为 conductor**：每场景写成一条**工程能力链**（如 `brainstorm`→`plan`→`tdd`）。
 > 能力是 conductor 内化的工程节点（来源/契约见 `engineering-catalog.md`，方法见 `engineering-*.md`），不是外部 skill。
 > **加载纪律**：S1 路由时只需读下方「I/O 契约表」判定衔接；执行到某个具体场景时，再读该场景那一节。不要整份通读。
@@ -16,7 +16,7 @@
 ## 通用前置（所有场景必做）
 
 1. 依赖预检：`python .agents/skills/conductor/scripts/preflight.py --project-root .`，缺失项先解决或登记例外。
-2. 建 overview：`overviews/YYYY-MM-DD/YYYYMMDD-HHMM-主题.md`（见 `overview.md`）。
+2. 建/续 overview：`overviews/YYYY-MM-DD/YYYYMMDD-HHMM-主题.md`（见 `overview.md`「新建 vs 追加」——同会话追加到当天主文件，不每轮新建）。
 3. 读上次 handoff（若有）：定位 suggested skills 与未完成项。
 4. 路由声明：向用户说清"场景 / 加载 skill / 禁止项 / 下一站"（见 routing.md §4.5）。
 5. **场景链**（多动作）：按链声明每段场景+路径+闸门，逐段执行。前段产出写入 overview、后段先读；

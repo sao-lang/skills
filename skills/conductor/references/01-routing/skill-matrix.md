@@ -7,7 +7,7 @@
 
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
-| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）、建 overview md | 禁止直接写代码 | 预检完成 + overview 文件已建 |
+| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）、按 overview.md 判定建/续 overview md | 禁止直接写代码 | 预检完成 + 本会话 overview 已建或已续 |
 | S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿 | 禁止跳过声明 | 路由已向用户声明 |
 | S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md`；涉接口/迁移加挂 `references/04-guards/contract-migration.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
 | S3 TDD 实现 | conductor | 读 `references/02-engineering/engineering-tdd.md` + `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules | 无失败测试不写实现 | 红转绿、全量测试绿 |

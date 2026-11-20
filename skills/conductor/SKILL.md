@@ -17,7 +17,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 ## 触发后必须先做的两件事
 
-1. **建会话记录**：按 `references/01-routing/overview.md` 在项目根 `overviews/YYYY-MM-DD/` 建本轮 md。
+1. **建/续会话记录**：按 `references/01-routing/overview.md` 在 `overviews/YYYY-MM-DD/` 记录。**默认追加到当天已有主文件**（同一会话的多轮对话不新建），仅确认是全新会话才新建——判定规则见 overview.md「新建 vs 追加」。
 2. **路由 = 规划执行图**（`references/01-routing/routing.md`）：把用户的话解析成执行图（节点=场景，边=链/分支，模式=路径）。
    - 五层：结构算子定拓扑 → 语义三问定场景+路径 → `scenarios.md` 的 I/O 契约校验衔接 → 置信度+**假设明示**+待澄清 → 高≥0.8 执行/中 0.5–0.8 确认/低<0.5 问用户。
    - 失败降级到只读场景 9/10，**绝不猜改码场景硬跑**；每节点完成后重规划；用户一句话纠正即重路由。**未声明不推进。**
@@ -54,7 +54,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 | 阶段 | 主控 | 加载 / 调用 |
 |---|---|---|
-| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 建 overview；续接旧会话按 `overview.md` 分层加载协议：先读 L0（~10 行），按需读 L1/L2，禁止全量 |
+| S0 会话开始 | 本 skill | `preflight.py` 预检 → **实际调用 `handoff`** → 按 `overview.md`「新建 vs 追加」判定：同会话追加到当天主文件、全新会话才新建；续接先读 L0（~10 行），按需读 L1/L2，禁止全量 |
 | S1 场景路由 | 本 skill | `routing.md` 规划执行图 + 声明 skill 组/禁止项/下一站；命中样例信号（举例/参考X那样）启用 `examples-to-spec.md`；改码/迭代场景跑 `impact_analysis.py` 出影响面草稿 |
 | S2 设计计划 | 本 skill | `engineering-workflow.md`（brainstorm+plan）；写规格用 `design-spec-template.md`；拷问加 `grill-design`；架构类加 `architecture-contracts`；按 `examples-to-spec.md` 补全样例；涉接口/迁移加 `contract-migration.md` |
 | S3 TDD 实现 | 本 skill | `engineering-tdd.md` + `engineering-workflow.md`（worktree/subagent）；挂 ponytail+caveman+coding-rules；按影响面清单核关联项；绿后按 `git-commit-rules.md` 提交 |
@@ -105,7 +105,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 
 ## 会话记录（overviews）
 
-每轮一个 md，存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。
+**一个会话一个 md**（不是一轮一个），存项目根 `overviews/YYYY-MM-DD/`，格式见 `references/01-routing/overview.md`，写入前脱敏。同一会话的多轮对话**追加到同一主文件的时间戳小节**，只有换任务/换天/用户要求才新建（判定见 overview.md「新建 vs 追加」）。
 **分层读写**：每份 overview 顶部必有 ≤12 行 L0 索引卡（场景/闸门/产物/未完成项/下一步）；续接先只读 L0，按需读 L1/L2；>30 行详情独立成 `.xxx.md` 主文件只留路径——禁止把整份 overview 全量灌进上下文。
 
 ## 代码理解工具（graphify）

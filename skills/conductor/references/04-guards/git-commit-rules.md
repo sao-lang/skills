@@ -86,4 +86,4 @@ fix(skill): 补齐 superpowers 的 git 纪律（worktree/finish 防呆细节）
 
 - **S3 TDD 实现**：每个 `tdd` 循环绿后提交一次（规则 §1）；`execute` 每个任务评审通过后提交。
 - **S5 review 收尾**：`finish` 交付决策前，确认全量绿 + S4 通过 + 本清单过，再提交。
-- **overview 记录**：每次提交把 commit hash 与简述写入本轮 overview 的"变更文件清单/验证结果"。
+- **overview 记录**：每次提交把 commit hash 与简述写入**本会话 overview 主文件**的"变更文件清单/验证结果"（同一会话多轮提交都追加到同一文件）。
