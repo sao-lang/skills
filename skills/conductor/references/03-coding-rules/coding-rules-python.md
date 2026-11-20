@@ -6,6 +6,7 @@
 
 - 模块 / 类 / 函数 / 方法全部写 docstring；首行一句摘要，空行后 `Args:` / `Returns:` / `Raises:` / `Yields:` / `Note:`。
 - 公开 API 必须有 docstring；私有函数至少首行摘要。
+- **实例属性（`self.xxx`）也必须注释**——见下节"实例属性注释"，这是最常漏的一项。
 - 复杂控制流按 common §4 模板逐分支 / 逐循环注释。
 
 ```
@@ -22,6 +23,32 @@ def reserve(self, estimated_cost: float) -> Reservation | None:
         无——预算不足是正常路径，折叠为 None。
     """
 ```
+
+## 实例属性注释（最常漏，必做）
+
+Python 的 `self.xxx` 属性没有独立 docstring 位置，光靠"函数写 docstring"会整类漏掉属性说明，
+读者只能从用法反推每个字段是什么。**每一个实例属性都要有中文注释**，二选一：
+
+1. **类级注释**（推荐，属性多或含义复杂时）——在 class docstring 后用 `Attributes:` 块集中说明：
+   ```python
+   class MemoryStore:
+       """记忆默认实现。
+
+       Attributes:
+           _kv: (namespace, key) → 值，键值记忆本体。
+           _items: item_id → MemoryItem，分层管理的记忆项。
+           _tiers: item_id → 所在层（hot/warm/cold）。
+           _item_times: item_id → 写入时刻，供 TTL 过期判定。
+           _next_item_id: 下一个自增 item_id。
+       """
+   ```
+2. **行内注释**（属性少、含义自明时）——在 `__init__` 每个赋值后加 `# 中文说明`。
+   - **容器必须写清 key 和 value 分别是什么**：`self._kv: dict[tuple[str,str], DynamicValue] = {}  # (namespace,key)→值`。
+   - 注入依赖写清"是什么 + None 时降级成什么"。
+   - 计数/ID 写清"自增还是复用、从几开始"。
+
+判定口径：**"删掉注释，别人能否一眼看懂这个属性的 key/value/生命周期？"** 不能 → 必须注释。
+不要把 `self._kv = {}` 这种裸赋值留在 `__init__` 里——这是"实现了但没写明白"，S4 应打回。
 
 ## 类型
 

@@ -68,6 +68,7 @@ if user.status is UserStatus.ACTIVE and role is Role.ADMIN:
 ## 3. 注释完整性
 
 1. 每个函数 / 方法 / 类 / 结构体 / 类型 / 字段 / 枚举 / 关键变量写完整中文注释。
+   - **实例属性（`self.xxx`）最常漏**：必须逐个注释（类 docstring 的 `Attributes:` 块或 `__init__` 行内注释）；容器属性须写清 key/value 各是什么。Python 详见 `coding-rules-python.md`「实例属性注释」。
 2. docstring 首行一句摘要（用于 L1 目录 / IDE hover），空行后展开：参数、返回、异常、副作用、不变量。
 3. **复杂控制流必须逐分支 / 逐循环说明意图**（模板见 §4）。
 4. 注释解释"为什么"与"契约"，不翻译代码；禁止无信息量的 `* @return the result`。
