@@ -1,6 +1,6 @@
 # conductor references 索引
 
-> 32 份知识文档（含本索引），按需加载（渐进式披露）。本索引回答"什么情况读哪份"。
+> 33 份知识文档（含本索引），按需加载（渐进式披露）。本索引回答"什么情况读哪份"。
 > 加载纪律：只在本表指定的阶段/触发条件下读对应文件，不要一次性全读。
 
 ## 目录结构（物理归类）
@@ -10,7 +10,7 @@ references/
 ├── 01-routing/       A 类：流程与路由（5 份）
 ├── 02-engineering/   B 类：工程纪律（5 份）
 ├── 03-coding-rules/  C 类：编码规则（8 份：common + 7 语言）
-├── 04-guards/        D 类：规则与门禁（12 份）
+├── 04-guards/        D 类：规则与门禁（13 份）
 └── 05-meta/          E 类：本索引 + roadmap（2 份）
 ```
 
@@ -60,6 +60,7 @@ references/
 | `references/04-guards/security-redlines.md` | S4 安全核对 / 涉及密钥注入时 | 密钥脱敏、不可信输入 fail-closed、危险路由、成本闸门 |
 | `references/04-guards/test-strategy.md` | S4 / 测试相关场景 | 测试金字塔、Mock 边界、覆盖率达标口径、假绿识别 |
 | `references/04-guards/architecture-contracts.md` | 设计/改码/接线核对时 | 接线四问 + 断点模式清单，专治"内部通外部断" |
+| `references/04-guards/source-purity.md` | S3 写码时 + S4 自省（所有改码场景） | 源码纯净守卫：把"禁 fake 实现/禁动态类型"软约束变退出码——source_purity.py 扫内存/假实现+Any/object，带留痕豁免；专治"测试代码污染源码/类型不具体" |
 | `references/04-guards/commitment-ledger.md` | S0/S4/S5 公共节点；凡有隐含待办清单的场景（4/5/6/7/8/9/11/12） | 全场景防漏框架：五类根因→三道横切防线（外置事实/证据判定/换眼验证）、承诺台账状态机、多来源采集、防流程膨胀三纪律。先读这份 |
 | `references/04-guards/migration-integrity.md` | 场景7 重构全程（先读 commitment-ledger.md） | 场景7 特化：迁移五步法 + migration_ledger shim + 行为等价/差分证据；通用机制不在此重复 |
 

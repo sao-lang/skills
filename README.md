@@ -53,13 +53,13 @@ flowchart LR
 skills/
 ├── conductor/                  ← 核心主控 skill
 │   ├── SKILL.md                ← AI 加载入口（触发元数据 + 门禁 + 阶段矩阵）
-│   ├── references/             ← 32 份按需加载文档（五类）
+│   ├── references/             ← 33 份按需加载文档（五类）
 │   │   ├── 01-routing/         ← 路由、场景、overview 规范、skill 矩阵
 │   │   ├── 02-engineering/     ← 工程纪律（内化自 superpowers）
 │   │   ├── 03-coding-rules/    ← 通用 + 7 种语言编码规则
 │   │   ├── 04-guards/          ← 规则与门禁（安全/接线/技术债/发布等）
 │   │   └── 05-meta/            ← 索引 + 路线图
-│   └── scripts/                ← 12 个确定性脚本（输出即证据）
+│   └── scripts/                ← 13 个确定性脚本（输出即证据）
 ├── ponytail / caveman / ...    ← 10 个协作工具 skill
 └── ...
 ```
@@ -119,6 +119,7 @@ python skills/conductor/scripts/preflight.py --project-root .
 - "review 一下 M4 的设计有没有坑" → 拷问设计（只读）
 - "把这个模块迁到新架构，别漏东西" → 项目重构（迁移台账：盘点→基线→逐块迁移→收口门禁）
 - "怎么保证不漏需求/调用方/回归" → 承诺台账横切防线（S0 采集承诺→S4 核证据→S5 零未勾销才放行）
+- "没连数据库就写了内存版实现" / "别用 Any" → 源码纯净门禁（扫 fake 实现+动态类型，带留痕豁免）
 - "修掉这个报错" → 解 bug（先造最小复现）
 - "把文档和代码签名对齐" → 文档/注释同步
 - "先检查设计，再按设计写代码" → 场景链（拷问设计 → 设计闸门 → 设计驱动重构）
@@ -227,7 +228,7 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 本 skill 刻意做了分层，避免每次任务把全部文档塞进上下文：
 
 - `SKILL.md` 是唯一每次加载的入口，已精简到约 11KB。
-- `references/` 32 份文档按阶段/触发条件加载；大文件（routing/scenarios/workflow）按节读，不整份加载。
+- `references/` 33 份文档按阶段/触发条件加载；大文件（routing/scenarios/workflow）按节读，不整份加载。
 - overview 采用 L0 索引卡（≤12 行）+ L1 摘要 + L2 详情引用，续接先只读 L0。
 
 ### 安全与隐私

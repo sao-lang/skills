@@ -208,6 +208,15 @@
 - 测试：通用台账多来源采集、stdin 灌入、增量合并保留已迁状态+新项进 pending、假证据拦截、drift、check --strict、shim 兼容（PASS/FAIL 各路径）全通过。
 - 收敛后分工：commitment_ledger=引擎；migration_ledger=场景7 shim；examples-to-spec/impact_analysis/scan_gaps=提取器；contract-migration/architecture-contracts/independent-review=换眼验证；test-strategy/verify.py=证据来源。
 
+### 源码纯净门禁 · fake 实现与动态类型（🟢 已激活 2026-11-21）
+- 起因：用户反馈两个反复出现的问题——① 无真实环境（如 pgsql 连不上）时 AI 在 src/ 写 InMemoryStore 内存版冒充生产 adapter，污染源码；② 大量用 Any/object/dict[str, object] 不具体类型。
+- 诊断：规则文本其实完备（architecture-contracts §4.5 / test-strategy §2,§5.5 / coding-rules-common §1），但全是软约束——verify.py 只跑 linter（多数项目没配严格规则，Any 不报错）、scan_gaps 只认 Fake/Stub/Mock 前缀（换名 InMemory/内存版就绕过）。缺专门的源码模式扫描门禁。
+- 新增 `scripts/source_purity.py`：扫生产源码（自动排除 tests/）两类污染——fake_impl（类名/变量声明/意图注释/文件名含 InMemory/Memory/Fake/Stub/内存版/测试用/待换真实实现等）与 dynamic_type（按语言的 Any/object/interface{}/dynamic/Object）。三粒度留痕豁免（行内/块级/文件级 purity-exempt，理由≥4字符）。默认恒 0，--strict 有未豁免命中即 1。支持 --format json / --lang / --allow-pattern。
+- 新增 `references/04-guards/source-purity.md`：规则正文 + 正确做法（无环境时照真实基础设施写生产 adapter、fake 只在 tests/、待真实环境验证登记）+ 类型具名别名方案 + 豁免纪律 + 完成判定。
+- 挂载：SKILL.md（锁3 + S4 + 脚本清单 + 铁律8 + references 32→33）、test-strategy §2、architecture-contracts §4.5、coding-rules-common §1（均加机器门禁指针）、skill-matrix（脚本表 + S3/S4）、05-meta README（索引 + 计数 32→33、D类 12→13）。
+- 测试：内存实现/Any/dict[str,object]/意图注释全命中、tests/ 排除、行内/块级/文件级豁免、空理由(<4字符)不生效、strict PASS/FAIL 路径全通过。
+- 定位：与 verify.py（格式化/类型/覆盖率）、commitment_ledger（零未勾销）、review_gate（独立review）叠加，互不替代。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

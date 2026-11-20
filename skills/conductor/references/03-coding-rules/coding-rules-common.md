@@ -25,6 +25,8 @@
    - Rust: `serde_json::Value`（仅反序列化边界）
    - Dart: `Object?` 仅在 JSON 边界，配合类型守卫收窄
 4. 禁止裸 `Any` 散落；每次使用需在注释写明"为何无法静态描述"。
+5. **机器门禁**：`source_purity.py --path src --strict` 扫生产源码的 `Any`/`object`/`dict[str, object]`/
+   `interface{}` 等动态类型，命中即 FAIL；确需动态类型的边界用 `purity-exempt` 写理由或具名别名集中定义（见 `references/04-guards/source-purity.md`）。
 
 ---
 

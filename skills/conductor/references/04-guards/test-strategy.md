@@ -20,7 +20,9 @@
 1. **只在系统边界 mock**：网络、进程、时钟、随机源、外部存储——这些必须可注入。
 2. **不 mock 被测对象内部的业务逻辑**：否则测的是 mock 而非实现。
 3. 生产路径的核心逻辑必须有**非 fake 的测试**；fake 用例只能作为补充。
-4. 测试替身（Fake/Stub/Mock）不得出现在 `src/`（scan_gaps.py 会扫此项）。
+4. 测试替身（Fake/Stub/Mock/**InMemory/Local/内存版**）不得出现在 `src/`——
+   `scan_gaps.py` 扫前缀，`source_purity.py --path src --strict` 扫语义信号（含内存实现/意图注释/文件名），
+   后者是硬门禁（见 `source-purity.md`）；测试区自动排除。
 5. 真实适配器（HTTP/stdio/DB）要有接线测试：mock 底层 IO，但走真实适配器代码。
 
 ## 3. 达标口径（S4 自省的硬指标）
