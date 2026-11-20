@@ -284,6 +284,26 @@ def scan(root: Path, exts: set[str], lang_filter: str,
     return hits
 
 
+def merge_intent_gaps(hits: list[Hit], root: Path, lang_filter: str) -> list[Hit]:
+    """合并函数级语义扫描（未解释占位/未使用参数）。intent_gaps 不可用则静默跳过，不阻断主门禁。"""
+    try:
+        import intent_gaps
+    except ImportError:
+        print("[intent] intent_gaps.py 不在同目录，跳过函数级语义扫描。", file=sys.stderr)
+        return hits
+    try:
+        ihits = intent_gaps.scan(root, lang_filter)
+    except Exception as e:  # 语义分析失败不应打断行级门禁
+        print(f"[intent] 语义扫描跳过（{e}）。", file=sys.stderr)
+        return hits
+    for ih in ihits:
+        hits.append(Hit(
+            category=ih.category, file=ih.file, line=ih.line, text=ih.text,
+            rule=ih.rule, rule_id=ih.rule_id, severity=ih.severity, exempt=ih.exempt,
+        ))
+    return hits
+
+
 # ---------- 基线 ----------
 
 def load_baseline(path: str) -> dict[str, dict]:
@@ -376,7 +396,8 @@ def print_report(root: Path, fresh: list[Hit], legacy: list[Hit], exempted: list
     if not (fresh or legacy or exempted or warns):
         print("\n未检出污染信号。仍需人工核对：真实 adapter 是否连真基础设施、跨进程契约与副作用。")
     print("\n> 处理：fake 实现移到 tests/、src/ 只留生产级真实 adapter；"
-          "动态类型改具名别名/具体类型；确需保留的按 purity-exempt 写理由（≥4 字符）。")
+          "动态类型改具名别名/具体类型；占位写清依赖谁/谁补/何时接入；"
+          "未用参数写清给谁用/是否预留；确需保留的按 purity-exempt 写理由（≥4 字符）。")
     print("> 存量代码：先 `baseline` 快照，重构改到哪个文件才处理哪个文件的存量（禁扩大 diff）。")
     print("> 退出码 0 = 草稿/核对；`--strict` 下有新增/本次需处理命中则 1 = 禁止进 review / 标完成。")
 
@@ -392,6 +413,7 @@ def main() -> int:
         sp.add_argument("--rules", default="", help="自定义规则 JSON（追加到内置规则库）")
         sp.add_argument("--disable-rule", action="append", default=[], help="禁用某规则 id（可重复）")
         sp.add_argument("--allow-pattern", action="append", default=[], help="行内正则命中即放行（可重复）")
+        sp.add_argument("--no-intent", action="store_true", help="跳过函数级语义扫描（未解释占位/未使用参数）")
 
     p_scan = sub.add_parser("scan", help="扫描当前源码污染")
     add_common(p_scan)
@@ -442,6 +464,8 @@ def main() -> int:
     exts = ({e.strip() for e in args.exts.split(",") if e.strip()} if args.exts
             else set(DEFAULT_EXTS))
     hits = scan(root, exts, args.lang, compiled, getattr(args, "allow_pattern", []), fname_re)
+    if not getattr(args, "no_intent", False):
+        hits = merge_intent_gaps(hits, root, args.lang)
 
     if args.cmd == "baseline":
         save_baseline(args.out, hits, root)

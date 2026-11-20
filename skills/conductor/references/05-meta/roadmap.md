@@ -228,6 +228,15 @@
 - 测试：27规则加载、多形状命中、多语言、自定义规则、旧调用兼容、基线三态（纯存量PASS/新增FAIL/scope升级FAIL）、无基线全新增FAIL——全通过。
 - 关键决策：门禁在重构场景不能要求全仓清零——用基线把"存量"与"新增/本次改动"分开，符合"改哪负责哪"+禁扩大 diff。
 
+### 源码纯净 v2.1 · 意图空白（无注释占位 / 未用参数）（🟢 已激活 2026-11-21）
+- 起因：用户指出两类"信息缺失"——① 分模块开发时，本模块功能依赖其他未开发模块，写了占位但没注释依赖谁/谁补，AI 误读为"功能没做"；② 函数参数声明了没用、又没注释给谁用/其他模块是否要传，信息为零。
+- 认知：占位与未用参数**本身合法**（跨模块依赖/接口对齐/回调签名），缺的是**意图信息**，不是代码。判定核心=有信号+无解释注释+无豁免。
+- 新增 `scripts/intent_gaps.py`：函数级语义扫描（Python AST 精确）。两规则——`unexplained_placeholder`（pass/.../NotImplementedError/空return 且无意图注释）、`unused_param`（参数声明未用且无说明）。合法豁免：意图注释（依赖/待接入/由…实现/预留/接口约定）、abstractmethod/overload/Protocol、_前缀/self/cls、docstring 点名、purity-exempt。v1 只精支持 Python，其他语言靠 lint/人工（文档明示不假装覆盖）。
+- 集成：`source_purity.py scan/check` 默认自动合并 intent_gaps（Hit 结构兼容，共用存量基线/豁免），`--no-intent` 可关；intent_gaps 缺失/报错静默跳过不中断主门禁。
+- 挂载：SKILL.md（脚本清单+铁律8）、skill-matrix（脚本表）、source-purity.md（新增 §二·补 意图空白 + 完成判定），无新 reference 文档。
+- 测试：无注释占位命中、有依赖注释跳过、未用参数命中、abstract/_前缀/docstring 豁免、集成合并、--no-intent、strict 全通过。
+- 关键决策：行级模式（正则）与函数级语义（AST）分脚本、统一门禁——职责清晰且存量基线/豁免机制复用。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

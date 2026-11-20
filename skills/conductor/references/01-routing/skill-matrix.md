@@ -29,7 +29,8 @@
 | `env_probe.py` | 真实环境探测：docker 可用性、集成测试目录、DB/Redis 依赖信号，给真实测试入口命令（防"无环境砍功能"） | `python scripts/env_probe.py --project-root .` |
 | `commitment_ledger.py` | 承诺台账（全场景防漏引擎）：init 多来源采集（--from-modules/--from-list/--stdin/--manual）、next 断点、check --strict 零未勾销门禁、show 概览 | `python scripts/commitment_ledger.py init --ledger .commitment-ledger.json --from-list docs/spec.md`；impact 输出管道 `--stdin`；收尾 `check --ledger ... --modules src --strict`（见 `commitment-ledger.md`） |
 | `migration_ledger.py` | 场景7 兼容 shim（底层委托 commitment_ledger，固定 source=module）：init 扫码建台账、next 断点、check --strict 收口门禁 | `python scripts/migration_ledger.py init --path src --project <名>`；新增模块 `--merge`；续接 `next`；收尾 `check --path src --strict`（见 `migration-integrity.md`） |
-| `source_purity.py` | 源码纯净门禁：数据驱动规则库（27条+自定义）扫 fake 实现与不具体类型各语言多形状；**存量基线只卡新增/改到的文件**（重构场景）；purity-exempt 留痕豁免；排除 tests/ | `scan --path src --strict`；重构 `baseline --path src` 后 `check --path src --baseline .purity-baseline.json --scope changed.txt --strict`；`rules` 列规则（见 `source-purity.md`） |
+| `source_purity.py` | 源码纯净门禁：数据驱动规则库（27条+自定义）扫 fake 实现与不具体类型各语言多形状；**存量基线只卡新增/改到的文件**（重构场景）；purity-exempt 留痕豁免；排除 tests/；默认合并 intent_gaps | `scan --path src --strict`；重构 `baseline --path src` 后 `check --path src --baseline .purity-baseline.json --scope changed.txt --strict`；`rules` 列规则（见 `source-purity.md`） |
+| `intent_gaps.py` | 意图空白扫描（函数级 AST）：无注释跨模块占位（pass/NotImplementedError）、声明未用且无说明的参数；合法豁免=注释说明/abstract/_前缀/docstring | `python scripts/intent_gaps.py --path src --strict`；已默认并入 source_purity，`--no-intent` 可关（见 `source-purity.md` §二·补） |
 
 ## 2. Skill 清单与仓库地址
 

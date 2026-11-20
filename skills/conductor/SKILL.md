@@ -64,7 +64,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 | S4 分析（只读） | 本 skill | graphify / scan_gaps / review；**不跑 verify、不触发独立 review 门禁** |
 | S5 review 收尾 | 本 skill | `engineering-code-review.md`+`engineering-workflow.md`（finish）；解 bug 读 `engineering-debugging.md`；**改码场景交付前必经独立 review（见下）**；**有台账的场景 `commitment_ledger.py check --strict` 必须退出 0（零未勾销承诺）才准 finish，见 `commitment-ledger.md`**；深度审查加 `metago-code-review-deep`；发布走 `release-checklist.md`+`release_notes.py`；按 `git-commit-rules.md` 提交；收尾 handoff + 写 overview |
 
-**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `overview_path.py --topic <主题>` 会话指针定位 overview（换任务 `--new-session`）· `env_probe.py` 真实环境需求/可用性探测（S0 写 overview，用户要真实测试时给入口命令）· `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿 · `commitment_ledger.py init/next/check/show` 承诺台账（全场景防漏：多来源采集/断点/零未勾销门禁）· `migration_ledger.py` 场景7 兼容 shim（底层=承诺台账）· `source_purity.py scan/check/baseline/rules` 源码纯净门禁（数据驱动规则库 27 条+可自定义，fake 实现/动态类型多形状；**存量基线只卡新增/改到的文件**，带 purity-exempt 留痕）。
+**确定性脚本**（scripts/，非 skill，输出即证据写入 overview）：`preflight.py` 依赖预检 · `overview_path.py --topic <主题>` 会话指针定位 overview（换任务 `--new-session`）· `env_probe.py` 真实环境需求/可用性探测（S0 写 overview，用户要真实测试时给入口命令）· `verify.py --lang <lang>` 验证+覆盖率门禁 · `scan_gaps.py` 缺口草稿 · `review_gate.py --overview <path>` 独立review证据门禁（非改码加 `--waived`）· `impact_analysis.py --symbols/--files/--diff` 变更影响分析 · `debt_ledger.py` 技术债台账 · `release_notes.py --since <tag>` CHANGELOG草稿 · `commitment_ledger.py init/next/check/show` 承诺台账（全场景防漏：多来源采集/断点/零未勾销门禁）· `migration_ledger.py` 场景7 兼容 shim（底层=承诺台账）· `source_purity.py scan/check/baseline/rules` 源码纯净门禁（数据驱动规则库 27 条+可自定义，fake 实现/动态类型多形状；**存量基线只卡新增/改到的文件**，带 purity-exempt 留痕）· `intent_gaps.py` 意图空白扫描（无注释跨模块占位/未用参数，函数级语义；已默认合并进 source_purity，可 `--no-intent` 关）。
 
 ### 场景 × 阶段矩阵（S1 硬输出，决定跳过哪些阶段）
 
@@ -105,7 +105,7 @@ description: 通用的 AI 开发工作流主控 skill。当收到开发、重构
 5. 工程纪律已内置：S2/S3/S5 读 `engineering-*.md` 执行，不加载外部流程 skill。
 6. 测试证据只认 `verify.py`：裸跑 pytest/vitest 不算 S4 证据；覆盖率命令缺失或阈值无着落，退出码非 0，禁止进 review、禁止标完成。
 7. 改码场景交付前必经独立 review：全新上下文子代理跑 `code-quality-review`，Blocker 清零才准 finish；`review_gate.py` 机器校验证据，退出码非 0 禁止交付（见 `independent-review.md`）。
-8. **真实环境优先**：照真实基础设施写生产实现（非照 fake 简化语义），测试默认跑真实入口（如 `tests/integration/`）；无环境不砍功能、不只写 fake 标完成（见 `architecture-contracts.md` §4.5）。**测试报错先分根因**：代码 bug 自己修；环境缺失（连不上/容器起不来/缺驱动）则明确告知用户"AI 解决不了、属环境依赖"，登记「环境阻断」后可暂忽略该项，禁止静默跳过或改断言/换 fake 造假绿（见 `test-strategy.md` §5.5 原则三）。**生产源码不得出现内存/假实现冒充 adapter，不得散落不具体类型（Any/object/裸容器等各语言多形状）——`source_purity.py --strict` 机器判定；重构场景用存量基线只卡新增/改到的文件（禁扩大 diff），豁免须留痕（见 `source-purity.md`）。**
+8. **真实环境优先**：照真实基础设施写生产实现（非照 fake 简化语义），测试默认跑真实入口（如 `tests/integration/`）；无环境不砍功能、不只写 fake 标完成（见 `architecture-contracts.md` §4.5）。**测试报错先分根因**：代码 bug 自己修；环境缺失（连不上/容器起不来/缺驱动）则明确告知用户"AI 解决不了、属环境依赖"，登记「环境阻断」后可暂忽略该项，禁止静默跳过或改断言/换 fake 造假绿（见 `test-strategy.md` §5.5 原则三）。**生产源码不得出现内存/假实现冒充 adapter，不得散落不具体类型（Any/object/裸容器等各语言多形状），不得留无注释的跨模块占位或未用参数（要写清依赖谁/给谁用，否则 AI 与后人误读）——`source_purity.py --strict` 机器判定（含 intent_gaps 函数级语义）；重构场景用存量基线只卡新增/改到的文件（禁扩大 diff），豁免须留痕（见 `source-purity.md`）。**
 9. **防漏靠台账不靠记忆**：凡有隐含待办清单的场景，以承诺台账为唯一事实源——清单来自机器扫描/已有文档（不凭印象）、新增项必增量采集纳入、收尾 `check --strict` 必须退出 0；禁止刷状态过闸门（verified 必挂证据）、禁止静默跳过（skipped 必填理由）；机器能扫的不让人填、门禁只卡 S0/S4/S5 三个出口、豁免留痕（防流程膨胀）。全场景方法见 `commitment-ledger.md`，场景7 特化见 `migration-integrity.md`。
 
 ## 会话记录（overviews）

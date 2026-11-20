@@ -1,10 +1,15 @@
-# 源码纯净守卫 · 数据驱动规则库 + 存量基线
+# 源码纯净守卫 · 数据驱动规则库 + 存量基线 + 意图空白
 
-> 用途：拦住两类反复污染生产源码的错误——① 无真实环境时用内存/假实现冒充生产 adapter；
-> ② 不具体类型（Any/object/interface{}/裸容器/…各种形状）散落签名。
+> 用途：拦住四类反复污染生产源码、让 AI 与后人误读的问题——
+> ① 无真实环境时用内存/假实现冒充生产 adapter；② 不具体类型（各语言多形状）散落签名；
+> ③ **跨模块占位无注释**（依赖谁/谁补/何时接入没写，AI 误读为"功能没做"）；
+> ④ **参数声明了没用又没注释**（给谁用/其他模块是否要传/预留，一片空白）。
 > 定位：S3 写码时按需加载；S4 自省跑门禁；**重构场景用存量基线，只负责改到的文件**。
 > 与 `architecture-contracts.md` §4.5、`test-strategy.md` §2/§5.5、`coding-rules-common.md` §1 同源——
 > 那些是规则正文，本文件是把它们变成退出码的门禁，并解决"老代码本就有、重构时怎么办"。
+
+**两个脚本、一条命令**：`source_purity.py`（行级模式：类型/fake）+ `intent_gaps.py`（函数级语义：占位/未用参数）；
+`source_purity.py scan/check` 默认自动合并两者（用 `--no-intent` 关闭）。存量基线对两者统一生效。
 
 ## 一、为什么规则写了还拦不住 / 为什么需要基线
 
@@ -38,6 +43,43 @@ python scripts/source_purity.py rules --lang python     # 列出生效规则
 ```
 **验收**：新增规则后跑 `rules` 确认已加载，再 `scan` 确认能命中样例。
 
+## 二·补、意图空白（函数级语义扫描）
+
+行级正则抓不到"函数体结构"类问题，由 `scripts/intent_gaps.py` 用 Python AST 精确分析
+（其他语言降级为人工核对，见下方边界）。`source_purity.py scan/check` 默认自动合并其结果。
+
+### 1. unexplained_placeholder —— 跨模块占位无注释
+**问题**：设计分模块，本模块某功能依赖其他未开发模块，代码里写了 `pass` / `...` /
+`raise NotImplementedError` / 空 `return` 占位，但没写"依赖谁、谁来补、何时接入"——
+AI（和后人）读代码时误以为"这功能没做"，要么重复实现、要么误判为 bug。
+**正确做法**：占位处写清意图，例如：
+```python
+def get_user(self, uid: str):
+    # 依赖 auth 模块提供鉴权后接入（M3 交付后启用）
+    pass
+```
+**合法豁免**（不算命中）：函数上方紧邻注释/docstring/函数体内注释含意图信号
+（依赖/待接入/由…实现/预留/后续补/接口约定等）、`@abstractmethod`/`@overload`/Protocol 接口签名、
+`purity-exempt` 留痕。
+
+### 2. unused_param —— 参数声明未用且无说明
+**问题**：参数声明了但函数体没引用，又没注释它是给谁用的、其他模块是否会传、是否预留——
+信息为零，无法判断是接口契约还是死参数。
+**正确做法**：写清用途，或用 `_` 前缀约定表示忽略：
+```python
+def calculate(self, flag: bool, _reserved_for_v2: str):  # flag 由调度模块传入，当前仅记录
+    ...
+```
+**合法豁免**：参数名 `_` 前缀 / `self` / `cls`；docstring 的 `Args:` 里点名并说明；
+抽象/接口方法；`purity-exempt` 留痕。
+
+```bash
+python scripts/intent_gaps.py --path src                # 单独跑
+python scripts/intent_gaps.py --path src --strict --format json
+```
+**语言边界**：v1 精准支持 Python（AST）；TS/Go/Java 等的占位/未用参数由 lint 规则
+（如 TS `noUnusedParameters`、Go 编译器未用参数检查）或人工核对承担——本脚本不假装覆盖。
+
 ## 三、门禁命令
 
 ```bash
@@ -48,9 +90,15 @@ python scripts/source_purity.py scan --path src --strict          # 严格：err
 python scripts/source_purity.py check --path src --strict
 # 查特定语言 / JSON 输出
 python scripts/source_purity.py scan --path src --lang python --format json
+# 关闭函数级语义扫描（只看行级类型/fake 模式）
+python scripts/source_purity.py scan --path src --no-intent
+# 单独跑意图空白扫描
+python scripts/intent_gaps.py --path src --strict
 # 旧式调用仍兼容
 python scripts/source_purity.py --path src --strict
 ```
+> 一条 `source_purity.py scan/check` 同时覆盖行级模式（类型/fake）与函数级语义（占位/未用参数），
+> 两者命中都进同一个门禁、同一份存量基线。intent_gaps 缺失或报错时静默跳过主门禁不中断（stderr 提示）。
 
 ## 四、存量基线（重构场景核心）
 
@@ -103,8 +151,10 @@ def parse(raw: dict[str, object]) -> ...:  # purity-exempt: 外部 JSON 边界�
 每条豁免理由进 overview「验证结果」供审计；空理由（<4 字符）不生效，机器会当成未豁免。
 
 ## 七、完成判定
-- S3 写码后 `scan` 自查，新增污染当场处理；
+- S3 写码后 `scan` 自查，新增污染当场处理（类型/fake + 占位/未用参数）；
 - S4 `check --path src --strict`（重构场景带 `--baseline` + `--scope`）退出 0；
+- **每个跨模块占位都写明依赖谁/谁补/何时接入；每个未用参数都写明给谁用/是否预留**——
+  不能让下一个人（或 AI）面对"未解释的空白"猜意图；
 - 存量 TODO 与豁免理由进 overview，可追溯；
 - 与 verify.py、commitment_ledger check、review_gate 叠加，互不替代；
 - 任一不满足 → 不得标完成、不得进 review。
