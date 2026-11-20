@@ -217,6 +217,17 @@
 - 测试：内存实现/Any/dict[str,object]/意图注释全命中、tests/ 排除、行内/块级/文件级豁免、空理由(<4字符)不生效、strict PASS/FAIL 路径全通过。
 - 定位：与 verify.py（格式化/类型/覆盖率）、commitment_ledger（零未勾销）、review_gate（独立review）叠加，互不替代。
 
+### 源码纯净 v2 · 数据驱动规则库 + 存量基线（🟢 已激活 2026-11-21）
+- 起因：用户指出三个缺口——① 不具体类型不止 Any/object/dict[str,object]（还有 Callable[...,Any]、裸容器、unknown、Function、Object[] 等多形状）；② 不止 Python 其他语言也有；③ **重构时老代码本就有这些，AI 不会处理**（不能要求全仓清零，否则违反禁扩大 diff）。
+- 重写 `scripts/source_purity.py`：
+  - 数据驱动规则库——27 条内置 Rule（id/category/lang/pattern/desc/severity），error 卡门禁 / warn 只提示；覆盖 fake 信号 + 多语言不具体类型多形状（Python 6 条、TS 4 条、Go 3 条、Rust/Dart/Java/Kotlin/C#/Ruby/PHP）；`--rules custom.json` 追加、`--disable-rule` 禁用、`rules` 子命令列出。
+  - 子命令化 scan/baseline/check/rules（无子命令兼容旧调用）。
+  - **存量基线**：`baseline` 写 `.purity-baseline.json`（指纹=文件:行号:规则id 的 hash）；`check --baseline` 只卡新增、存量单列 TODO；`--scope <changed.txt>` 让改到的文件的存量升级为需负责（改哪负责哪）——解决重构场景存量处理与禁扩大 diff 的矛盾。
+- `source-purity.md` 重写：规则库表 + 基线工作流 + 三情形正确做法 + 留痕豁免 + 完成判定。
+- 挂载：SKILL.md（锁3/S4/脚本清单/铁律8）、scenarios 场景7加⑥存量基线、skill-matrix（脚本表+S4）。
+- 测试：27规则加载、多形状命中、多语言、自定义规则、旧调用兼容、基线三态（纯存量PASS/新增FAIL/scope升级FAIL）、无基线全新增FAIL——全通过。
+- 关键决策：门禁在重构场景不能要求全仓清零——用基线把"存量"与"新增/本次改动"分开，符合"改哪负责哪"+禁扩大 diff。
+
 ## 三、P2 候选（🟡，有真实需求再加）
 
 - 安全审计（只读，加载 `references/04-guards/security-redlines.md`）

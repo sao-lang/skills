@@ -107,6 +107,8 @@
   ②基线 characterization test 锁行为（证据填台账 `evidence`）；③逐块迁移+新旧差分对跑，一次一项；
   ④`check --path src --strict` 收尾门禁（pending/in_progress/无证据/skipped 无理由/drift 一律 FAIL）；
   ⑤中断写 `status=in_progress`+`checkpoint`，换会话先 `next` 定位续接点。
+  ⑥**源码纯净存量基线**：重构前 `source_purity.py baseline --path src` 快照老代码的 fake/不具体类型，
+  改到某文件时 `check --scope <changed> --strict` 才让该文件的存量进入负责范围——**避免为清存量而扩大 diff**。
   `impact_analysis.py` 出影响面；ponytail 砍复杂度（YAGNI 七级梯）；涉接口/DB 加 `contract-migration.md`。
 - **禁止**：**夹带新功能**；无测试保护改结构；扩大 diff 到无关代码；**只搬看得见的模块、不核台账**；
   **迁移中新增模块不跑 `init --merge` 纳入台账**（即 drift 漏登记）；为过闸门把 pending 刷成 verified（evidence 会露馅）。
