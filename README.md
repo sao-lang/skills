@@ -25,11 +25,11 @@
 | **唯一主控** | 工程纪律已内化，不再有"治理外壳 + 外部工程内核"两套工作流；外部 skill 只是被调用的工具 |
 | **14 场景 + 5 路径** | 初始化/架构/设计/开发/迭代/重构/解 bug/拷问/理解/文档同步/门禁/测试补课/文档清理等；路径=改码/只读/文档/文档·清理变体/验证，决定跳过哪些阶段 |
 | **S0–S5 阶段机** | 会话开始 → 场景路由（同时判成本档位）→ 设计计划 → TDD 实现 → 自省补强 → review 收尾 |
-| **机体—器官—环境架构** | conductor 只做状态机/门禁/决策；10 个 `skills/conductor-*` 是单一能力器官（路由/头脑风暴/活规格/TDD/review/学习回写/台账/overview/影响面/调试），14 场景是工作环境；入口 SKILL.md 约 3.0k 字符 |
-| **成本档位 lite/standard/full** | 小改动只跑必要步骤（省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立子代理），高风险仍跑全套；判档与"省掉"写进路由声明可纠正 |
+| **机体—器官—环境架构** | conductor 只做状态机/门禁/决策；11 个 `skills/conductor-*` 是单一能力器官（路由/澄清与规格/TDD/review/记忆/台账/影响面/调试/子代理派发/版本动作/安装同步），14 场景是工作环境；入口 SKILL.md 约 3.0k 字符 |
+| **成本档位 lite/standard/full** | 小改动只跑必要步骤（省掉 overview L1 交接/env_probe/台账/影响面/契约固化/沉淀回写/独立子代理），高风险仍跑全套；判档与"省掉"写进路由声明可纠正 |
 | **结构化路由** | 不靠关键词匹配，用"语义三问 + 有限结构算子"把一句话解析成执行图，带置信度、假设明示、可纠正 |
 | **五道锁 + 铁律** | 写码前/中/后、提交前、交付前独立 review，把"建议"变"门禁" |
-| **确定性脚本** | 16 个工作流入口 + 4 个测试/审计脚本；其中 6 个重复入口是薄 shim，实现唯一真相源在器官目录，`script_parity_test.py` 防漂移 |
+| **确定性脚本** | conductor 本体 8 个工作流入口（`preflight/env_probe` + 6 个薄 shim，实现唯一真相源在器官目录，`script_parity_test.py` 防漂移）；统一同步与完整性三测试归 `conductor-sync` |
 | **真实环境纪律** | 无 Docker/DB 时**不砍功能**：生产实现照写，只在真实环境能验证的部分标「待验证」；用户要真实测试时跑真实入口（如 `tests/integration/`），不复用 mock 命令 |
 | **会话记录** | **一个会话一个 overview**，由会话指针 `.conductor-session.json` 锚定（同会话多轮归同一文件，跨 agent 通用、零环境变量依赖；换任务 `--new-session`），按"记什么/不记什么"过滤，问题带状态；分层加载（L0 索引卡 / L1 摘要 / L2 详情引用） |
 
@@ -38,14 +38,14 @@
 ```mermaid
 flowchart LR
     A[S0 会话开始<br/>预检+按档建 overview] --> B[S1 场景路由<br/>执行图+档位+声明]
-    B --> C[S2 设计计划<br/>brainstorm+spec]
+    B --> C[S2 设计计划<br/>brainstorm 澄清+规格]
     C --> C2[change-contract<br/>Acceptance 入台账]
     C2 --> D[S3 TDD 实现<br/>RED-GREEN-REFACTOR]
     D --> E[S4 自省补强<br/>缺口+覆盖率+安全]
     E --> F{S5 交付门禁}
     F -->|standard/full 改码| G[独立 review 子代理<br/>Blocker 清零]
     F -->|lite 改码| L[轻量复核<br/>review_gate --lite]
-    G --> LE[learn 回写 standard/full<br/>dry-run 后确认]
+    G --> LE[memory 沉淀 standard/full<br/>dry-run 后确认]
     LE --> H[收尾<br/>overview 更新 + 用户决策]
 ```
 
@@ -57,13 +57,12 @@ flowchart LR
 skills/
 ├── conductor/                  ← 核心主控 skill
 │   ├── SKILL.md                ← AI 加载入口（触发元数据 + 门禁 + 阶段矩阵）
-│   ├── references/             ← 8 份机体级文档（方法已拆到器官）
-│   │   ├── 01-routing/         ← 器官总线、路由、成本档位、场景、overview 规范、skill 矩阵
+│   ├── references/             ← 5 份机体级文档（方法已拆到器官）
+│   │   ├── 01-routing/         ← 器官总线、skill 矩阵
 │   │   ├── 02-engineering/     ← 工程纪律（内化自 superpowers）
-│   │   ├── 04-guards/          ← 机体门禁（源码纯净/提交/发布）
 │   │   └── 05-meta/            ← 索引 + 路线图
-│   └── scripts/                ← 16 个工作流入口（6 个薄 shim）+ 4 个测试/审计脚本
-├── conductor-router / -brainstorm / -spec / -tdd / -review / -learn / -ledger / -overview / -impact / -debug
+│   └── scripts/                ← 8 个工作流入口（6 个薄 shim）；测试套件在 conductor-sync
+├── conductor-router / -brainstorm / -tdd / -review / -memory / -ledger / -impact / -debug / -subagent / -git / -sync
 │                               ← 11 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
 ├── (原协作 skill)              ← 全部 10 个原目录已删除：3 个方法并入器官，7 个判定废弃
 └── ...
@@ -137,7 +136,7 @@ python skills/conductor/scripts/preflight.py --project-root .
 ```
 我判断本轮走【场景 5：项目迭代】，路径【改码】，置信度【0.9】。
 依据（语义）：产出物=调整后代码，对象=具体功能，结构算子=无。
-将走阶段：S0→S1→S2→S3→S4→S5；加载器官：brainstorm → spec → tdd → ledger → review → learn...
+将走阶段：S0→S1→S2→S3→S4→S5；加载器官：brainstorm(澄清+规格) → tdd → ledger → review → memory(沉淀)...
 如判断有误，直接说"这是场景 X"，我立即重路由。
 ```
 
@@ -204,9 +203,8 @@ git pull origin main
 conductor 提供了同步脚本：
 
 ```bash
-cd skills/conductor
-python scripts/sync-global.py          # 同步 conductor 到全局目录
-python scripts/sync-global.py --dry-run # 只看差异，不实际复制
+python skills/conductor-sync/scripts/sync-global.py          # 同步 conductor 家族到全局目录
+python skills/conductor-sync/scripts/sync-global.py --dry-run # 只看差异，不实际复制
 ```
 
 > **Windows 无符号链接权限**，全局安装采用**复制**而非软链——仓库是唯一真相源，
@@ -224,7 +222,7 @@ cp -r skills/* ~/.workbuddy/skills/
 
 ```bash
 git log --oneline -5                              # 在仓库根看最近更新
-cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步"提示即全局与仓库一致
+python skills/conductor-sync/scripts/sync-global.py --dry-run     # 无"需同步"提示即全局与仓库一致
 ```
 
 ---
@@ -236,11 +234,11 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 本 skill 刻意做了分层，避免每次任务把全部文档塞进上下文：
 
 - `SKILL.md` 是唯一每次加载的入口，已从 9.8k 字符压到约 3.7k 字符（-63%），细节下沉到 reference。
-- `references/` 仅 8 份机体级文档；方法大文件已拆到器官 `references/`，按阶段/触发条件加载，不整份读。
+- `references/` 仅 5 份机体级文档；方法大文件已拆到器官 `references/`，按阶段/触发条件加载，不整份读。
 - **器官化**：11 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
 - **会话记录两-tier**：主文件只有 L0（≤8 行）+ review 章节，详情进 `.details.md`；续接默认只读主文件。
 - **状态文件最小化**：`.conductor-session.json` 只存 8 位 sid；`.commitment-ledger.json` 紧凑 JSON（40 条示例从 9.1k→1.8k 字符，-81%），首次生成自动加入 `.gitignore`。
-- **成本档位**：S1 判 lite/standard/full，lite 省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。
+- **成本档位**：S1 判 lite/standard/full，lite 省掉 overview L1 交接/env_probe/台账/影响面/契约固化/沉淀回写/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。
 - overview 采用 L0 索引卡（≤12 行）+ L1 摘要 + L2 详情引用，续接先只读 L0。
 
 ### 安全与隐私
@@ -262,7 +260,7 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 规则集中在 `references/`，可按项目裁剪：
 
 - 编码规则：`skills/conductor-tdd/references/coding-rules-*.md`（通用 + 各语言）
-- 门禁与安全：`skills/conductor/references/04-guards/`
+- 门禁与安全：`skills/conductor-review/references/`（源码纯净、安全红线）、`skills/conductor-git/references/release-checklist.md`（发布）
 - 场景与路由：`skills/conductor-router/references/`
 
 改动前建议先看 `skills/conductor/references/05-meta/roadmap.md`，了解某能力为何这样设计；改完记得同步到你的全局目录。
