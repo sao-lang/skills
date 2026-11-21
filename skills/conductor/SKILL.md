@@ -55,7 +55,7 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 - 有隐含清单必建台账，`commitment_ledger.py check --strict` 退出 0 才准收尾；禁止刷状态、禁止静默跳过。
 - 真实环境优先：无环境不砍功能、不写 fake 冒充 adapter、不留无注释跨模块占位；环境缺失登记「环境阻断」，禁改断言造假绿。
 - **最小完整变更**：最小的是变更面不是 diff 行数；改契约同次删旧路径，禁新旧双轨；兼容层仅用户显式要求才建且必须带退出条件（登记进 change-contract Open 段，`source_purity.py` 双轨规则命中即卡）。
-- **该删没删 = 改动未完成**：每个 Delta 在 S2 过删除推导（替代/废弃了什么），待删项带符号名登记进契约；S5 用 `removal_check.py` 核对残留，有残留不许收尾。
+- **该删没删 = 改动未完成**：有废弃语义（契约 Delta 含删除/替换动词）时 S2 过删除推导、待删项带符号名登记，S5 用 `removal_check.py` 核对残留；纯新增无废弃项只写一行"无遗留"留痕。触发判据见 `../conductor-router/references/cost-tiers.md` 第三节——机器可判优先，跳过必须声明。
 - **文档与代码同等交付**：改公共契约/接口/架构决策 → 设计文档按 change-contract Affected 清单同步（或显式声明无影响）；未同步未声明 = Blocker，阻断收尾。
 
 ## 参考与脚本

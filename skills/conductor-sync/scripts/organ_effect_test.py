@@ -42,6 +42,8 @@ def method_organs() -> None:
         "conductor-subagent": ("conductor-subagent/references/dispatch.md", ["brief", "全新", "评审"]),
         "conductor-sync": ("conductor-sync/references/install-verify.md", ["复制", "全局", "测试"]),
         "conductor-review 残留核对": ("conductor-review/references/removal-check.md", ["删除", "残留", "退出码"]),
+        "router 条件加载判据": ("conductor-router/references/cost-tiers.md", ["删除推导", "removal_check", "文档同步核对", "双轨扫描", "机器可判"]),
+        "tdd 两种最小化区分": ("conductor-tdd/references/coding-rules-common.md", ["变更面最小", "diff 行数最小", "hotfix", "退出条件"]),
     }
     for organ, (rel, keywords) in static.items():
         p = SKILLS / rel
