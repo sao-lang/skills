@@ -35,6 +35,7 @@ def method_organs() -> None:
         "conductor-plan 场景判定": ("conductor-plan/references/router/planning-core.md", ["语义三问", "结构算子", "置信度"]),
         "plan 意图推断与切分": ("conductor-plan/references/router/planning-core.md", ["原子任务切分", "意图推断", "去类型化", "并列"]),
         "plan 反例库": ("conductor-plan/references/cases.md", ["被合并成单节点", "正确解析", "serves_task"]),
+        "plan 端到端测试方案": ("conductor-plan/references/test-plan.md", ["黑盒", "判分表", "测试结果"]),
         "plan 调研归属": ("conductor-plan/references/planning-method.md", ["调研/分析节点归属", "serves_task"]),
         "subagent 独立性判据": ("conductor-subagent/SKILL.md", ["≥2 个相互独立", "任务独立性与工作量"]),
         "conductor-plan 图 DSL": ("conductor-plan/references/execution-graph-schema.md", ["节点", "边", "空转防护", "serves_task"]),

@@ -51,6 +51,7 @@ python scripts/plan_validate.py --plan execution-plan.json --mermaid
 - `references/execution-graph-schema.md`：图 DSL 契约（节点/边/控制流/校验规则）
 - `references/planning-method.md`：通用规划方法
 - `references/cases.md`：规划反例库（规划前必扫）
+- `references/test-plan.md`：端到端效果测试方案 + 测试结果（黑盒子代理验证规划质量；改规划方法后应重跑）
 - `references/templates/generic.md`：通用模板库（conductor 场景适配层在 conductor 机体的 01-routing/execution-graph-adapter.md）
 - `references/habits.md`：用户习惯适配
 - `scripts/plan_validate.py`：结构校验 + mermaid 生成
