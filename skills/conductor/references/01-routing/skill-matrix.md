@@ -1,19 +1,19 @@
 # Skill 矩阵 · 阶段加载表与仓库地址
 
-> 本文件回答两个问题：**每步加载哪个 skill**、**这些 skill 从哪来 / 怎么装**。
-> 主控原则：conductor 是唯一流程主控；工程纪律已内化为 `engineering-*.md`，外部 skill 只是被调用的工具。
-> **成本档位裁剪**：下表是 standard/full 的完整矩阵；lite 档按 `references/01-routing/cost-tiers.md` 跳过 S0 handoff/env_probe/承诺台账、S1 影响面、S5 独立子代理（改 `review_gate.py --lite`）。省掉的步骤必须写进路由声明。
+> 本文件回答两个问题：**每阶段调哪个器官 / 工具**、**这些 skill 从哪来 / 怎么装**。
+> 架构：conductor 是机体（状态机+门禁+决策），`skills/conductor-*`（与 conductor 同级） 是器官（单一能力），场景是环境；完整总线见 `organ-registry.md`。
+> **成本档位裁剪**：下表是 standard/full；lite 按 `../../../conductor-router/references/cost-tiers.md` 跳过 handoff/env_probe/台账/影响面/活规格/学习回写/独立子代理（改 `review_gate.py --lite`）。省掉的步骤必须写进路由声明。
 
 ## 1. 完整阶段矩阵
 
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
-| S0 会话开始 | conductor | `scripts/preflight.py` 预检 → `handoff`（读上次交接）→ `scripts/overview_path.py` 定位/建 overview（会话指针锚定）→ `scripts/env_probe.py` 探测真实环境需求/可用性 → 隐含待办清单场景跑 `scripts/commitment_ledger.py init` 采集承诺（见 `commitment-ledger.md`） | 禁止直接写代码 | 预检完成 + overview 已定位 + 环境需求已记录 + 承诺已采集 |
-| S1 场景路由 | conductor | 声明 skill 组 + 禁止项 + 下一站；改码/迭代场景跑 `scripts/impact_analysis.py` 出影响面草稿；场景7 跑 `scripts/migration_ledger.py init` 建迁移台账 | 禁止跳过声明 | 路由已向用户声明 |
-| S2 设计计划 | conductor | 读 `references/02-engineering/engineering-workflow.md`（brainstorming + writing-plans）；拷问设计加挂 `grill-design`；架构/设计驱动场景加挂 `references/04-guards/architecture-contracts.md`；涉接口/迁移加挂 `references/04-guards/contract-migration.md` | 规格未确认不动手 | 设计文档 + 计划就绪 |
-| S3 TDD 实现 | conductor | 读 `references/02-engineering/engineering-tdd.md` + `references/02-engineering/engineering-workflow.md`（worktree/subagent）；加挂 `ponytail` + `caveman` + coding-rules；写码后跑 `scripts/source_purity.py --path src` 自查（见 `source-purity.md`） | 无失败测试不写实现；生产源码不得有 fake/动态类型 | 红转绿、全量测试绿、无未豁免污染 |
-| S4 自省补强 | conductor | `scripts/scan_gaps.py` → `scripts/verify.py --lang` → `code-quality-review` + 缺口台账法；`scripts/debt_ledger.py` 技术债台账；`scripts/source_purity.py check --path src --strict` 源码纯净门禁（重构场景先 baseline + --scope，见 `source-purity.md`）；有台账的场景跑 `scripts/commitment_ledger.py check --strict` 零未勾销门禁（场景7 用 `migration_ledger.py check --path src --strict`，见 `commitment-ledger.md`）；拷问代码加挂 `grill-me`；安全核对 `references/04-guards/security-redlines.md`、测试核对 `references/04-guards/test-strategy.md`、接口/迁移核对 `references/04-guards/contract-migration.md` | 未达标不许进 review | 遗漏/断点/覆盖率/通过率/安全五项达标（场景7 另加台账全收口） |
-| S5 review 收尾 | conductor | 读 `references/02-engineering/engineering-code-review.md` + `references/02-engineering/engineering-workflow.md`（finish）、解 bug 读 `references/02-engineering/engineering-debugging.md`；独立 review 门禁见 `references/04-guards/independent-review.md`；有台账的场景 `scripts/commitment_ledger.py check --strict` 须退出 0（见 `commitment-ledger.md`）；发版走 `references/04-guards/release-checklist.md` + `scripts/release_notes.py`；深度审查加挂 `metago-code-review-deep`；收尾 `handoff` + 写 overview | Critical 未清零 / 台账未收口不许收尾 | 全绿 + 台账零未勾销 + 交接文档已写 |
+| S0 会话开始 | conductor | `preflight.py` → 器官 `conductor-overview`（L0 主文件 + `.details.md`，内含改名并入的 handoff 方法）→ `env_probe.py`（有环境信号时）→ 器官 `conductor-ledger` init（有隐含清单时） | 禁止直接写代码 | 预检 + overview L0 + 状态文件已忽略 + 承诺已采集 |
+| S1 场景路由 | conductor | 器官 `conductor-router` 出执行图+声明；器官 `conductor-impact`（跨模块/full）；场景7 `migration_ledger.py init --merge` | 禁止跳过声明 | 路由声明含场景/路径/档位/省掉 |
+| S2 设计计划 | conductor | 器官 `conductor-brainstorm`（自带 grill-design 方法与规格模板）→ 器官 `conductor-spec`（六段 change-contract，Acceptance 灌入台账）；架构类由 `conductor-impact` 核契约 | 规格未确认不动手；契约未确认不进 S3 | 规格要点 + 未决清单 + 契约 `contract_check.py` 退出 0 |
+| S3 TDD 实现 | conductor | 器官 `conductor-tdd`（RED→GREEN，`verify.py` 证据，最小改动原则已内联）；写码后 `source_purity.py --strict` | 无失败测试不写实现；禁 fake/动态类型 | 红转绿、全量绿、无未豁免污染 |
+| S4 自省补强 | conductor | `scan_gaps.py` → `verify.py` → `debt_ledger.py` → `source_purity.py check --strict`；器官 `conductor-ledger` check；需要时 `conductor-impact`；安全/测试/接口按 guard 核对 | 未达标不许进 review | 覆盖率/缺口/纯净/台账五项达标 |
+| S5 review 收尾 | conductor | 器官 `conductor-review`（standard/full 子代理 + 自带七维契约；lite 走 `--lite`）→ `review_gate.py`；`conductor-ledger` 零未勾销；器官 `conductor-learn`（standard/full，默认 dry-run，确认后回写）；发版走 `release-checklist.md` + `release_notes.py`；`conductor-overview` 收尾 | Blocker 未清零 / 台账未收口不许收尾；learn 不自动污染 skill | gate 退出 0 + 台账零未勾销 + learn 留痕 + overview 已更新 |
 
 ### 确定性脚本（scripts/，非 skill，直接执行）
 
@@ -28,28 +28,32 @@
 | `release_notes.py` | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python scripts/release_notes.py --since <tag> --repo <path>` |
 | `overview_path.py` | overview 路径定位：用会话指针 `.conductor-session.json` 锚定，同会话多轮归同一文件（跨 agent 通用，零环境变量依赖） | `python scripts/overview_path.py --project-root . --topic "<主题>"`；换任务加 `--new-session`；结束加 `--end-session` |
 | `env_probe.py` | 真实环境探测：docker 可用性、集成测试目录、DB/Redis 依赖信号，给真实测试入口命令（防"无环境砍功能"） | `python scripts/env_probe.py --project-root .` |
-| `commitment_ledger.py` | 承诺台账（全场景防漏引擎）：init 多来源采集（--from-modules/--from-list/--stdin/--manual）、next 断点、check --strict 零未勾销门禁、show 概览 | `python scripts/commitment_ledger.py init --ledger .commitment-ledger.json --from-list docs/spec.md`；impact 输出管道 `--stdin`；收尾 `check --ledger ... --modules src --strict`（见 `commitment-ledger.md`） |
-| `migration_ledger.py` | 场景7 兼容 shim（底层委托 commitment_ledger，固定 source=module）：init 扫码建台账、next 断点、check --strict 收口门禁 | `python scripts/migration_ledger.py init --path src --project <名>`；新增模块 `--merge`；续接 `next`；收尾 `check --path src --strict`（见 `migration-integrity.md`） |
+| `commitment_ledger.py` | 承诺台账（全场景防漏引擎）：init 多来源采集（--from-modules/--from-list/--stdin/--manual）、next 断点、check --strict 零未勾销门禁、show 概览 | `python scripts/commitment_ledger.py init --ledger .commitment-ledger.json --from-list docs/spec.md`；impact 输出管道 `--stdin`；收尾 `check --ledger ... --modules src --strict`（见 `../../../conductor-ledger/references/commitment-ledger.md`） |
+| `migration_ledger.py` | 场景7 兼容 shim（底层委托 commitment_ledger，固定 source=module）：init 扫码建台账、next 断点、check --strict 收口门禁 | `python scripts/migration_ledger.py init --path src --project <名>`；新增模块 `--merge`；续接 `next`；收尾 `check --path src --strict`（见 `../../../conductor-ledger/references/migration-integrity.md`） |
 | `source_purity.py` | 源码纯净门禁：数据驱动规则库（27条+自定义）扫 fake 实现与不具体类型各语言多形状；**存量基线只卡新增/改到的文件**（重构场景）；purity-exempt 留痕豁免；排除 tests/；默认合并 intent_gaps | `scan --path src --strict`；重构 `baseline --path src` 后 `check --path src --baseline .purity-baseline.json --scope changed.txt --strict`；`rules` 列规则（见 `source-purity.md`） |
 | `intent_gaps.py` | 意图空白扫描（函数级 AST）：无注释跨模块占位（pass/NotImplementedError）、声明未用且无说明的参数；合法豁免=注释说明/abstract/_前缀/docstring | `python scripts/intent_gaps.py --path src --strict`；已默认并入 source_purity，`--no-intent` 可关（见 `source-purity.md` §二·补） |
+| `contract_check.py` | 变更契约检查：六段齐全 + Acceptance 非空，可只输出 Acceptance 条目喂台账 | `python scripts/contract_check.py --contract change-contract.md`；`--acceptance-only` 管道到 `commitment_ledger.py init --stdin` |
+| `learn_capture.py` | 从 overview 抽可回写经验草稿，默认 dry-run，需 `--apply --out` 才落盘 | `python scripts/learn_capture.py --overview <path>`；确认后 `python scripts/learn_capture.py --overview <path> --out docs/conventions.md --apply` |
 
 ## 2. Skill 清单与仓库地址
 
-> 下表是 conductor 调用的**外部工具 skill**（工程纪律已内化，见 §4；无第二套工作流）。
-> 全部随项目放在 `.agents/skills/`（项目自包含），无需单独安装；`preflight.py` 可复核。
+> **器官 skill**（`skills/conductor-*`，与 conductor 同级）由 conductor 按 `organ-registry.md` 调用；每个只声明 I/O、加载时机与降级，不重复 conductor 状态机。
+> 外部 skill 是器官的执行器/工具，不定义阶段。目录随项目自包含，`preflight.py --verify-organs` 可复核。
 
-| Skill | 用途 | 仓库 / 来源 | 备注 |
-|---|---|---|---|
-| **ponytail** | 精简代码（YAGNI 七级梯） | `https://github.com/DietrichGebert/ponytail`（`skills/ponytail/SKILL.md`） | 砍过度设计，不动安全/校验/测试 |
-| **caveman** | 精简输出（省 token） | `https://github.com/JuliusBrussee/caveman`（`skills/caveman/SKILL.md`） | 代码/命令/报错 byte-exact，不压缩 |
-| **handoff** | 会话压缩交接 | WorkBuddy 市场 `handoff`（原 `mattpocock/skills`） | 写交接文档 + suggested skills；S0 关键依赖 |
-| **grill-design** | 拷问设计（设计树+前沿） | WorkBuddy 市场 | 每分支必须有结论、不许静默假设 |
-| **grill-me** | 深度追问方案/代码 | WorkBuddy 市场 | 逐层拆解直到共识 |
-| **code-quality-review** | 代码七维审查 | WorkBuddy 市场 | 带行号、结论分级、可直接应用的改法 |
-| **metago-code-review-deep** | 深度代码审查（四级报告） | WorkBuddy 市场 | Critical/Major/Minor/Info |
-| **graphify** | 代码知识图谱（本地 tree-sitter 建图，查询卡 2000 token） | WorkBuddy 市场 `graphify`；开源 `pip install graphifyy` | 场景 10/9 用；替代 grep/read 循环；冷启动有成本，短任务慎用 |
+| 器官 skill | 状态 | 执行器 / 工具 |
+|---|---|---|
+| `conductor-router` | 主流程 S1 | 自包含（routing + cost-tiers + I/O 契约） |
+| `conductor-brainstorm` | 主流程 S2 | 自带 `../../../conductor-brainstorm/references/grill-design-SKILL.md`、`../../../conductor-brainstorm/references/examples-to-spec.md` |
+| `conductor-spec` | 主流程 S2（standard/full） | 自带 `../../../conductor-spec/references/change-contract-template.md`、`../../../conductor-spec/references/spec-method.md`、`scripts/contract_check.py` |
+| `conductor-tdd` | 主流程 S3/S4 | 自带 `scripts/verify.py`、编码规则 |
+| `conductor-review` | 主流程 S5 | 自带 `../../../conductor-review/references/code-quality-review-SKILL.md`、`scripts/review_gate.py` |
+| `conductor-learn` | 主流程 S5（standard/full） | 自带 `../../../conductor-learn/references/learning-method.md`、`../../../conductor-learn/references/lessons-template.md`、`scripts/learn_capture.py` |
+| `conductor-ledger` | 主流程 S0/S4/S5 | 自带 `scripts/commitment_ledger.py`、`migration_ledger.py` |
+| `conductor-overview` | 主流程 S0/收尾 | 自带 `scripts/overview_path.py`、handoff 方法与两-tier 模板 |
+| `conductor-impact` | 条件 S1/S4 | 自带 `scripts/impact_analysis.py`、架构契约 |
+| `conductor-debug` | 场景 8 | 自带 `../../../conductor-debug/references/engineering-debugging.md` |
 
-配套（非主流程必需）：`ponytail-review`、`caveman-compress` 也随项目放在 `.agents/skills/`。
+**外部 skill 已全部处理**：grill-design / code-quality-review / handoff 改名并入器官；graphify / ponytail / caveman / grill-me / ponytail-review / caveman-compress / metago-code-review-deep 经筛选测试判定废弃并**物理删除**，主链零外部依赖（下方安装命令为历史保留，勿执行）。
 
 ## 3. 跨 agent 安装方式
 

@@ -4,11 +4,11 @@
 设计原则：**零外部依赖、所有 agent 通用**。不读任何环境变量（各家不统一），
 只读写项目里的一个指针文件 `.conductor-session.json`——任何 agent 都能读写文件。
 
-机制：
-  - 指针文件存当前会话的 session_id（UUID）；同一会话的所有轮次共享它。
-  - S0 默认读取指针 → 用 session_id 短 hash 定位 overview → append。
-  - 说"新任务/新会话"时带 --new-session → 生成新 UUID 覆盖指针 → 下一个新文件。
-  - 指针不存在（首次）→ 自动创建 → create。
+机制（最小状态）：
+  - 指针文件只存 `{"sid":"8位短hash"}`——不写 topic/created/status，减少噪声与敏感信息。
+  - 兼容旧 `session_id` 字段：读取时截前 8 位；不再回写完整 UUID。
+  - S0 默认读取指针 → 用 sid 定位 overview → append；换任务带 --new-session → 新 sid。
+  - 首次生成状态时自动把本地状态文件追加进项目 `.gitignore`。
 
 用法：
   python scripts/overview_path.py --project-root . --topic "M04审查落地"
@@ -41,6 +41,36 @@ from datetime import datetime
 from pathlib import Path
 
 POINTER_NAME = ".conductor-session.json"
+STATE_IGNORES = (
+    ".conductor-session.json",
+    ".commitment-ledger.json",
+    ".migration-ledger.json",
+    ".purity-baseline.json",
+)
+DETAIL_SUFFIX = (".review.md", ".review2.md", ".review3.md",
+                 ".questions.md", ".debts.md", ".changes.md", ".details.md")
+
+
+def ensure_ignore(root: Path) -> bool:
+    """把 conductor 本地状态文件加入项目 .gitignore；返回是否发生修改。"""
+    gi = root / ".gitignore"
+    existing = []
+    if gi.is_file():
+        try:
+            existing = gi.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            existing = []
+    known = {ln.strip() for ln in existing}
+    missing = [name for name in STATE_IGNORES if name not in known]
+    if not missing:
+        return False
+    lines = list(existing)
+    if lines and lines[-1].strip():
+        lines.append("")
+    lines.append("# conductor 本地状态（运行痕迹，不进版本库）")
+    lines.extend(missing)
+    gi.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return True
 
 
 def slugify(topic: str) -> str:
@@ -55,29 +85,26 @@ def load_pointer(root: Path) -> dict | None:
         return None
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) and data.get("session_id") else None
     except (json.JSONDecodeError, OSError, UnicodeDecodeError):
         return None
+    if not isinstance(data, dict):
+        return None
+    sid = data.get("sid") or data.get("session_id")
+    return {"sid": str(sid)[:8]} if sid else None
 
 
-def save_pointer(root: Path, session_id: str, topic: str, *, ended: bool = False) -> None:
+def save_pointer(root: Path, sid: str) -> None:
     p = root / POINTER_NAME
-    now = datetime.now().astimezone().isoformat(timespec="seconds")
-    data = {
-        "session_id": session_id,
-        "created": now,
-        "topic": topic,
-        "status": "ended" if ended else "active",
-    }
-    p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    payload = {"sid": sid[:8]}
+    p.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n",
+                 encoding="utf-8")
+    ensure_ignore(root)
 
 
 def find_existing(root: Path, shorthash: str) -> Path | None:
     ov = root / "overviews"
     if not ov.is_dir():
         return None
-    DETAIL_SUFFIX = (".review.md", ".review2.md", ".review3.md",
-                     ".questions.md", ".debts.md", ".changes.md")
     candidates = [
         p for p in ov.rglob(f"{shorthash}-*.md")
         if not p.name.endswith(DETAIL_SUFFIX)
@@ -98,53 +125,45 @@ def main() -> int:
     slug = slugify(args.topic)
     ptr = load_pointer(root)
 
+    compact = dict(ensure_ascii=False, separators=(",", ":"))
+
     if args.detect_only:
-        print(json.dumps({
-            "pointer": str(root / POINTER_NAME).replace("\\", "/"),
-            "session_id": ptr.get("session_id") if ptr else None,
-            "status": ptr.get("status") if ptr else "no-pointer",
-            "topic": ptr.get("topic") if ptr else None,
-        }, ensure_ascii=False, indent=2))
+        print(json.dumps({"sid": ptr["sid"] if ptr else None}, **compact))
         return 0
 
-    # 结束会话：删指针，不建 overview
+    # 结束会话：直接删指针，不写 status 字段
     if args.end_session:
-        if ptr:
-            save_pointer(root, ptr["session_id"], ptr.get("topic", ""), ended=True)
-        print(json.dumps({
-            "action": "ended",
-            "session_id": ptr.get("session_id") if ptr else None,
-        }, ensure_ascii=False, indent=2))
+        p = root / POINTER_NAME
+        if p.is_file():
+            p.unlink()
+        print(json.dumps({"action": "ended", "sid": ptr["sid"] if ptr else None}, **compact))
         return 0
 
-    # 决定会话 ID
-    need_new = args.new_session or ptr is None or ptr.get("status") == "ended"
+    # 决定会话短 ID
+    need_new = args.new_session or ptr is None
     if need_new:
-        session_id = str(uuid.uuid4())
-        save_pointer(root, session_id, args.topic)
-        src = "new-session" if args.new_session else ("first-use" if ptr is None else "after-end")
+        sid = str(uuid.uuid4())[:8]
+        save_pointer(root, sid)
+        src = "new-session" if args.new_session else "first-use"
     else:
-        session_id = ptr["session_id"]
+        sid = ptr["sid"]
         src = "pointer"
 
-    shorthash = session_id[:8]
-    existing = find_existing(root, shorthash)
+    existing = find_existing(root, sid)
     if existing:
         result = {
-            "session_id": session_id, "source": src, "shorthash": shorthash,
+            "sid": sid, "source": src,
             "path": str(existing.relative_to(root)).replace("\\", "/"),
-            "action": "append", "existed": True,
-            "pointer": POINTER_NAME,
+            "action": "append",
         }
     else:
         date = datetime.now().strftime("%Y-%m-%d")
         result = {
-            "session_id": session_id, "source": src, "shorthash": shorthash,
-            "path": f"overviews/{date}/{shorthash}-{slug}.md",
-            "action": "create", "existed": False,
-            "pointer": POINTER_NAME,
+            "sid": sid, "source": src,
+            "path": f"overviews/{date}/{sid}-{slug}.md",
+            "action": "create",
         }
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    print(json.dumps(result, **compact))
     return 0
 
 

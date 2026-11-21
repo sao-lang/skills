@@ -5,7 +5,7 @@
 > ③ **跨模块占位无注释**（依赖谁/谁补/何时接入没写，AI 误读为"功能没做"）；
 > ④ **参数声明了没用又没注释**（给谁用/其他模块是否要传/预留，一片空白）。
 > 定位：S3 写码时按需加载；S4 自省跑门禁；**重构场景用存量基线，只负责改到的文件**。
-> 与 `architecture-contracts.md` §4.5、`test-strategy.md` §2/§5.5、`coding-rules-common.md` §1 同源——
+> 与 `../../../conductor-impact/references/architecture-contracts.md` §4.5、`../../../conductor-tdd/references/test-strategy.md` §2/§5.5、`../../../conductor-tdd/references/coding-rules-common.md` §1 同源——
 > 那些是规则正文，本文件是把它们变成退出码的门禁，并解决"老代码本就有、重构时怎么办"。
 
 **两个脚本、一条命令**：`source_purity.py`（行级模式：类型/fake）+ `intent_gaps.py`（函数级语义：占位/未用参数）；
@@ -132,7 +132,7 @@ python scripts/source_purity.py check --path src --baseline .purity-baseline.jso
 判定：功能已实现+未验证 = 对；只写 fake 标完成 = 功能缺失断点。
 
 ### 情形 2：确实无法静态描述的类型
-按 `coding-rules-common.md` §1 用**具名别名集中定义一处**，业务签名用具体类型：
+按 `../../../conductor-tdd/references/coding-rules-common.md` §1 用**具名别名集中定义一处**，业务签名用具体类型：
 `type JsonValue = str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]`（Python），
 TS 同理用 `JsonValue`，Go 用 `json.RawMessage`，Rust 用 `serde_json::Value`——仅边界别名处豁免。
 

@@ -10,8 +10,8 @@
   check  闸门：校验收口（pending/in_progress/无证据/skipped 无理由/drift）；--strict 有缺口退出 1
   next   断点：按依赖层序输出下一批模块（中断项优先）
 
-完整方法论见 references/04-guards/migration-integrity.md；
-通用防漏框架见 references/04-guards/commitment-ledger.md。
+完整方法论见 ../../conductor-ledger/references/migration-integrity.md；
+通用防漏框架见 ../../conductor-ledger/references/commitment-ledger.md。
 """
 from __future__ import annotations
 

@@ -14,15 +14,18 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# 外部 skill：名称 → 仓库/安装提示（与 references/skill-matrix.md 对齐）
-EXTERNAL_SKILLS: dict[str, str] = {
-    "ponytail": "npx skills add DietrichGebert/ponytail --skill ponytail",
-    "caveman": "npx skills add DietrichGebert/ponytail --skill caveman",
-    "handoff": "npx skills add mattpocock/skills --skill handoff",
-    "grill-design": "WorkBuddy 市场：grill-design（需求拷问）",
-    "grill-me": "WorkBuddy 市场：grill-me（深度追问）",
-    "code-quality-review": "WorkBuddy 市场：code-quality-review（七维审查）",
-    "metago-code-review-deep": "WorkBuddy 市场：metago-code-review-deep（四级报告）",
+# 外部 skill 已按筛选测试处理：3 个改名并入器官，其余废弃；主链不再依赖外部 skill。
+EXTERNAL_SKILLS: dict[str, str] = {}
+
+# conductor 器官 skill：与 conductor 同级安装（或全局 ~/.workbuddy/skills/）
+ORGAN_SKILLS: dict[str, str] = {
+    name: "随 conductor 仓库安装到同级 skills 目录，或同步到 ~/.workbuddy/skills/"
+    for name in (
+        "conductor-router", "conductor-brainstorm", "conductor-spec",
+        "conductor-tdd", "conductor-review", "conductor-learn",
+        "conductor-ledger", "conductor-overview",
+        "conductor-impact", "conductor-debug",
+    )
 }
 
 # 语言 → 验证工具命令首词（与各 coding-rules-<lang>.md 的验证命令对齐）
@@ -50,6 +53,7 @@ class Missing:
 
 def skill_present(name: str, project_root: Path) -> bool:
     candidates = [project_root / d / name for d in SKILL_SEARCH_DIRS]
+    candidates += [project_root / "skills" / name, project_root / name]
     home = Path.home()
     candidates += [home / ".workbuddy" / "skills" / name, home / ".claude" / "skills" / name]
     return any(c.is_dir() for c in candidates)
@@ -65,6 +69,8 @@ def main() -> int:
     ap.add_argument("--langs", nargs="*", default=None,
                     help="只检查这些语言的工具；默认检查全部语言工具（仅报告，不强制全装）")
     ap.add_argument("--skip-skills", action="store_true", help="跳过外部 skill 检查")
+    ap.add_argument("--verify-organs", action="store_true",
+                    help="同时检查 10 个 conductor 器官 skill 是否安装（与 conductor 同级或全局）")
     args = ap.parse_args()
 
     root = Path(args.project_root).resolve()
@@ -74,6 +80,11 @@ def main() -> int:
         for name, hint in EXTERNAL_SKILLS.items():
             if not skill_present(name, root):
                 missing.append(Missing("skill", name, hint))
+
+    if args.verify_organs:
+        for name, hint in ORGAN_SKILLS.items():
+            if not skill_present(name, root):
+                missing.append(Missing("organ", name, hint))
 
     langs = args.langs if args.langs is not None else list(LANG_TOOLS)
     for lang in langs:

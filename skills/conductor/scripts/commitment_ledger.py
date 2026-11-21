@@ -33,8 +33,9 @@ import hashlib
 import json
 import re
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
+
+from overview_path import ensure_ignore
 
 DEFAULT_LEDGER = ".commitment-ledger.json"
 VERSION = 1
@@ -88,22 +89,47 @@ def parse_exts(s: str) -> set[str]:
 
 
 def load_ledger(path: Path) -> dict | None:
+    """读取台账；兼容旧完整格式与新紧凑格式，读时补齐默认字段。"""
     if not path.is_file():
         return None
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(data, dict) or "items" not in data:
-            return None
-        return data
-    except (OSError, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
         return None
+    if not isinstance(data, dict) or not isinstance(data.get("items"), dict):
+        return None
+    items: dict[str, dict] = {}
+    for cid, raw in data["items"].items():
+        if not isinstance(raw, dict):
+            continue
+        full = new_item(cid, raw.get("source", ""), raw.get("kind", "task"),
+                        list(raw.get("deps", [])))
+        full.update(raw)
+        full["id"] = cid
+        items[cid] = full
+    return {
+        "version": data.get("v", data.get("version", VERSION)),
+        "project": data.get("project", ""),
+        "items": items,
+    }
 
 
 def save_ledger(path: Path, items: dict[str, dict], project: str) -> None:
-    now = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
-    data = {"version": VERSION, "project": project, "created": now, "updated": now, "items": items}
+    """最小持久化：紧凑 JSON，省略空字段/重复 id/pending 默认状态。"""
+    compact: dict[str, dict] = {}
+    for cid, it in items.items():
+        d = {k: v for k, v in it.items()
+             if k != "id" and v not in ("", [], None)}
+        if d.get("status") == "pending":
+            d.pop("status", None)
+        compact[cid] = d
+    data: dict = {"v": VERSION, "items": compact}
+    if project:
+        data["project"] = project
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n",
+                    encoding="utf-8")
+    ensure_ignore(path.parent)
 
 
 def new_item(cid: str, source: str, kind: str = "task", deps: list[str] | None = None) -> dict:
