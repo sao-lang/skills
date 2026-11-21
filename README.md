@@ -153,19 +153,19 @@ python skills/conductor/scripts/preflight.py --project-root .
 
 conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
 
-| 器官 | 职责 |
-|---|---|
-| `conductor-router` | 场景/路径/档位路由 |
-| `conductor-brainstorm` | 需求澄清、设计拷问、规格固化（已并入 grill-design 与 spec 的六段变更契约） |
-| `conductor-tdd` | RED-GREEN-REFACTOR 与验证证据 |
-| `conductor-review` | 独立换眼与七维审查（已并入 code-quality-review） |
-| `conductor-ledger` | 承诺外置、断点、零未勾销 |
-| `conductor-memory` | 会话记录两-tier 压缩（已并入 handoff）+ 交付后经验沉淀回写，默认 dry-run |
-| `conductor-impact` | 影响面草稿 |
-| `conductor-debug` | 根因与最小复现 |
-| `conductor-subagent` | 子代理派发：任何适用多代理的场景按判据把任务派给全新上下文子代理，省主上下文（条件触发，AI 看着选） |
-| `conductor-git` | 版本动作：提交（精确暂存 / message / hooks）+ 发版（版本 / CHANGELOG / tag / 回滚） |
-| `conductor-sync` | 统一安装/更新 conductor 家族到智能体全局目录 + 完整性三测试 |
+| 器官 | 类型 | 职责 |
+|---|---|---|
+| `conductor-router` | 路由（神经中枢） | 场景/路径/档位路由 |
+| `conductor-brainstorm` | 澄清与规格（感官 + 契约） | 需求澄清、设计拷问、规格固化（已并入 grill-design 与 spec 的六段变更契约） |
+| `conductor-tdd` | 执行（肌肉） | RED-GREEN-REFACTOR 与验证证据 |
+| `conductor-review` | 审查（免疫系统） | 独立换眼与七维审查（已并入 code-quality-review） |
+| `conductor-ledger` | 防漏（账本） | 承诺外置、断点、零未勾销 |
+| `conductor-memory` | 记忆（短期 + 长期） | 会话记录两-tier 压缩（已并入 handoff）+ 交付后经验沉淀回写，默认 dry-run |
+| `conductor-impact` | 影响面（外周神经） | 影响面草稿 |
+| `conductor-debug` | 诊断（诊断系统） | 根因与最小复现 |
+| `conductor-subagent` | 派发（外包车间） | 子代理派发：任何适用多代理的场景按判据把任务派给全新上下文子代理，省主上下文（条件触发，AI 看着选） |
+| `conductor-git` | 版本动作（手脚） | 版本动作：提交（精确暂存 / message / hooks）+ 发版（版本 / CHANGELOG / tag / 回滚） |
+| `conductor-sync` | 安装同步（装机与质检车间） | 统一安装/更新 conductor 家族到智能体全局目录 + 完整性三测试 |
 
 原 `grill-me` / `metago-code-review-deep` / `graphify` / `ponytail` / `caveman` 系列经测试判定废弃并物理删除；历史见 `roadmap.md`。
 

@@ -5,6 +5,7 @@ description: conductor 的 TDD 器官。收到"实现某行为/修 bug 后补回
 
 # conductor-tdd · 测试驱动器官
 
+> **器官类型**：执行（肌肉） —— 输入一条已确认行为 → 输出红/绿测试 + verify 证据
 > conductor 机体的"肌肉"：把一条已确认的行为变成可验证代码。
 
 ## 输入

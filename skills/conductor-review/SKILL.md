@@ -5,6 +5,7 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 
 # conductor-review · 换眼器官
 
+> **器官类型**：审查（免疫系统） —— 输入 diff + 档位 → 输出报告 + review_gate 退出码；自查不算，必须换眼
 > conductor 机体的"免疫检查"：执行者自查不算，必须换眼并留证据。
 > 代码审查的机器证据也归本器官：`scan_gaps.py`（缺口）、`source_purity.py`（假实现/动态类型）、`intent_gaps.py`（意图空白）。
 

@@ -5,6 +5,7 @@ description: conductor 的澄清与规格器官。收到模糊需求、设计草
 
 # conductor-brainstorm · 澄清与规格器官
 
+> **器官类型**：澄清与规格（感官 + 契约） —— 输入模糊需求/样例 → 输出规格要点 + 六段 change-contract
 > conductor 机体的"感官 + 契约层"：把模糊输入变清晰，再把一次性澄清固化成可跨会话维护、可机器校验的变更契约。只给结论和证据，闸门仍由 conductor 把。
 
 ## 输入

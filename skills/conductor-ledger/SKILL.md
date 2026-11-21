@@ -5,6 +5,7 @@ description: conductor 的防漏台账器官。收到规格/差异/finding/模�
 
 # conductor-ledger · 防漏台账器官
 
+> **器官类型**：防漏（账本） —— 输入清单/扫描来源 → 输出台账 + check 门禁结论；欠账必须清零
 > conductor 机体的"账本"：把隐含承诺变成机器可校验事实，欠账必须清零。
 > 定位区分：台账是**负债表**（open items，收尾前必须勾销，是收尾门禁的前置条件）；
 > 跨会话的记忆（overview 记录、经验沉淀）归 `conductor-memory`，那边是资产表，只留痕不清零。

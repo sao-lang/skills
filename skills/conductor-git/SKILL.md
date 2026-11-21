@@ -5,6 +5,7 @@ description: conductor 的版本动作器官（提交 + 发版）。收到"提�
 
 # conductor-git · 版本动作器官
 
+> **器官类型**：版本动作（手脚） —— 输入文件清单/发版信号 → 输出 commit hash / tag / CHANGELOG
 > conductor 机体的"手脚（git）"：把每个任务的绿灯成果变成干净、原子、可回溯的提交；合并之后的发版动作（版本/CHANGELOG/tag/回滚）也在这里编排。
 > 执行者，不是决策者——推送与否、是否 force、是否发布是用户的决定。
 
