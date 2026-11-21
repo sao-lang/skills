@@ -25,6 +25,7 @@ ORGAN_SKILLS: dict[str, str] = {
         "conductor-tdd", "conductor-review", "conductor-learn",
         "conductor-ledger", "conductor-overview",
         "conductor-impact", "conductor-debug", "conductor-git",
+        "conductor-subagent",
     )
 }
 

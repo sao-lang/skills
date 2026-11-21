@@ -17,7 +17,7 @@ description: conductor 的防漏台账器官。收到规格/差异/finding/模�
 ## 执行
 1. S0 采集：机器能扫的自动扫，人只补语义；增量合并保留已填状态。
 2. S4 核证据：verified 必挂有效 evidence（路径真实存在或命令+退出码）；skipped 必填 reason。
-3. S5 放行：`check --strict` 退出 0 才准 finish。
+3. S5 放行：`check --strict` 退出 0 才准收尾。
 4. 状态机 `pending → in_progress → verified / skipped(reason)`；drift（新模块未登记）一律 FAIL。
 5. 无隐含清单的场景不建台账；lite 档默认跳过。
 

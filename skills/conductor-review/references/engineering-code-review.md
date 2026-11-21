@@ -73,7 +73,7 @@
 - 本文件定义**评审纪律与严重度口径**（何时评审、Critical 阻断、两段式）。
 - 七维审查由本器官 `code-quality-review-SKILL.md` 承担（原市场 skill 已改名并入）。
 - 深度四级报告（原 `metago-code-review-deep`）已判定废弃，不再作为主链依赖。
-- 本文件定规矩，器官出证据，Critical 必须清零才进 finish。
+- 本文件定规矩，器官出证据，Critical 必须清零才进收尾。
 
 ## 在 conductor 中的挂载
 

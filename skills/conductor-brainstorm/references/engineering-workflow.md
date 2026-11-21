@@ -10,19 +10,19 @@
 3. **降低复杂度是首要目标**——简单优于聪明（配合最小改动原则；原 ponytail 已内联）。
 4. **证据优于声称**——宣布完成前先验证，拿不出证据不得标完成。
 
-## 7 步基础工作流
+## 基础工作流（五步）
 
-七步与 conductor 器官的映射（**只第 1 步归本器官**，其余是别的器官或机体的职责）：
+与 conductor 器官的映射（**第 1、3 步归本器官**，其余是别的器官的职责）：
 
 | 步 | 名称 | 归属 | 挂载 |
 |---|---|---|---|
 | 1 | 头脑风暴 brainstorming | **conductor-brainstorm（本器官）** | 场景链 S2，见下文详解 |
-| 2 | 隔离工作区 git worktree | `../../conductor-git/references/worktree.md` | 改码场景设计确认后，条件触发 |
+| 2 | 子代理派发 subagent-driven | `../../conductor-subagent/`（条件触发） | 计划就绪进入实现阶段时按判据派发 |
 | 3 | 写实施计划 writing-plans | **conductor-brainstorm（本器官）** | 见下文 `plan` 能力详解 |
-| 4 | 子代理驱动开发 subagent-driven | conductor 机体编排 + `../../conductor-review/references/independent-review.md` | 不下放为器官；编排权在机体 |
-| 5 | TDD | `../../conductor-tdd/references/engineering-tdd.md` | 场景链 S3/S4 |
-| 6 | 代码评审 code-review | `../../conductor-review/references/engineering-code-review.md` | 场景链 S5 |
-| 7 | 收尾 finish | `../../conductor-git/references/finish.md` | S5 全绿后，条件触发 |
+| 4 | TDD | `../../conductor-tdd/references/engineering-tdd.md` | 场景链 S3/S4 |
+| 5 | 代码评审 code-review | `../../conductor-review/references/engineering-code-review.md` | 场景链 S5 |
+
+> 原上游工作流的隔离工作区与分支收尾两步经评估不采用：直接在当前工作区小步提交，交付由门禁与用户决策收口（2026-11-21 决策）。
 
 **备选执行模式**：`executing-plans`——分批执行+人工检查点，适合需人在场的场景。
 
@@ -94,4 +94,4 @@
 宣布完成前先跑**能证明真的完成**的命令，证据是测试输出/linter 退出码/覆盖率数字，不是感觉。与 conductor 的 S4 门禁（scan_gaps+verify）叠加，不重复造流程。
 
 ## 在 conductor 中的挂载
-本文件只承载第 1 步（brainstorm）与第 3 步（plan）；第 2/7 步（worktree/finish/commit）已迁到 `../../conductor-git/`，第 4 步（子代理编排）归 conductor 机体，第 5/6 步归 conductor-tdd / conductor-review。S2 设计计划→brainstorm+plan（架构类加 `../../conductor-impact/references/architecture-contracts.md`）。调试见 `../../conductor-debug/references/engineering-debugging.md`。
+本文件只承载 brainstorm 与 plan；子代理派发归 `../../conductor-subagent/`，提交归 `../../conductor-git/`，TDD/评审归 conductor-tdd / conductor-review。S2 设计计划→brainstorm+plan（架构类加 `../../conductor-impact/references/architecture-contracts.md`）。调试见 `../../conductor-debug/references/engineering-debugging.md`。

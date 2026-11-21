@@ -64,9 +64,8 @@
 | conductor-debug | — | 非报错/非行为不符场景不加载 | 出现报错栈、复现需求 |
 | conductor-review | 改码必跑 | —（门禁不可裁，lite 也有轻量复核） | 一切改码交付前 |
 | conductor-learn | standard/full | 无可复用经验 → 写"本次无新增"留痕（不算跳过）；用户要求赶时间且改动琐碎 | 有用户纠正 / 新约定 / 踩坑 |
-| conductor-git(worktree) | 条件触发 | 单文件小修 / 用户说"直接改" / 无 git 仓库 | 多任务大改动 / 用户要求可回退 |
+| conductor-subagent | 条件触发 | 任务 ≤2 / 紧耦合 / 调试类 / 用户要求省 token 或直接写 | 计划 ≥3 个独立任务 / 多文件接口衔接 / 会话已长 |
 | conductor-git(commit) | 改码任务 GREEN 后 | 用户明确"先不提交" | 每任务 RED→GREEN 完成后 |
-| conductor-git(finish) | 条件触发 | 用户说"不用合并/我自己处理" / 无 worktree 且已在主分支提交完 | S5 全绿且有隔离区待交付 |
 
 **判法**：三列冲突时从严（必跑条件 > 跳过条件 > 默认）；拿不准就跑，跳过漏事的代价远大于多跑一步。
 
@@ -76,7 +75,7 @@ lite 一行式：
 ```
 场景 N / 路径 X / 档位 lite；脚本：overview_path, verify, source_purity, review_gate --lite；
 省掉：overview L1 交接, env_probe, 承诺台账, 影响面, 变更契约(spec), 学习回写(learn), 独立 review 子代理；
-条件跳过：git(worktree)（单文件小修）。如判断有误请直接纠正。
+条件跳过：子代理（单任务直做）、git(commit)（用户先不提交）。如判断有误请直接纠正。
 ```
 standard/full 用 routing.md §4.5 的完整模板，末尾追加 `成本档位：<standard|full>` 与 `省掉：<列表或无>`。
 
@@ -90,7 +89,7 @@ lite 不派子代理，但**必须换一种眼**做三项复核，写进 overvie
 2. **边界与错误**：空值、异常分支、调用方是否受影响 —— 附 `文件:行号` 或写"无新增风险"并说明依据。
 3. **证据**：`verify.py` 退出码 + `source_purity` 退出码，两个都要写。
 
-小节必须含 `档位: lite` 与 `Blocker = 0`（无阻塞项也写 `Blocker = 0`）。`review_gate.py --lite` 机器校验：章节存在、档位标记、Blocker 清零、≥3 条复核项、≥2 条带行号或退出码证据；任一缺失退出码非 0，禁止 finish。
+小节必须含 `档位: lite` 与 `Blocker = 0`（无阻塞项也写 `Blocker = 0`）。`review_gate.py --lite` 机器校验：章节存在、档位标记、Blocker 清零、≥3 条复核项、≥2 条带行号或退出码证据；任一缺失退出码非 0，禁止收尾。
 **若复核中发现 Blocker > 0**：立即升到 standard，派独立子代理，不能用 lite 蒙混过关。
 
 ## 六、与其他文档的关系

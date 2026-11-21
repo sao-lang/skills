@@ -98,7 +98,7 @@
 - 新增 `../02-engineering/engineering-catalog.md`：原始 superpowers 15 个 skill 逐个交代去向——
   11 个整合为具名能力、1 个并入场景链并行算子（dispatching-parallel-agents）、
   3 个舍弃（using-superpowers 入口/诊断自检/写 skill 元能力，均给理由）。
-- 10 个具名能力各有输入输出契约（`brainstorm/plan/worktree/execute/tdd/debug/review/receive-review/verify/finish`）。
+- 具名能力各有输入输出契约（`brainstorm/plan/execute/tdd/debug/review/receive-review/verify`；当前全表见 `../02-engineering/engineering-catalog.md`）。
 - 重写 ../../../conductor-router/references/scenarios.md：13 场景全部写成显式**工程能力链** + 契约传递；
   纯只读场景（9/10/12）明确"能力链：无"。
 - 效果：回答了"superpowers 的 skill 去哪了"和"怎么按它的流程工作"——场景链即答案。
@@ -106,12 +106,12 @@
 ## 二·终3、补齐 git 相关纪律（🟢 已激活 2026-11-19）
 
 - 背景：用户指出遗漏 git 提交相关 skill。核查：superpowers 无独立 "git commit" skill，
-  但 git 纪律藏在 `using-git-worktrees` 与 `finishing-a-development-branch`，
+  但 git 纪律散落在上游的隔离与分支收尾两个 skill 里，
   上一轮整合时压成了一句话，丢失了全部防呆细节。
 - 补进 `../../../conductor-brainstorm/references/engineering-workflow.md`：
-  - `worktree` 详解——检测已有隔离(含 submodule 陷阱)、原生工具优先、
+  - 隔离工作区详解——检测已有隔离(含 submodule 陷阱)、原生工具优先、
     gitignore 先验并提交、目录优先级、沙箱 fallback、征求同意。
-  - `finish` 详解——验当前树测试、探环境三态、确认 base branch、精确菜单、
+  - 分支收尾详解——验当前树测试、探环境三态、确认 base branch、精确菜单、
     discard 需输入确认、禁擅自 force-push、清理所有权判断、6 条 git 红线。
 
 ## 二·终4、新增 git 提交规则（🟢 已激活 2026-11-19）
@@ -147,7 +147,7 @@
 
 ### review_gate.py 机器强制独立 review（🟢 已激活 2026-11-19）
 - 背景：独立 review 门禁虽写入 SKILL.md，但仍是纪律门禁靠自觉；用户多次观察到 AI 跳过步骤。
-- 方案：新增 `scripts/review_gate.py --overview <path>`，机器校验 overview 的「独立 review 结果」章节 + Blocker 清零结论 + 报告路径引用 + 报告文件真实存在（防假证据）；非改码场景 `--waived` 显式豁免。退出码非 0 禁止 finish。
+- 方案：新增 `scripts/review_gate.py --overview <path>`，机器校验 overview 的「独立 review 结果」章节 + Blocker 清零结论 + 报告路径引用 + 报告文件真实存在（防假证据）；非改码场景 `--waived` 显式豁免。退出码非 0 禁止收尾。
 - 已写入：`SKILL.md`（脚本清单/S5/独立review门禁小节/铁律8）、`../01-routing/skill-matrix.md`（脚本表）、`../../../conductor-router/references/scenarios.md`（门禁总述）。5 组测试覆盖（无章节/无结论/报告不存在/完整/豁免）全通过。
 
 ### overview 分层加载（🟢 已激活 2026-11-19）

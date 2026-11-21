@@ -46,9 +46,7 @@ flowchart LR
     F -->|standard/full 改码| G[独立 review 子代理<br/>Blocker 清零]
     F -->|lite 改码| L[轻量复核<br/>review_gate --lite]
     G --> LE[learn 回写 standard/full<br/>dry-run 后确认]
-    LE --> H[finish<br/>合并/PR/保留/丢弃]
-    L --> H
-    F -->|只读/文档| H
+    LE --> H[收尾<br/>overview 更新 + 用户决策]
 ```
 
 > 路径不同会裁剪阶段：只读场景（拷问/理解）到 S4 分析变体后结束，不跑 TDD 与 verify。
@@ -66,7 +64,7 @@ skills/
 │   │   └── 05-meta/            ← 索引 + 路线图
 │   └── scripts/                ← 16 个工作流入口（6 个薄 shim）+ 4 个测试/审计脚本
 ├── conductor-router / -brainstorm / -spec / -tdd / -review / -learn / -ledger / -overview / -impact / -debug
-│                               ← 11 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
+│                               ← 12 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
 ├── (原协作 skill)              ← 全部 10 个原目录已删除：3 个方法并入器官，7 个判定废弃
 └── ...
 ```
@@ -154,7 +152,7 @@ python skills/conductor/scripts/preflight.py --project-root .
 
 ## 器官（原协作 skill 已并入或废弃）
 
-conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
+conductor 是唯一主控；下列 12 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
 
 | 器官 | 职责 |
 |---|---|
@@ -168,7 +166,8 @@ conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与
 | `conductor-overview` | 会话记录两-tier 压缩（已并入 handoff） |
 | `conductor-impact` | 影响面草稿 |
 | `conductor-debug` | 根因与最小复现 |
-| `conductor-git` | git 操作：worktree 隔离 / 任务内提交 / S5 收尾交付（条件触发，可按实况跳过） |
+| `conductor-subagent` | 子代理派发：计划就绪后按判据把任务派给全新上下文子代理，省主上下文（条件触发，AI 看着选） |
+| `conductor-git` | git 操作：任务内提交（精确暂存 / message / hooks，条件触发） |
 
 原 `grill-me` / `metago-code-review-deep` / `graphify` / `ponytail` / `caveman` 系列经测试判定废弃并物理删除；历史见 `roadmap.md`。
 
@@ -177,8 +176,8 @@ conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与
 conductor 的工程纪律**提取并本地化重述自 [obra/superpowers](https://github.com/obra/superpowers)**（15 个 skill），
 目的是让 conductor 成为单一主控、避免两套工作流并存：
 
-- **11 个整合**为具名工程能力：`brainstorm` / `plan` / `worktree` / `execute` / `tdd` / `debug` /
-  `review` / `receive-review` / `verify` / `finish`，方法论固化在各器官 `references/`（索引见 `skills/conductor/references/05-meta/README.md`，各文件含来源致谢）。
+- **10 个整合**为具名工程能力：`brainstorm` / `plan` / `subagent` / `tdd` / `debug` /
+  `review` / `receive-review` / `verify`，方法论固化在各器官 `references/`（索引见 `skills/conductor/references/05-meta/README.md`，各文件含来源致谢）。隔离工作区与分支收尾两类上游 skill 经评估不采用。
 - **1 个并入**：`dispatching-parallel-agents` 合入路由的并行算子。
 - **3 个舍弃**：`using-superpowers`（conductor 自身即入口）、`diagnosing-superpowers`、`writing-skills`（非开发流程）。
 
@@ -239,7 +238,7 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 
 - `SKILL.md` 是唯一每次加载的入口，已从 9.8k 字符压到约 3.7k 字符（-63%），细节下沉到 reference。
 - `references/` 仅 8 份机体级文档；方法大文件已拆到器官 `references/`，按阶段/触发条件加载，不整份读。
-- **器官化**：11 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
+- **器官化**：12 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
 - **会话记录两-tier**：主文件只有 L0（≤8 行）+ review 章节，详情进 `.details.md`；续接默认只读主文件。
 - **状态文件最小化**：`.conductor-session.json` 只存 8 位 sid；`.commitment-ledger.json` 紧凑 JSON（40 条示例从 9.1k→1.8k 字符，-81%），首次生成自动加入 `.gitignore`。
 - **成本档位**：S1 判 lite/standard/full，lite 省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。

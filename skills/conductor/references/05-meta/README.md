@@ -11,7 +11,7 @@
 | `../01-routing/skill-matrix.md` | 需查阶段加载/安装时 | 阶段→器官调用表；外部 skill 已全部处理 |
 | `../02-engineering/engineering-catalog.md` | 想知道能力去向时 | 原 superpowers 能力现在归哪个器官 |
 | `../04-guards/source-purity.md` | S3/S4（改码必触发） | fake 实现/动态类型/意图空白门禁；脚本在本体 `scripts/` |
-| `../04-guards/git-commit-rules.md` | S3 绿后 / S5 提交前 | commit 时机、message、暂存纪律 |
+| `../../conductor-git/references/git-commit-rules.md` | S3 绿后 / S5 提交前 | commit 时机、message、暂存纪律 |
 | `../04-guards/release-checklist.md` | 场景 12 / 发版 | 版本、CHANGELOG、tag、回滚 |
 | `README.md`（本文件） | 维护 skill 时 | 机体文档索引 |
 | `roadmap.md` | 想知道某能力为何这样设计 | 激活记录与决策 |
@@ -28,7 +28,8 @@
 | `conductor-overview` | overview / handoff-SKILL | overview_path.py |
 | `conductor-impact` | architecture-contracts / contract-migration | impact_analysis.py |
 | `conductor-debug` | engineering-debugging | — |
-| `conductor-git` | worktree / git-commit / finish | — |
+| `conductor-git` | git-commit | — |
+| `conductor-subagent` | dispatch | — |
 | `conductor-spec` | change-contract-template / spec-method | contract_check.py |
 | `conductor-learn` | learning-method / lessons-template | learn_capture.py |
 

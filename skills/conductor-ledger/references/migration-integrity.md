@@ -23,7 +23,7 @@
 ### §0 前提：主线已定
 本守卫只解决"沿着既定主线不漏不丢"，不负责方向选择。方向未定 → 先走场景 2/6（架构/设计），
 别用本守卫硬跑。与场景 7 能力链的关系：`inventory → 基线 → 逐块迁移 → 闸门 → 断点` 内嵌在
-`tdd → 改结构 → review → verify → finish` 中——基线即 TDD 的锁行为环节，闸门在 verify/S5。
+`tdd → 改结构 → review → verify → 收尾` 中——基线即 TDD 的锁行为环节，闸门在 verify/S5。
 
 ### §1 盘点（inventory）—— 让清单来自代码，不来自印象
 ```bash
@@ -55,7 +55,7 @@ python ../scripts/migration_ledger.py init --path src --merge
 ```bash
 # 日常核对（恒 0，看缺口）
 python ../scripts/migration_ledger.py check --ledger .migration-ledger.json --path src
-# 收尾门禁（有 pending/in_progress/无证据/skipped 无理由/drift → 退出 1，禁止 finish）
+# 收尾门禁（有 pending/in_progress/无证据/skipped 无理由/drift → 退出 1，禁止收尾）
 python ../scripts/migration_ledger.py check --ledger .migration-ledger.json --path src --strict
 ```
 `check --strict` 的失败条件（任一即 FAIL）：
@@ -103,4 +103,4 @@ pending ──开始迁移──> in_progress ──迁移+验证通过──> v
 - 基线测试 + 差分报告证据入 overview「验证结果」；
 - 功能链路断点与端到端旅程人工核对通过（行号/命令证据）；
 - 独立 review 门禁 `review_gate.py` 通过（Blocker 清零）；
-- 任一不满足 → 不得标完成、不得 finish。
+- 任一不满足 → 不得标完成、不得收尾。

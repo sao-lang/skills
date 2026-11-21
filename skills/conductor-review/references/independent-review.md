@@ -1,6 +1,6 @@
 # 独立 review 门禁 · 完整规则
 
-> 用途：conductor 交付前的最后一道独立闸门。**凡涉及代码改动的场景，finish 前必须由全新上下文子代理跑一次独立 code-quality-review，Blocker 清零才准交付。**
+> 用途：conductor 交付前的最后一道独立闸门。**凡涉及代码改动的场景，收尾前必须由全新上下文子代理跑一次独立 code-quality-review，Blocker 清零才准交付。**
 > SKILL.md 只保留一句话指针 + 铁律第 6 条，完整规则在此；本文件由 S5 阶段加载。
 > **档位裁切**：standard/full 走本文件全文；lite 档不派子代理，按 `../../conductor-router/references/cost-tiers.md` §4 写「轻量复核（lite）」章节并跑 `review_gate.py --lite`。升档后本节规则自动恢复。
 
@@ -35,7 +35,7 @@ L3（功能遗漏 / 功能断点 / 接线断裂）靠自觉。本门禁把"交�
 
 ## 通过标准与失败处理
 
-- **通过**：Blocker = 0 → 可进入 finish。Should 建议修，Nit 可留。
+- **通过**：Blocker = 0 → 可进入收尾。Should 建议修，Nit 可留。
 - **失败**：有任一 Blocker → 触发 fix loop：主代理把 finding 交给执行者修（守 surgical changes），
   改完回到 S3 的验证步骤确认仍绿，**再派一次全新子代理复审**（禁止用同一份 review 报告复用作废结论）；
   直至 Blocker 清零或按轮次上限裁决并记入 overview。
@@ -46,7 +46,7 @@ L3（功能遗漏 / 功能断点 / 接线断裂）靠自觉。本门禁把"交�
 
 `../scripts/review_gate.py --overview <path>` 自动核对上述证据——检查「独立 review 结果」章节、
 Blocker 清零结论、以及 review 证据（内嵌报告章节有分级/证据，或外部报告文件真实存在——兼容旧文档）；任一缺失退出码非 0，
-**禁止 finish / 标完成**。非改码场景（只读/纯文档）用 `--waived --waiver-reason "<理由>"`
+**禁止收尾 / 标完成**。非改码场景（只读/纯文档）用 `--waived --waiver-reason "<理由>"`
 显式豁免，禁止默默跳过。
 
 ## 与 S4 自查的分工（不要混淆）

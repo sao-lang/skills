@@ -11,9 +11,9 @@
 | S0 会话开始 | conductor | `preflight.py` → 器官 `conductor-overview`（L0 主文件 + `.details.md`，内含改名并入的 overview L1 交接方法）→ `env_probe.py`（有环境信号时）→ 器官 `conductor-ledger` init（有隐含清单时） | 禁止直接写代码 | 预检 + overview L0 + 状态文件已忽略 + 承诺已采集 |
 | S1 场景路由 | conductor | 器官 `conductor-router` 出执行图+声明；器官 `conductor-impact`（跨模块/full）；场景7 `migration_ledger.py init --merge` | 禁止跳过声明 | 路由声明含场景/路径/档位/省掉 |
 | S2 设计计划 | conductor | 器官 `conductor-brainstorm`（自带 grill-design 方法与规格模板）→ 器官 `conductor-spec`（六段 change-contract，Acceptance 灌入台账）；架构类由 `conductor-impact` 核契约 | 规格未确认不动手；契约未确认不进 S3 | 规格要点 + 未决清单 + 契约 `contract_check.py` 退出 0 |
-| S3 TDD 实现 | conductor | 器官 `conductor-tdd`（RED→GREEN，`verify.py` 证据，最小改动原则已内联）；写码后 `source_purity.py --strict` | 无失败测试不写实现；禁 fake/动态类型 | 红转绿、全量绿、无未豁免污染 |
+| S3 TDD 实现 | conductor | 器官 `conductor-subagent`（计划 ≥3 独立任务时派发，条件触发；判据见 cost-tiers 条件加载表）；器官 `conductor-tdd`（RED→GREEN，`verify.py` 证据，最小改动原则已内联）；写码后 `source_purity.py --strict` | 无失败测试不写实现；禁 fake/动态类型 | 红转绿、全量绿、无未豁免污染 |
 | S4 自省补强 | conductor | `scan_gaps.py` → `verify.py` → `debt_ledger.py` → `source_purity.py check --strict`；器官 `conductor-ledger` check；需要时 `conductor-impact`；安全/测试/接口按 guard 核对 | 未达标不许进 review | 覆盖率/缺口/纯净/台账五项达标 |
-| S5 review 收尾 | conductor | 器官 `conductor-review`（standard/full 子代理 + 自带七维契约；lite 走 `--lite`）→ `review_gate.py`；`conductor-ledger` 零未勾销；器官 `conductor-learn`（standard/full，默认 dry-run，确认后回写）；器官 `conductor-git`（finish：重跑集成树全量测试→菜单→执行→清理，条件触发）；发版走 `release-checklist.md` + `release_notes.py`；`conductor-overview` 收尾 | Blocker 未清零 / 台账未收口不许收尾；learn 不自动污染 skill | gate 退出 0 + 台账零未勾销 + learn 留痕 + overview 已更新 |
+| S5 review 收尾 | conductor | 器官 `conductor-review`（standard/full 子代理 + 自带七维契约；lite 走 `--lite`）→ `review_gate.py`；`conductor-ledger` 零未勾销；器官 `conductor-learn`（standard/full，默认 dry-run，确认后回写）；发版走 `release-checklist.md` + `release_notes.py`；`conductor-overview` 收尾 | Blocker 未清零 / 台账未收口不许收尾；learn 不自动污染 skill | gate 退出 0 + 台账零未勾销 + learn 留痕 + overview 已更新 |
 
 ### 确定性脚本（scripts/，非 skill，直接执行）
 
@@ -54,7 +54,8 @@
 | `conductor-ledger` | 主流程 S0/S4/S5 | 自带 `../../conductor-ledger/scripts/commitment_ledger.py`、`migration_ledger.py` |
 | `conductor-overview` | 主流程 S0/收尾 | 自带 `../../conductor-overview/scripts/overview_path.py`、overview L1 交接与两-tier 模板 |
 | `conductor-impact` | 条件 S1/S4 | 自带 `../../conductor-impact/scripts/impact_analysis.py`、架构契约 |
-| `conductor-git` | 条件：改码场景 worktree/commit/finish 时机 | 自带 `../../../conductor-git/references/worktree.md`、`git-commit.md`、`finish.md` |
+| `conductor-git` | 条件：每任务 GREEN 后 / 用户说提交 | 自带 `../../../conductor-git/references/git-commit.md`、`../../../conductor-git/references/git-commit-rules.md` |
+| `conductor-subagent` | 条件：S3 派发判据命中 | 自带 `../../../conductor-subagent/references/dispatch.md`；评审规则用 conductor-review |
 | `conductor-debug` | 场景 8 | 自带 `../../../conductor-debug/references/engineering-debugging.md` |
 
 **外部 skill 已全部处理**：grill-design / code-quality-review / handoff 改名并入器官；graphify / ponytail / caveman / grill-me / ponytail-review / caveman-compress / metago-code-review-deep 经筛选测试判定废弃并**物理删除**，主链零外部依赖。
@@ -83,7 +84,7 @@ npx skills add <repo> --skill <skill-name>
 
 ## 4. 加载原则（单一主控）
 
-1. **唯一主控**：conductor 自己执行全部工程阶段（brainstorm/spec/TDD/review/learn/debugging/finish），
+1. **唯一主控**：conductor 自己执行全部工程阶段（brainstorm/spec/TDD/review/learn/debugging/收尾），
    步骤细节在 `engineering-*.md`，不再加载任何其他流程 skill。**没有第二套工作流**。
 2. **工程纪律内化**：原 superpowers 方法论已提取为内部 reference（含来源致谢），
    不依赖外部 skill 是否存在；外部工具 skill 缺失只影响该工具，不影响流程本身。

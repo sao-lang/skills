@@ -28,5 +28,5 @@
 ## 门禁边界
 
 - learn 在 review gate 与 ledger check 之后；不Blocker、不放行。
-- 没有 learn 记录不是 finish 的硬阻塞，但 standard/full 必须在 overview 留痕。
+- 没有 learn 记录不是收尾的硬阻塞，但 standard/full 必须在 overview 留痕。
 - lite 跳过必须在路由声明写进"省掉"。

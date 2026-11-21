@@ -2,7 +2,7 @@
 
 > 本文件是 conductor 的**提交纪律**，由 S3（TDD 循环）与 S5（收尾）加载。
 > 它不是 skill、不占能力链节点——提交是贯穿各阶段的动作，规则管"何时提交、怎么写、提交什么"。
-> 与 `../../../conductor-tdd/references/engineering-tdd.md`（绿后提交）、`../../../conductor-brainstorm/references/engineering-workflow.md` 的 `finish`（交付决策）正交，可同时遵守。
+> 与 `../../conductor-tdd/references/engineering-tdd.md`（绿后提交）正交，可同时遵守。
 
 ## 1. 何时提交
 
@@ -34,11 +34,11 @@
 
 示例：
 ```
-fix(skill): 补齐 superpowers 的 git 纪律（worktree/finish 防呆细节）
+fix(skill): 补齐提交纪律（暂存防呆与红线）
 
-- 核查发现 git 纪律藏在两个 skill 里，上一轮被压成一句话丢失
-- worktree 补 submodule 陷阱/gitignore 先验/原生工具优先
-- finish 补 force-push 禁令/discard 确认/清理所有权判断
+- 核查发现 git 纪律散落各处，上一轮被压成一句话丢失
+- 暂存纪律补两步核对/撤出无关文件/破坏性改动确认
+- 红线补 force-push 禁令/amend 限制/敏感文件核对
 ```
 
 ## 3. 暂存纪律（最高优先级 · 本项目的血泪点）
@@ -54,7 +54,7 @@ fix(skill): 补齐 superpowers 的 git 纪律（worktree/finish 防呆细节）
    ```
 4. **发现暂存区混入无关文件** → `git restore --staged <file>` 撤出，绝不"顺手一起提交"。
 5. **对破坏性改动保持警惕**：看到删除生产代码（`D src/...`）、删独立文档而无替代，先判断是否有意；
-   无法确认就不纳入本次提交，向用户说明并等待指示（参见 `../../../conductor-impact/references/architecture-contracts.md`）。
+   无法确认就不纳入本次提交，向用户说明并等待指示（参见 `../../conductor-impact/references/architecture-contracts.md`）。
 6. **提交后核对**：`git log --oneline -1` 确认 HEAD 内容正确（不仅看消息，必要时
    `git show HEAD:<path>` 核对实际文件——避免"只改了路径没改内容"这类假提交）。
 
@@ -66,7 +66,7 @@ fix(skill): 补齐 superpowers 的 git 纪律（worktree/finish 防呆细节）
 | `git commit --no-verify` | 跳过 hooks 检查，绕过质量门禁 |
 | 擅自 `git push --force` | 覆盖他人提交；远端被拒先调查，强推需用户明确要求 |
 | 擅自 `git commit --amend` | 改写已存在的提交历史；除非用户明确要求 |
-| 提交密钥 / token / `.env` / 凭证文件 | 泄露敏感信息；提交前按 `../../../conductor-review/references/security-redlines.md` 核对 |
+| 提交密钥 / token / `.env` / 凭证文件 | 泄露敏感信息；提交前按 `../../conductor-review/references/security-redlines.md` 核对 |
 | 提交 `__pycache__` / `.pyc` / 构建产物 / 临时备份 | 污染仓库；用 `.gitignore` 排除 |
 | 未通过 S4 验证就提交 | 门禁形同虚设（证据优于声称） |
 | 一次提交混合多个不相关主题 | 破坏原子性，回滚困难 |
@@ -84,6 +84,6 @@ fix(skill): 补齐 superpowers 的 git 纪律（worktree/finish 防呆细节）
 
 ## 6. 在 conductor 流程中的挂载
 
-- **S3 TDD 实现**：每个 `tdd` 循环绿后提交一次（规则 §1）；`execute` 每个任务评审通过后提交。
-- **S5 review 收尾**：`finish` 交付决策前，确认全量绿 + S4 通过 + 本清单过，再提交。
+- **S3 TDD 实现**：每个 `tdd` 循环绿后提交一次（规则 §1）；子代理任务评审通过后提交。
+- **S5 review 收尾**：确认全量绿 + S4 通过 + 本清单过，再提交。
 - **overview 记录**：每次提交把 commit hash 与简述写入**本会话 overview 主文件**的"变更文件清单/验证结果"（同一会话多轮提交都追加到同一文件）。

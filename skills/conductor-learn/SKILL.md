@@ -34,7 +34,7 @@ description: conductor 的学习回写器官。S5 门禁通过后加载，从 ov
 
 ## 降级
 
-- 回写目标不可写 → 在 overview 登记「learn 阻塞 + 目标路径」，不影响本次 finish，但下次 S0 必须提醒补写。
+- 回写目标不可写 → 在 overview 登记「learn 阻塞 + 目标路径」，不影响本次收尾，但下次 S0 必须提醒补写。
 - overview 不存在 → 停下报告，不猜内容。
 - lite 档 → 跳过 learn，但必须在路由声明的"省掉"里列出。
 

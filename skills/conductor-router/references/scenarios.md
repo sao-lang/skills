@@ -5,7 +5,7 @@
 > 能力是 conductor 内化的工程节点（来源/契约见 `engineering-catalog.md`，方法见 `engineering-*.md`），不是外部 skill。
 > **加载纪律**：S1 路由时只需读下方「I/O 契约表」判定衔接；执行到某个具体场景时，再读该场景那一节。不要整份通读。
 > **成本档位**：执行前先按 `cost-tiers.md` 判 lite/standard/full——lite 跳过下方通用前置 2b/3/5b、活规格(spec)与学习回写(learn)、S5 不派独立子代理（改用 `review_gate.py --lite`）；standard/full 在 S2 后跑 `conductor-spec`、S5 gate 通过后跑 `conductor-learn`。档位与"省掉"必须写进 S1 声明。
-> **条件加载**：同档位内器官是否真的跑，按 `cost-tiers.md` 第三节条件加载表按实况判（如单文件小修跳 worktree、无清单跳台账、用户"先不提交"跳 commit）；跳过必须写进声明并带依据。git 器官（worktree/commit/finish）是条件触发，不写进链就默认不跑。
+> **条件加载**：同档位内器官是否真的跑，按 `cost-tiers.md` 第三节条件加载表按实况判（如单任务不派子代理、无清单跳台账、用户"先不提交"跳提交）；跳过必须写进声明并带依据。subagent 与 git(commit) 是条件触发，不写进链就默认不跑。
 
 ## 交付前独立 review 门禁（standard/full 改码场景必做；lite 走轻量复核）
 
@@ -13,7 +13,7 @@
 （七维+接线四问，重点查功能遗漏/断点），Blocker 清零才准交付；执行者 S4 自查不可替代。
 只读(9/10)、纯文档(2/3/11)不触发；**lite 档例外**：不派子代理，写 overview 的「轻量复核（lite）」章节（三问+证据）并跑 `review_gate.py --overview <path> --lite`。**规则全文**见 `../../conductor-review/references/independent-review.md`。
 **机器校验**：`review_gate.py --overview <path>` 核对 overview 的「独立 review 结果」章节+Blocker 清零+review 证据（内嵌报告章节有分级/证据，或外部报告文件存在）；
-退出码非 0 禁止 finish；非触发场景用 `--waived` 显式豁免；lite 用 `--lite`（与 `--waived` 互斥）。
+退出码非 0 禁止收尾；非触发场景用 `--waived` 显式豁免；lite 用 `--lite`（与 `--waived` 互斥）。
 
 ## 通用前置（所有场景必做）
 
@@ -83,15 +83,15 @@
 - **下一站**：补充确认→若涉及既有代码改动，进入设计驱动重构。
 
 ## 场景 4 · 项目开发
-- **能力链**（最完整）：`brainstorm`→`git`(worktree，条件)→`plan`→`execute`（subagent 两段评审）→每任务内嵌 `tdd`+`git`(commit，条件)→`review`（每任务间）→`verify`(S4)→`review`（终审）→`git`(finish，条件)。worktree/commit/finish 按 cost-tiers 条件加载表可跳。
+- **能力链**（最完整）：`brainstorm`→`plan`→`subagent`（条件：≥3 独立任务才派）→每任务内嵌 `tdd`+`git`(commit，条件)→`review`（每任务间）→`verify`(S4)→`review`（终审）。subagent/git(commit) 按 cost-tiers 条件加载表可跳。
 - **契约**：设计→计划→任务产出→评审结论→验证证据→全绿变更，逐级喂下一能力；任一环断裂停下。
 - **工具**：S0 预检+S4 自省脚本；`tdd` 阶段遵守 coding-rules（ponytail/caveman 已内联为最小改动原则）。
 - **样例补全**：`brainstorm`/`plan` 按 `examples-to-spec.md` 补全用户举例为完整规格（含异常/边界/同类项）；`execute` 按补全清单实现，别只做点名的那几个。
-- **禁止**：无失败测试不写实现；魔法字符串不具名不提交；S4 未过不进 review。**下一站**：全绿后 finish→写 overview。
+- **禁止**：无失败测试不写实现；魔法字符串不具名不提交；S4 未过不进 review。**下一站**：全绿后收尾→写 overview。
 - **新增器官**：standard/full 在 brainstorm 后跑 `conductor-spec` 固化六段契约，review gate 通过后跑 `conductor-learn`；lite 跳过并声明。
 
 ## 场景 5 · 项目迭代
-- **能力链**：`brainstorm`（轻，确认变更范围）→`plan`→`tdd`（锁行为+实现）→`review`→`verify`→`finish`。
+- **能力链**：`brainstorm`（轻，确认变更范围）→`plan`→`tdd`（锁行为+实现）→`review`→`verify`→收尾。
 - **契约**：变更要求→影响面→任务计划→实现→评审→验证证据。
 - **工具**：`impact_analysis.py --symbols/--files/--diff` 出影响面草稿（引用者+建议测试，需人工核实）；关键边必须打开源码核对；涉接口改动加 `contract-migration.md`；回归检查清单。
 - **禁止**：未列影响面前改动；破坏既有公共契约（除非规格明确要求）。**下一站**：回归全绿→review→收尾。
@@ -99,7 +99,7 @@
 
 ## 场景 6 · 设计驱动重构（依新设计或补充设计）
 - **触发**：用户给新/补充设计，据此改现有代码（区别于场景7"无新设计的纯结构优化"）。
-- **能力链**：`plan`（按差异拆任务）→每条差异用 `tdd` 锁新契约(红)→改实现(绿)→`review`（逐条核接线）→`verify`→`finish`；接线断裂触发 `debug`。
+- **能力链**：`plan`（按差异拆任务）→每条差异用 `tdd` 锁新契约(红)→改实现(绿)→`review`（逐条核接线）→`verify`→收尾；接线断裂触发 `debug`。
 - **契约**：新设计→差异清单→行为测试→实现→接线核对证据。
 - **工具**：①加载 `architecture-contracts.md` 做**设计差异清单**（逐条列"新设计vs现状"契约变化）；涉及接口签名/DB迁移加 `contract-migration.md` 核四同步与迁移可逆性；②每条差异先写行为测试锁新契约(红)再改实现(绿)；③改完按差异清单逐条核对接线，写入 overview。
 - **禁止**：边重构边夹带设计外新功能或顺手优化（最小改动原则也禁扩大 diff）；无测试保护改结构；静默偏离设计；只改代码不改/核对设计文档。
@@ -107,7 +107,7 @@
 - **新增器官**：standard/full 用 `conductor-spec` 固化新旧设计 Delta 与 Invariants，Affected 喂 `conductor-impact`；review gate 后跑 `conductor-learn`；lite 跳过并声明。
 
 ## 场景 7 · 项目重构
-- **能力链**：`inventory`（盘点建台账）→`tdd`（行为基线锁等价性）→逐块改结构+差分→`review`→`verify`（行为等价证据）→`finish`。
+- **能力链**：`inventory`（盘点建台账）→`tdd`（行为基线锁等价性）→逐块改结构+差分→`review`→`verify`（行为等价证据）→收尾。
 - **契约**：现有代码+行为测试→等价重构代码→等价性证据+**全收口的迁移台账**。
 - **工具**：**迁移完整性守卫**——先读 `../../conductor-ledger/references/commitment-ledger.md`（通用框架）再读 `../../conductor-ledger/references/migration-integrity.md`（场景7特化），主用 `migration_ledger.py`（底层=承诺台账 shim）：
   ①`init` 扫码建台账（清单来自代码非 AI 印象，`kind` 区分 entry/route/module/config，入口路由优先迁）；
@@ -123,7 +123,7 @@
 - **新增器官**：standard/full 在 ledger shim 后跑 `conductor-spec`，把迁移 Invariants 与 Acceptance 固化并喂 `conductor-impact`；review gate 后跑 `conductor-learn`；lite 跳过并声明。
 
 ## 场景 8 · 解 bug
-- **能力链**：`debug`（4阶段根因）→`tdd`（复现测试先红后绿）→`verify`（原bug测试+回归）→`review`→`finish`。
+- **能力链**：`debug`（4阶段根因）→`tdd`（复现测试先红后绿）→`verify`（原bug测试+回归）→`review`→收尾。
 - **契约**：故障现象→根因→复现测试→修复→回归证据。
 - **工具**：`engineering-debugging.md` 的**最小复现构造**（issue→缩到最小→写成必红测试→才追根因）；根因台账（现象/假设/证据/结论）；回归证据（复现测试先红后绿）。
 - **禁止**：未造出可运行最小复现就猜改；只修表象不加复现测试。**下一站**：复现测试转绿+无新回归→review→收尾。

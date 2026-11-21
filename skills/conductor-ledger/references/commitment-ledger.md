@@ -68,7 +68,7 @@ pending ─开始─> in_progress ─验证通过─> verified（必须填 evide
 ```bash
 # 日常核对（恒 0，看缺口）
 python ../scripts/commitment_ledger.py check --ledger .commitment-ledger.json --modules src
-# 收尾门禁（有缺口即退出 1，禁止 finish / 标完成）
+# 收尾门禁（有缺口即退出 1，禁止收尾 / 标完成）
 python ../scripts/commitment_ledger.py check --ledger .commitment-ledger.json --modules src --strict
 ```
 `--strict` 失败条件（任一即 FAIL）：
@@ -101,7 +101,7 @@ python ../scripts/commitment_ledger.py check --ledger .commitment-ledger.json --
 | `impact_analysis.py` | 提取器：变更影响面 | 输出经 `--stdin` 进台账 |
 | `scan_gaps.py` / review 清单 | 提取器：缺口/finding | 输出经 `--stdin` 进台账 |
 | `contract-migration.md` / `architecture-contracts.md` | 换眼验证：接线/契约静态盲区 | 与③叠加 |
-| `independent-review.md` + `review_gate.py` | 换眼验证：独立审查门禁 | 与③叠加，Blocker 清零才 finish |
+| `independent-review.md` + `review_gate.py` | 换眼验证：独立审查门禁 | 与③叠加，Blocker 清零才收尾 |
 | `test-strategy.md` / `verify.py` | 证据来源：测试命令+退出码 | 填 evidence，只认 verify.py 输出 |
 
 ## 六、完成判定（拿证据才标完成）
@@ -109,6 +109,6 @@ python ../scripts/commitment_ledger.py check --ledger .commitment-ledger.json --
 - 每条 verified 有可核对证据，写入 overview「验证结果」；
 - 静态盲区经③的运行时/独立验证核对通过（行号/命令证据）；
 - 独立 review 门禁 `review_gate.py` 通过（Blocker 清零）；
-- 任一不满足 → 不得标完成、不得 finish。
+- 任一不满足 → 不得标完成、不得收尾。
 
 > 台账文件 `.commitment-ledger.json` / `.migration-ledger.json` 是项目本地状态，建议加入 .gitignore。
