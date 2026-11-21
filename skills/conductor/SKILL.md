@@ -54,6 +54,8 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 - 改码交付前必过 `scripts/review_gate.py`：standard/full 走独立子代理，lite 走 `--lite` 轻量复核；Blocker 未清零禁止收尾。
 - 有隐含清单必建台账，`commitment_ledger.py check --strict` 退出 0 才准收尾；禁止刷状态、禁止静默跳过。
 - 真实环境优先：无环境不砍功能、不写 fake 冒充 adapter、不留无注释跨模块占位；环境缺失登记「环境阻断」，禁改断言造假绿。
+- **最小完整变更**：最小的是变更面不是 diff 行数；改契约同次删旧路径，禁新旧双轨；兼容层仅用户显式要求才建且必须带退出条件（登记进 change-contract Open 段，`source_purity.py` 双轨规则命中即卡）。
+- **文档与代码同等交付**：改公共契约/接口/架构决策 → 设计文档按 change-contract Affected 清单同步（或显式声明无影响）；未同步未声明 = Blocker，阻断收尾。
 
 ## 参考与脚本
 

@@ -21,7 +21,7 @@
 
 ## 二、数据驱动规则库
 
-内置 27 条规则，每条 = `{id, category, lang, pattern, desc, severity}`， severity=error（卡门禁）/ warn（只提示）：
+内置 30 条规则，每条 = `{id, category, lang, pattern, desc, severity}`， severity=error（卡门禁）/ warn（只提示）：
 
 | 类别 | 覆盖形状（举例） |
 |---|---|
@@ -32,6 +32,7 @@
 | Rust/Dart | `dyn Any`/`Box<dyn Any>`；`dynamic`/`Object?` |
 | Java/Kotlin/C# | `Object`/`Map<String,Object>`；裸泛型（warn）；`Any`（Kotlin）；`object/dynamic`（C#） |
 | Ruby/PHP | YARD 注释缺类型（warn）；`mixed` |
+| dual_track（双轨/兼容层） | `class/def XxxLegacy/XxxCompat/XxxDeprecated` 旁路实现（error）；`if legacy/old_impl/compat_mode` 运行时兼容分支（error）；"兼容层/向后兼容/过渡方案"意图注释（warn）。对应 `coding-rules-common` §8 最小完整变更：合法兼容层必须已在 change-contract Open 段登记批准人与退出条件，并用 purity-exempt 留痕豁免 |
 
 ```bash
 python ../scripts/source_purity.py rules --lang python     # 列出生效规则

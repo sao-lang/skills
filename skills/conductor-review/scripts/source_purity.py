@@ -146,9 +146,23 @@ BUILTIN_RULES: list[Rule] = [
          r"#\s*@param\s+\w+\s*$|#\s*@return\s*$", "Ruby YARD 注释缺类型", "warn"),
     Rule("php.mixed", "dynamic_type", "php",
          r":\s*mixed\b|\bmixed\s+\$", "PHP mixed 类型"),
+
+    # ===== 双轨/兼容层（最小完整变更，coding-rules-common §8）=====
+    # 合法兼容层必须已在 change-contract Open 段登记并用 purity-exempt 留痕豁免；
+    # 存量走 baseline 只卡新增/改到的文件。
+    Rule("dual.legacy-suffix", "dual_track", "*",
+         r"\b(?:class|struct|def|func|fn|function)\s+\w*?(?:Legacy|Compat|Deprecated)\w*",
+         "Legacy/Compat 命名的旁路实现（双轨信号；已登记豁免的除外）"),
+    Rule("dual.legacy-branch", "dual_track", "*",
+         r"if\s+\(?\s*(?:legacy|use[_ ]?old|old[_ ]?(?:version|impl|path|api)|compat(?:ibility)?[_ ]?mode|backward[_ ]?compat)\w*",
+         "legacy/compat 运行时兼容分支"),
+    Rule("dual.compat-comment", "dual_track", "*",
+         r"(?:兼容层|向后兼容|旧版兼容|过渡方案|过渡期|兼容旧)[^\n]{0,60}"
+         r"|(?:#|//)\s*(?:backward[- ]?compat(?:ibility)?|legacy (?:support|path|code)|kept for compat)[^\n]{0,60}",
+         "兼容/过渡意图注释（双轨信号）", "warn"),
 ]
 
-VALID_CATEGORIES = {"fake_impl", "dynamic_type"}
+VALID_CATEGORIES = {"fake_impl", "dynamic_type", "dual_track"}
 VALID_LANGS = set(DEFAULT_EXTS.values()) | {"*"}
 
 
