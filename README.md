@@ -66,7 +66,7 @@ skills/
 │   │   └── 05-meta/            ← 索引 + 路线图
 │   └── scripts/                ← 16 个工作流入口（6 个薄 shim）+ 4 个测试/审计脚本
 ├── conductor-router / -brainstorm / -spec / -tdd / -review / -learn / -ledger / -overview / -impact / -debug
-│                               ← 10 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
+│                               ← 11 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
 ├── (原协作 skill)              ← 全部 10 个原目录已删除：3 个方法并入器官，7 个判定废弃
 └── ...
 ```
@@ -154,7 +154,7 @@ python skills/conductor/scripts/preflight.py --project-root .
 
 ## 器官（原协作 skill 已并入或废弃）
 
-conductor 是唯一主控；下列 10 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
+conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
 
 | 器官 | 职责 |
 |---|---|
@@ -168,6 +168,7 @@ conductor 是唯一主控；下列 10 个器官各负责一种能力，方法与
 | `conductor-overview` | 会话记录两-tier 压缩（已并入 handoff） |
 | `conductor-impact` | 影响面草稿 |
 | `conductor-debug` | 根因与最小复现 |
+| `conductor-git` | git 操作：worktree 隔离 / 任务内提交 / S5 收尾交付（条件触发，可按实况跳过） |
 
 原 `grill-me` / `metago-code-review-deep` / `graphify` / `ponytail` / `caveman` 系列经测试判定废弃并物理删除；历史见 `roadmap.md`。
 
@@ -238,7 +239,7 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 
 - `SKILL.md` 是唯一每次加载的入口，已从 9.8k 字符压到约 3.7k 字符（-63%），细节下沉到 reference。
 - `references/` 仅 8 份机体级文档；方法大文件已拆到器官 `references/`，按阶段/触发条件加载，不整份读。
-- **器官化**：10 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
+- **器官化**：11 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
 - **会话记录两-tier**：主文件只有 L0（≤8 行）+ review 章节，详情进 `.details.md`；续接默认只读主文件。
 - **状态文件最小化**：`.conductor-session.json` 只存 8 位 sid；`.commitment-ledger.json` 紧凑 JSON（40 条示例从 9.1k→1.8k 字符，-81%），首次生成自动加入 `.gitignore`。
 - **成本档位**：S1 判 lite/standard/full，lite 省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。

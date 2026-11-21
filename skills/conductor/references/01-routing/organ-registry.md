@@ -4,7 +4,7 @@
 > **14 场景是工作环境**（只声明本环境调用哪些器官）；方法文档与脚本已**从 conductor 拆到各器官目录**，conductor 的 `references/` 只留兼容指针。每个器官自带 `references/` 与需要的 `scripts/`，可独立工作。
 > 本表是"器官总线"：conductor 只按表调用，不在入口重复器官内部步骤。
 
-## 一、器官清单（10 个）
+## 一、器官清单（11 个）
 
 | 器官 skill | 职责 | 调用阶段 | 输入 → 输出 | 缺失降级 |
 |---|---|---|---|---|
@@ -18,6 +18,7 @@
 | `conductor-overview` | 会话记录两-tier压缩 | S0/收尾 | 主题+状态 → L0 主文件 + `.details.md` | 主文件 create；详情可缺 |
 | `conductor-impact` | 影响面草稿 | S1/S4（5/7） | 符号/文件/diff → 引用者 + 建议测试 | 人工列直接引用者并声明未全量 |
 | `conductor-debug` | 根因与最小复现 | 场景 8 | 现象/报错 → 根因 + 复现 + 回归要求 | 复现不了停下问用户 |
+| `conductor-git` | worktree 隔离、任务内提交、S5 收尾交付 | 条件触发（改码场景；时机见 cost-tiers 条件加载表） | 仓库状态 → worktree/commit hash/交付菜单执行结果 | 沙箱拒绝登记 git 阻塞；非 git 目录交回重路由 |
 
 ## 二、阶段 → 器官调用（standard/full；lite 按 `../../../conductor-router/references/cost-tiers.md` 裁剪）
 
@@ -28,9 +29,11 @@
 | S2 | `conductor-brainstorm` | `conductor-spec`（standard/full）、自带 `design-spec-template` | 规格未确认不动手；契约未确认不进 S3 |
 | S3 | `conductor-tdd` | 自带编码规则（最小完整改动内联） | 先红后绿、编码规则已读 |
 | S4 | `conductor-tdd`（证据） | `conductor-impact`、`conductor-ledger` | `verify.py` + `source_purity --strict` |
-| S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full） | `review_gate.py` 退出 0、台账零未勾销；learn 留痕 |
+| S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full）、`conductor-git`（finish，全绿后） | `review_gate.py` 退出 0、台账零未勾销；learn 留痕 |
 
 **路由纪律**：同一阶段可由多个器官协作，但**决策权只在 conductor**——器官给结论/证据，不自行推进阶段、不自行放行。
+
+**条件加载**：档位决定"跑多深"，器官是否真的加载由 `../../../conductor-router/references/cost-tiers.md` 第三节（器官级条件加载表）按当前环境与用户输入判——命中跳过条件就跳，但每个跳过必须写进路由声明"省掉"并带依据。
 
 ## 三、协作 skill 筛选结果（测试脚本：`collaboration_skill_audit.py`）
 

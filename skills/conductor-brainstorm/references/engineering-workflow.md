@@ -12,17 +12,17 @@
 
 ## 7 步基础工作流
 
-工程纪律是"强制按顺序走"的链。每步详细规则见本节与相邻 engineering-* 文件。
+七步与 conductor 器官的映射（**只第 1 步归本器官**，其余是别的器官或机体的职责）：
 
-| 步 | 名称 | 激活时机 | 核心动作 | 出口 |
-|---|---|---|---|---|
-| 1 | 头脑风暴 brainstorming | 有需求、无明确规格 | 苏格拉底式提问逼清需求；一次一小块逐块确认；至少 2 个替代方案说明取舍 | 用户签字的设计文档，无它不进下一步 |
-| 2 | 隔离工作区 git worktree | 设计确认后 | 独立分支/worktree，不污染主分支；确认测试基线干净（全绿或全空） | 干净基线 + 隔离区就绪 |
-| 3 | 写实施计划 writing-plans | 有规格后 | 拆成 2-5 分钟小任务，每个含精确路径、完整改法、验证步骤 | 计划经用户确认；变更回头改计划，不悄悄改 |
-| 4 | 子代理驱动开发 subagent-driven | 计划就绪 | 每任务派全新上下文子代理（任务说明+计划片段+两段式评审）；主代理只编排 | 两段评审都过（规格符合度+代码质量） |
-| 5 | TDD | 实现中 | RED→GREEN→REFACTOR→提交，见 `../../conductor-tdd/references/engineering-tdd.md` | 每循环测试全绿 |
-| 6 | 代码评审 code-review | 每任务完成、进下一任务前 | 对照计划逐条检查，按严重度报告，见 `../../conductor-review/references/engineering-code-review.md` | Critical 清零才推进 |
-| 7 | 收尾 finish | 所有任务完成 | 跑完整测试套件；给用户 4 选项（合并/开PR/保留/丢弃）说明后果；清理 worktree | 全绿+用户决策+已清理 |
+| 步 | 名称 | 归属 | 挂载 |
+|---|---|---|---|
+| 1 | 头脑风暴 brainstorming | **conductor-brainstorm（本器官）** | 场景链 S2，见下文详解 |
+| 2 | 隔离工作区 git worktree | `../../conductor-git/references/worktree.md` | 改码场景设计确认后，条件触发 |
+| 3 | 写实施计划 writing-plans | **conductor-brainstorm（本器官）** | 见下文 `plan` 能力详解 |
+| 4 | 子代理驱动开发 subagent-driven | conductor 机体编排 + `../../conductor-review/references/independent-review.md` | 不下放为器官；编排权在机体 |
+| 5 | TDD | `../../conductor-tdd/references/engineering-tdd.md` | 场景链 S3/S4 |
+| 6 | 代码评审 code-review | `../../conductor-review/references/engineering-code-review.md` | 场景链 S5 |
+| 7 | 收尾 finish | `../../conductor-git/references/finish.md` | S5 全绿后，条件触发 |
 
 **备选执行模式**：`executing-plans`——分批执行+人工检查点，适合需人在场的场景。
 
@@ -51,44 +51,6 @@
 
 ### 设计文档规模
 小改动→短文档，项目级→完整文档；都必须有 **Approaches 节**（2-3 种方式、取舍、选了哪个、为什么）。中途变大→停下升级规模；几个独立项目→商定顺序逐个来。
-
-## `worktree` 能力详解
-
-**核心原则**：先检测已有隔离 → 用原生工具 → 无原生工具才回退 git → 不与宿主对抗。
-
-1. **先检测是否已隔离**（不凭肉眼）：`GIT_DIR=$(cd "$(git rev-parse --git-dir)" && pwd -P)`、`GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" && pwd -P)`。`GIT_DIR != GIT_COMMON` → 已在 linked worktree，跳过创建。**submodule 陷阱**：submodule 里也成立，先用 `git rev-parse --show-superproject-working-tree` 有输出则是 submodule，按普通仓库处理。
-2. **优先原生 worktree 工具**（`EnterWorktree`/`/worktree`/`--worktree` flag）——原生工具自动管目录/分支/清理；绕过它用 `git worktree add` 会产生宿主看不见的 phantom state（头号错误）。无原生才用 `git worktree add "$path" -b "$BRANCH"` 回退。
-3. **目录优先级**：用户显式声明 > 项目内 `.worktrees/`/`worktrees/`（前者优先）> 默认 `.worktrees/`。
-4. **必须先验 gitignore**：`git check-ignore -q .worktrees`——未忽略则先加 `.gitignore` **并提交**再建 worktree，否则会把整个工作树误提交。
-5. **初始化 + 干净基线**：按语言装依赖（package.json→npm / Cargo.toml→cargo / requirements.txt 或 pyproject.toml→pip/poetry / go.mod→go mod），跑测试确认基线（全绿或全空）。
-6. **权限被沙箱拒绝**：告知用户，改为当前目录工作，跑 setup 和基线测试。
-
-> 创建前若用户未表态是否隔离，先征求同意："要建隔离 worktree 吗？它保护当前分支不受改动影响。"
-
-## `finish` 能力详解
-
-**核心原则**：验测试 → 探环境 → 给选项 → 执行 → 清理。
-
-1. **验测试**：跑**即将集成的那棵树**的完整测试套件（"早些时候绿过"不算）。失败则停下报告，菜单在绿灯之后。
-2. **探环境**（切目录前先抓 `GIT_DIR`/`GIT_COMMON`/`WORKTREE_PATH`，清理要用）：普通仓库（相等）→ 3 选项、无清理；worktree+命名分支 → 3 选项、按来源判断清理；worktree+detached HEAD → 2 选项（无合并）、宿主管理原地保留。
-3. **确认 base branch**：从计划/对话/upstream 推断后**向用户确认**——合并错分支代价极高。
-4. **给菜单**（普通仓库与命名分支给 exactly 这 3 个，detached HEAD 给 2 个）：
-   ```
-   1. 本地合并回 <base>   2. 推送并创建 PR   3. 保留分支（我之后自己处理）
-   ```
-   丢弃**只在用户明确要求时**提供，且要求输入 `discard` 精确确认。
-5. **执行选择**：本地合并先合并→验合并结果绿→再清理 worktree 和删分支；push 用 `git push -u`；**push 被拒先调查远端变化，绝不擅自 force-push**（仅用户明确要求才强推）。
-6. **清理**（仅合并与确认丢弃时）：`GIT_DIR==GIT_COMMON`→无需清理；worktree 在 `.worktrees/`/`worktrees/` 下→`git worktree remove`+`prune`；其他位置→宿主拥有，**原地保留**（有 workspace-exit 工具就用）；**移除被拒**（含未提交文件）→绝不擅自 `--force`，展示 `git status` 让用户选。
-
-### git 操作红线
-| 借口 | 真相 |
-|---|---|
-| "测试刚才绿过" | 绿只证明那棵树；集成前必须在当前树重跑 |
-| "显然想合并" | 集成是用户的决定，给菜单并等待 |
-| "PR 提了，worktree 是垃圾" | PR feedback 在那个 worktree 里改，保留到落地 |
-| "清理被拒，--force 就行" | 拒绝意味着文件只在该 worktree，force 会永久销毁 |
-| "base 显然是 main" | 确认分叉点，"显然"合并错代价极高 |
-| "push 被拒，强推修复" | 被拒说明远端变了，先调查，强推需用户明确要求 |
 
 ## `plan` 能力详解
 
@@ -132,4 +94,4 @@
 宣布完成前先跑**能证明真的完成**的命令，证据是测试输出/linter 退出码/覆盖率数字，不是感觉。与 conductor 的 S4 门禁（scan_gaps+verify）叠加，不重复造流程。
 
 ## 在 conductor 中的挂载
-S2 设计计划→brainstorm+plan（架构类加 `../../conductor-impact/references/architecture-contracts.md`）；隔离工作区→改码场景设计确认后；收尾→S5 finish。调试见 `../../conductor-debug/references/engineering-debugging.md`，TDD 见 `../../conductor-tdd/references/engineering-tdd.md`，评审见 `../../conductor-review/references/engineering-code-review.md`。
+本文件只承载第 1 步（brainstorm）与第 3 步（plan）；第 2/7 步（worktree/finish/commit）已迁到 `../../conductor-git/`，第 4 步（子代理编排）归 conductor 机体，第 5/6 步归 conductor-tdd / conductor-review。S2 设计计划→brainstorm+plan（架构类加 `../../conductor-impact/references/architecture-contracts.md`）。调试见 `../../conductor-debug/references/engineering-debugging.md`。

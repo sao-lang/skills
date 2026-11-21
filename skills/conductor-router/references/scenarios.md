@@ -5,6 +5,7 @@
 > 能力是 conductor 内化的工程节点（来源/契约见 `engineering-catalog.md`，方法见 `engineering-*.md`），不是外部 skill。
 > **加载纪律**：S1 路由时只需读下方「I/O 契约表」判定衔接；执行到某个具体场景时，再读该场景那一节。不要整份通读。
 > **成本档位**：执行前先按 `cost-tiers.md` 判 lite/standard/full——lite 跳过下方通用前置 2b/3/5b、活规格(spec)与学习回写(learn)、S5 不派独立子代理（改用 `review_gate.py --lite`）；standard/full 在 S2 后跑 `conductor-spec`、S5 gate 通过后跑 `conductor-learn`。档位与"省掉"必须写进 S1 声明。
+> **条件加载**：同档位内器官是否真的跑，按 `cost-tiers.md` 第三节条件加载表按实况判（如单文件小修跳 worktree、无清单跳台账、用户"先不提交"跳 commit）；跳过必须写进声明并带依据。git 器官（worktree/commit/finish）是条件触发，不写进链就默认不跑。
 
 ## 交付前独立 review 门禁（standard/full 改码场景必做；lite 走轻量复核）
 
@@ -82,7 +83,7 @@
 - **下一站**：补充确认→若涉及既有代码改动，进入设计驱动重构。
 
 ## 场景 4 · 项目开发
-- **能力链**（最完整，10 能力全走）：`brainstorm`→`worktree`（隔离+基线）→`plan`→`execute`（subagent 两段评审）→每任务内嵌 `tdd`→`review`（每任务间）→`receive-review`→`verify`(S4)→`review`（终审）→`finish`。
+- **能力链**（最完整）：`brainstorm`→`git`(worktree，条件)→`plan`→`execute`（subagent 两段评审）→每任务内嵌 `tdd`+`git`(commit，条件)→`review`（每任务间）→`verify`(S4)→`review`（终审）→`git`(finish，条件)。worktree/commit/finish 按 cost-tiers 条件加载表可跳。
 - **契约**：设计→计划→任务产出→评审结论→验证证据→全绿变更，逐级喂下一能力；任一环断裂停下。
 - **工具**：S0 预检+S4 自省脚本；`tdd` 阶段遵守 coding-rules（ponytail/caveman 已内联为最小改动原则）。
 - **样例补全**：`brainstorm`/`plan` 按 `examples-to-spec.md` 补全用户举例为完整规格（含异常/边界/同类项）；`execute` 按补全清单实现，别只做点名的那几个。

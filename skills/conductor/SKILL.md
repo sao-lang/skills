@@ -1,6 +1,6 @@
 ---
 name: conductor
-description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：作为机体只做状态机、路由、门禁与器官调度；工程能力由 10 个器官 skill 执行。适用于支持 SKILL.md 的 agent。
+description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：作为机体只做状态机、路由、门禁与器官调度；工程能力由 11 个器官 skill 执行。适用于支持 SKILL.md 的 agent。
 ---
 
 # conductor · 开发工作流机体
@@ -24,23 +24,25 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 | S2 | `conductor-brainstorm` | `conductor-spec`（standard/full）、自带拷问与规格模板 |
 | S3 | `conductor-tdd` | 自带编码规则 |
 | S4 | `conductor-tdd`（证据） | `conductor-ledger`、`conductor-impact` |
-| S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full） |
+| S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full）、`conductor-git`（finish） |
 
 成本档位 lite/standard/full 由 `conductor-router` 判定；规则见器官自带 `../conductor-router/references/cost-tiers.md`。lite 省掉交接/环境探测/台账/影响面/活规格/学习回写/独立子代理，保留规格确认、TDD、`verify.py`、`source_purity`、review 门禁。
+
+**条件加载**：同档位内器官是否真的跑，按 `../conductor-router/references/cost-tiers.md` 第三节的条件加载表判（如单文件小修跳 worktree、无清单跳台账）；每个跳过写进声明"省掉"并带依据，禁止静默跳过。
 
 ## 十四场景 = 工作环境（只声明器官，不重复步骤）
 
 | 场景 | 路径 | 器官链 |
 |---|---|---|
-| 1 初始化 / 4 开发 | 改码 | router → brainstorm → spec → tdd → ledger → review → learn |
+| 1 初始化 / 4 开发 | 改码 | router → brainstorm → spec → tdd → ledger → review → learn → git(worktree→commit→finish) |
 | 2/3 设计 | 文档 | router → brainstorm（自带拷问方法；确认后可出 spec 草稿） |
-| 5 迭代 / 6 设计驱动重构 | 改码 | router → spec → impact → tdd → ledger → review → learn |
-| 7 项目重构 | 改码 | router → ledger(migration shim) → spec → impact → tdd → review → learn |
-| 8 解 bug | 改码 | router → debug → spec(轻量) → tdd → review → learn |
+| 5 迭代 / 6 设计驱动重构 | 改码 | router → spec → impact → tdd → ledger → review → learn → git(worktree→commit→finish) |
+| 7 项目重构 | 改码 | router → ledger(migration shim) → spec → impact → tdd → review → learn → git(commit→finish) |
+| 8 解 bug | 改码 | router → debug → spec(轻量) → tdd → review → learn → git(commit→finish) |
 | 9 拷问 / 10 理解 | 只读 | router → brainstorm / impact → overview（结束） |
 | 11 文档同步 | 文档 | router → brainstorm → overview |
 | 12 门禁验收 | 验证 | router → review（+ledger） |
-| 13 测试补课 | 验证 | router → tdd → review → learn |
+| 13 测试补课 | 验证 | router → tdd → review → learn → git(commit) |
 | 14 文档清理 | 文档·清理 | router → overview（确认无依赖后执行，排链尾） |
 
 场景细节与 I/O 契约见 `../conductor-router/references/scenarios.md`：**S1 只读 I/O 契约表，执行到某场景才读该节**。

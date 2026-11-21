@@ -7,7 +7,7 @@
 
 | 文件 | 何时读 | 职责 |
 |---|---|---|
-| `../01-routing/organ-registry.md` | S1（必读） | 10 器官清单、阶段调用、筛选结果、状态纪律、测试入口 |
+| `../01-routing/organ-registry.md` | S1（必读） | 11 器官清单、阶段调用、筛选结果、状态纪律、测试入口 |
 | `../01-routing/skill-matrix.md` | 需查阶段加载/安装时 | 阶段→器官调用表；外部 skill 已全部处理 |
 | `../02-engineering/engineering-catalog.md` | 想知道能力去向时 | 原 superpowers 能力现在归哪个器官 |
 | `../04-guards/source-purity.md` | S3/S4（改码必触发） | fake 实现/动态类型/意图空白门禁；脚本在本体 `scripts/` |
@@ -28,6 +28,7 @@
 | `conductor-overview` | overview / handoff-SKILL | overview_path.py |
 | `conductor-impact` | architecture-contracts / contract-migration | impact_analysis.py |
 | `conductor-debug` | engineering-debugging | — |
+| `conductor-git` | worktree / git-commit / finish | — |
 | `conductor-spec` | change-contract-template / spec-method | contract_check.py |
 | `conductor-learn` | learning-method / lessons-template | learn_capture.py |
 

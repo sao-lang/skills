@@ -22,7 +22,7 @@ ORGANS = (
     "conductor-router", "conductor-brainstorm", "conductor-spec",
     "conductor-tdd", "conductor-review", "conductor-learn",
     "conductor-ledger", "conductor-overview",
-    "conductor-impact", "conductor-debug",
+    "conductor-impact", "conductor-debug", "conductor-git",
 )
 REQUIRED_SECTIONS = ("## 输入", "## 输出", "## 降级")
 

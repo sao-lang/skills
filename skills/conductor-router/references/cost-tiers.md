@@ -48,18 +48,41 @@
 **不可裁剪的底线**（任何档位）：规格确认、失败测试先行、`verify.py` 证据、`source_purity --strict` 退出码 0、review 门禁（lite 也有自己的门禁）、overview L0。
 **允许省掉的只是**：重复声明、全量工程文档、与本机风险无关的扫描、外部 skill 加载、独立子代理（仅 lite）。
 
-## 三、判档声明（写进 S1 输出）
+## 三、器官级条件加载（同档位内的自适应跳过）
+
+> 档位决定"跑多深"，本表决定"同档位内哪些器官这一轮真的要跑"。
+> 执行中按**当前环境与用户输入**逐条判，命中跳过条件就跳过该器官；
+> 每个跳过必须写进路由声明的"省掉"并带一句依据，禁止静默跳过；升档触发（第四节）优先于本表。
+
+| 器官 | 默认 | 跳过条件（任一命中即跳） | 必跑条件（任一命中即跑） |
+|---|---|---|---|
+| conductor-overview | ✓ | 续接且 L0 索引卡已含全部所需上下文 → 只 append 不重写 | 新会话 / 新任务 |
+| conductor-ledger | 视清单 | 规格里无多项承诺、无 finding、无模块清单 | 有隐含清单 / 多来源差异 / 迁移 |
+| conductor-impact | 视信号 | 单文件单符号、无跨模块引用信号 | 跨模块契约 / 公共接口变更 / full 档 |
+| conductor-spec | standard/full | bug 修复（降为轻量：根因+回归要求一行）；纯文档场景 | 改码且规格有多条验收 |
+| conductor-tdd | 改码必跑 | —（失败测试先行不可裁） | 一切改码 |
+| conductor-debug | — | 非报错/非行为不符场景不加载 | 出现报错栈、复现需求 |
+| conductor-review | 改码必跑 | —（门禁不可裁，lite 也有轻量复核） | 一切改码交付前 |
+| conductor-learn | standard/full | 无可复用经验 → 写"本次无新增"留痕（不算跳过）；用户要求赶时间且改动琐碎 | 有用户纠正 / 新约定 / 踩坑 |
+| conductor-git(worktree) | 条件触发 | 单文件小修 / 用户说"直接改" / 无 git 仓库 | 多任务大改动 / 用户要求可回退 |
+| conductor-git(commit) | 改码任务 GREEN 后 | 用户明确"先不提交" | 每任务 RED→GREEN 完成后 |
+| conductor-git(finish) | 条件触发 | 用户说"不用合并/我自己处理" / 无 worktree 且已在主分支提交完 | S5 全绿且有隔离区待交付 |
+
+**判法**：三列冲突时从严（必跑条件 > 跳过条件 > 默认）；拿不准就跑，跳过漏事的代价远大于多跑一步。
+
+## 四、判档声明（写进 S1 输出）
 
 lite 一行式：
 ```
 场景 N / 路径 X / 档位 lite；脚本：overview_path, verify, source_purity, review_gate --lite；
-省掉：overview L1 交接, env_probe, 承诺台账, 影响面, 变更契约(spec), 学习回写(learn), 独立 review 子代理。如判断有误请直接纠正。
+省掉：overview L1 交接, env_probe, 承诺台账, 影响面, 变更契约(spec), 学习回写(learn), 独立 review 子代理；
+条件跳过：git(worktree)（单文件小修）。如判断有误请直接纠正。
 ```
 standard/full 用 routing.md §4.5 的完整模板，末尾追加 `成本档位：<standard|full>` 与 `省掉：<列表或无>`。
 
 **升档触发**：执行中发现任一 high 条件命中（改动跨文件、出现契约变更、发现隐含清单、测试需要真实环境）→ 立即停下改声明升档，禁止沿用 lite 省略的步骤补跑就当没事。
 
-## 四、lite 的轻量复核（替代独立子代理）
+## 五、lite 的轻量复核（替代独立子代理）
 
 lite 不派子代理，但**必须换一种眼**做三项复核，写进 overview 的 `## 轻量复核（lite）` 章节：
 
@@ -70,7 +93,7 @@ lite 不派子代理，但**必须换一种眼**做三项复核，写进 overvie
 小节必须含 `档位: lite` 与 `Blocker = 0`（无阻塞项也写 `Blocker = 0`）。`review_gate.py --lite` 机器校验：章节存在、档位标记、Blocker 清零、≥3 条复核项、≥2 条带行号或退出码证据；任一缺失退出码非 0，禁止 finish。
 **若复核中发现 Blocker > 0**：立即升到 standard，派独立子代理，不能用 lite 蒙混过关。
 
-## 五、与其他文档的关系
+## 六、与其他文档的关系
 
 - 档位判定的语义部分归 `routing.md`（场景/路径/置信度），本文件只管"跑多深"。
 - 独立 review 的完整规则归 `../../conductor-review/references/independent-review.md`：standard/full 仍强制子代理；本文件只定义 lite 的替代门禁。
