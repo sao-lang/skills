@@ -43,8 +43,8 @@ AI 漏东西有五类根因，三道防线分别覆盖：
 # 开发/重构：从设计规格列表提取承诺
 python ../scripts/commitment_ledger.py init --ledger .commitment-ledger.json \
   --from-list docs/spec.md --list-source spec --project "<任务>"
-# 迭代/解bug：把影响分析 / review / 差异清单的输出灌进来
-python ../../conductor-impact/scripts/impact_analysis.py --symbols Foo | \
+# 迭代/解bug：把影响分析 / review / 差异清单的输出灌进来（来源脚本由 conductor 场景链编排，见 skill-matrix）
+<影响面分析脚本> --symbols Foo | \
   python ../scripts/commitment_ledger.py init --ledger .commitment-ledger.json --stdin --stdin-source impact
 # 场景7 重构：用兼容 shim（底层同一引擎）
 python ../scripts/migration_ledger.py init --path src --merge

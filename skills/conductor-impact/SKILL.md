@@ -18,7 +18,7 @@ description: conductor 的影响面器官。改码/迭代/重构需要知道"改
 1. 单文件/单符号且无跨模块信号 → **跳过**（lite 与 standard 默认不跑）。
 2. standard 有跨模块信号或 full 必跑：`impact_analysis.py --symbols/--files/--diff`。
 3. 跨文件关系复杂时按 `references/architecture-contracts.md` 的接线四问逐条核对，关键边打开源码；不建外部图（冷启动成本高于收益）。
-4. 输出灌入 `conductor-ledger`：`... | commitment_ledger.py init --stdin`。
+4. 输出按 conductor 编排灌入承诺台账：`... | commitment_ledger.py init --stdin`（台账脚本清单见 conductor 的 skill-matrix）。
 
 ## 方法源
 `scripts/impact_analysis.py`、`references/architecture-contracts.md`（接线四问）。

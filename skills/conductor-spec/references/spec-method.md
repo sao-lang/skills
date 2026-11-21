@@ -25,8 +25,9 @@
 
 ```bash
 python ../scripts/contract_check.py --contract change-contract.md
-python ../scripts/contract_check.py --contract change-contract.md --acceptance-only | \
-  python ../../conductor-ledger/scripts/commitment_ledger.py init --ledger .commitment-ledger.json --stdin
+# --acceptance-only 输出的验收条目，按 conductor 编排交给承诺台账脚本 init --stdin 注入
+# （台账脚本清单见 conductor 的 skill-matrix）
+python ../scripts/contract_check.py --contract change-contract.md --acceptance-only
 ```
 
 Acceptance 为空 → 契约无效，退回 S2。

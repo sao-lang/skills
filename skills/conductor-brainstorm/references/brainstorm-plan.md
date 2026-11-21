@@ -1,30 +1,8 @@
-# 工程工作流（conductor 内置工程纪律）
+# 头脑风暴与实施计划方法（conductor-brainstorm 本器官方法）
 
-> 提取自 obra/superpowers 的 7 步工作流 / 写计划纪律 / 4 条理念，本地化重述（版权归原作者）。
-> 目的：让 conductor 成为**单一主控**，不依赖外部 superpowers skill。
-
-## 核心理念（4 条，贯穿全程）
-
-1. **测试驱动**——永远先写测试，没有失败测试不算实现。
-2. **系统化优先于临场发挥**——用流程取代猜测。
-3. **降低复杂度是首要目标**——简单优于聪明（配合最小改动原则；原 ponytail 已内联）。
-4. **证据优于声称**——宣布完成前先验证，拿不出证据不得标完成。
-
-## 基础工作流（五步）
-
-与 conductor 器官的映射（**第 1、3 步归本器官**，其余是别的器官的职责）：
-
-| 步 | 名称 | 归属 | 挂载 |
-|---|---|---|---|
-| 1 | 头脑风暴 brainstorming | **conductor-brainstorm（本器官）** | 场景链 S2，见下文详解 |
-| 2 | 子代理派发 subagent-driven | `../../conductor-subagent/`（条件触发） | 计划就绪进入实现阶段时按判据派发 |
-| 3 | 写实施计划 writing-plans | **conductor-brainstorm（本器官）** | 见下文 `plan` 能力详解 |
-| 4 | TDD | `../../conductor-tdd/references/engineering-tdd.md` | 场景链 S3/S4 |
-| 5 | 代码评审 code-review | `../../conductor-review/references/engineering-code-review.md` | 场景链 S5 |
-
-> 原上游工作流的隔离工作区与分支收尾两步经评估不采用：直接在当前工作区小步提交，交付由门禁与用户决策收口（2026-11-21 决策）。
-
-**备选执行模式**：`executing-plans`——分批执行+人工检查点，适合需人在场的场景。
+> 提取自 obra/superpowers 的 brainstorming / writing-plans 两个 skill，本地化重述（版权归原作者）。
+> 本文件只承载**本器官自己的两个能力**：`brainstorm`（澄清需求）与 `plan`（写实施计划）。
+> 工程理念的定位、五步工作流映射与其他能力的归属，由 conductor 统一持有（见 conductor 的工程能力目录），本文件不重复。
 
 ## `brainstorm` 能力详解
 
@@ -90,8 +68,7 @@
 5. **篇幅比例**：计划比规格长几倍=誊写了程序；代码块占大头时用签名/测试名/断言替换函数体，同时确认每步仍无歧义。
 反例："优化性能""把那块重构好"（无路径/验证/改法）、"TBD""处理边界""加适当校验"（决定不了任何事）。规格要求没任务→补任务。
 
-## 完成前验证
-宣布完成前先跑**能证明真的完成**的命令，证据是测试输出/linter 退出码/覆盖率数字，不是感觉。与 conductor 的 S4 门禁（scan_gaps+verify）叠加，不重复造流程。
+## 边界
 
-## 在 conductor 中的挂载
-本文件只承载 brainstorm 与 plan；子代理派发归 `../../conductor-subagent/`，提交归 `../../conductor-git/`，TDD/评审归 conductor-tdd / conductor-review。S2 设计计划→brainstorm+plan（架构类加 `../../conductor-impact/references/architecture-contracts.md`）。调试见 `../../conductor-debug/references/engineering-debugging.md`。
+- 本文件只承载 brainstorm 与 plan 两个能力的方法。
+- 计划写完之后谁执行、如何派发、如何验证与评审，由 conductor 的场景链编排；本器官不描述、不链接其他器官。

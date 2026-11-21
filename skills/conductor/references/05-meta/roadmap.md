@@ -108,7 +108,7 @@
 - 背景：用户指出遗漏 git 提交相关 skill。核查：superpowers 无独立 "git commit" skill，
   但 git 纪律散落在上游的隔离与分支收尾两个 skill 里，
   上一轮整合时压成了一句话，丢失了全部防呆细节。
-- 补进 `../../../conductor-brainstorm/references/engineering-workflow.md`：
+- 补进 `../../../conductor-brainstorm/references/engineering-workflow.md`（2026-11-21 已改名为 brainstorm-plan.md，隔离/分支收尾内容后经决策移除）：
   - 隔离工作区详解——检测已有隔离(含 submodule 陷阱)、原生工具优先、
     gitignore 先验并提交、目录优先级、沙箱 fallback、征求同意。
   - 分支收尾详解——验当前树测试、探环境三态、确认 base branch、精确菜单、
@@ -138,7 +138,7 @@
 - 补进细节（不简化、对照原文）：
   - ../../../conductor-tdd/references/engineering-tdd.md：Verify RED（fail vs error）/Verify GREEN（跑全项目套件，漏报即失真）/
     5 条最狠借口/红旗清单
-  - ../../../conductor-brainstorm/references/engineering-workflow.md：brainstorm 先调查再开口+首条消息+回述+两条红旗；
+  - ../../../conductor-brainstorm/references/engineering-workflow.md（现 brainstorm-plan.md）：brainstorm 先调查再开口+首条消息+回述+两条红旗；
     writing-plans 的 Interfaces(Consumes/Produces)+计划头+Self-Review 五问
   - ../../../conductor-review/references/engineering-code-review.md：subagent 派单契约(brief 唯一需求源/记 BASE/不许自派 reviewer/
     显式选 model)+fix-loop+完成台账+借口表

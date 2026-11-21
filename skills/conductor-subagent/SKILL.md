@@ -38,8 +38,8 @@ description: conductor 的子代理派发器官。计划就绪进入实现阶段
 1. 按计划顺序逐任务派发；每个任务派**全新上下文**子代理，禁止复用旧子代理或旧报告。
 2. **任务 brief 必须自包含**：计划里该任务的 Files / Interfaces / Steps 原文 + 验证命令。
    子代理只看 brief 和计划片段，看不到主对话——brief 里没有的等于不存在。
-3. 子代理完成后走两段评审（规则见 `../../conductor-review/references/independent-review.md`）：
-   先查规格符合度，再查代码质量；Critical/Blocker → 返修后**重派新子代理**复审。
+3. 子代理完成后走两段评审：先查规格符合度，再查代码质量；Critical/Blocker → 返修后**重派新子代理**复审。
+   评审维度与分级的完整规则归 conductor-review，由 conductor 编排加载，本器官不重复定义。
 4. 主上下文只记录一行结论；完整过程留在子代理，不回灌。
 
 ## 方法源

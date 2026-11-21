@@ -35,4 +35,4 @@ AI 解 bug 最常见的失败是**不先造复现就猜原因**。从 issue/报�
 
 ## 在 conductor 中的挂载
 
-由 conductor 在**场景 8（解 bug）**加载：本器官四阶段根因法 → TDD 写复现测试（`../../conductor-tdd/references/engineering-tdd.md`）→ 代码评审（`../../conductor-review/references/engineering-code-review.md`）。产出根因台账 + 回归证据写入 overview。
+由 conductor 在**场景 8（解 bug）**加载。本器官产出：四阶段根因法得到的根因 + 修复 + 回归证据，写入 overview。根因确认后的复现测试、代码评审等后续步骤由 conductor 场景链编排到对应器官，本文件不描述。
