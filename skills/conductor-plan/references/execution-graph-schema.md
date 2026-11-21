@@ -32,6 +32,7 @@
   "action": "<具体做什么：调哪个工具/读哪个文件/做哪个判断>",
   "inputs": ["<前置节点产出的契约>"],
   "outputs": ["<本节点产出的契约>"],
+  "serves_task": "<仅 research/think 节点必填：本调研/分析服务于哪个原子任务；禁止跨任务借用>",
   "exit_criteria": "<怎么知道这步完成了——必须可判定>",
   "on_fail": "ask | retry | abort | skip",
   "budget": { "max_rounds": 3 },
@@ -121,3 +122,5 @@ n_backup(tool: 备份) → n_gate(gate: 成功?)
 5. 每个节点有 exit_criteria；budget.noop_limit 存在
 6. 无孤儿节点（除入口外，每个节点有入边；除终点外，有出边）
 7. mermaid 可生成（节点 label 转义、边 label 合法）
+8. research/think 节点必须有 `serves_task`（调研归属，防跨任务借用）
+9. 顶层含 `tasks[]` 时（多原子任务），每个 research/think 的 serves_task 必须指向存在的任务 id

@@ -82,6 +82,14 @@ def validate(data: dict) -> None:
                     err(f"分支节点 {nid} 出边 <2（无法分支）")
         if not n.get("exit_criteria"):
             err(f"节点 {nid} 缺 exit_criteria（无法判定完成）")
+        if kind in ("research", "think") and not n.get("serves_task"):
+            err(f"调研/分析节点 {nid} 缺 serves_task（必须标明服务于哪个任务）")
+
+    task_ids = {t.get("id") for t in data.get("tasks", []) if isinstance(t, dict)}
+    if task_ids:
+        for n in nodes:
+            if isinstance(n, dict) and n.get("serves_task") and n["serves_task"] not in task_ids:
+                err(f"节点 {n.get('id')} 的 serves_task={n['serves_task']} 指向不存在的任务")
 
     if "noop_limit" not in budget:
         err("顶层 budget 缺 noop_limit（空转防护）")

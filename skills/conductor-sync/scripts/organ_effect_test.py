@@ -33,7 +33,11 @@ def run(script: Path, *args: str, cwd: Path, stdin: str = "") -> tuple[int, str]
 def method_organs() -> None:
     static = {
         "conductor-plan 场景判定": ("conductor-plan/references/router/planning-core.md", ["语义三问", "结构算子", "置信度"]),
-        "conductor-plan 图 DSL": ("conductor-plan/references/execution-graph-schema.md", ["节点", "边", "空转防护"]),
+        "plan 意图推断与切分": ("conductor-plan/references/router/planning-core.md", ["原子任务切分", "意图推断", "去类型化", "并列"]),
+        "plan 反例库": ("conductor-plan/references/cases.md", ["被合并成单节点", "正确解析", "serves_task"]),
+        "plan 调研归属": ("conductor-plan/references/planning-method.md", ["调研/分析节点归属", "serves_task"]),
+        "subagent 独立性判据": ("conductor-subagent/SKILL.md", ["≥2 个相互独立", "任务独立性与工作量"]),
+        "conductor-plan 图 DSL": ("conductor-plan/references/execution-graph-schema.md", ["节点", "边", "空转防护", "serves_task"]),
         "conductor-plan 规划方法": ("conductor-plan/references/planning-method.md", ["意图分析", "澄清循环", "步骤展开", "习惯"]),
         "conductor 场景适配层": ("conductor/references/01-routing/execution-graph-adapter.md", ["场景", "门禁", "ref"]),
         "conductor-brainstorm": ("conductor-brainstorm/references/grill-design-SKILL.md", ["设计树", "前沿", "结论"]),
@@ -159,6 +163,13 @@ def executable_organs() -> None:
         (root / "plan-bad.json").write_text(json.dumps(bad_plan, ensure_ascii=False), encoding="utf-8")
         rc, out = run(pv_script, "--plan", "plan-bad.json", cwd=root)
         check("conductor-plan 缺空转预算/低置信度被拦", rc == 1 and "noop_limit" in out and "0.5" in out,
+              out.splitlines()[0] if out else "")
+        no_serves = dict(good_plan, nodes=[
+            {"id": "r1", "kind": "research", "label": "调研范围", "action": "查 widget 意图", "exit_criteria": "出范围清单"},
+        ])
+        (root / "plan-noserves.json").write_text(json.dumps(no_serves, ensure_ascii=False), encoding="utf-8")
+        rc, out = run(pv_script, "--plan", "plan-noserves.json", cwd=root)
+        check("conductor-plan 调研节点缺 serves_task 被拦", rc == 1 and "serves_task" in out,
               out.splitlines()[0] if out else "")
 
 

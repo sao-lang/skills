@@ -315,3 +315,15 @@
 - **场景适配层归 conductor**：原 conductor-plan/templates/conductor.md → conductor/references/01-routing/execution-graph-adapter.md（遵循"统一关联只在 conductor"原则，不放头脑风暴）。
 - **brainstorm 去 plan**：brainstorm-plan.md 改名 brainstorm-method.md，只留 brainstorm 澄清/拷问；plan 能力归 conductor-plan。
 - 测试基线：contract 39/39、effect 26/26（新增 plan 方法断言 + plan_validate 真实冒烟）、parity 18/18。
+
+## 八、2026-11-21 第六轮：修复真实规划失败（并列任务被吞 + 意图推断缺失）
+
+- 背景：用户真实案例——一句"补充场景先落方案，_l1_rule_intent 去类型化并扩词表覆盖 widget 意图，往这方向调研"被 AI 解析成单节点场景3文档路径、声明"不改码"、调研挂给文档任务。实际是**两个并行任务**（A=场景3文档，B=场景5/6改码），可派两子代理。
+- 用户强调贯穿原则：**让 AI 从上下文和用户输入主动推断意图**，不能抓字面词就停。
+- 五层修复：
+  - planning-core：结构算子加"并列宾语+动作=并行"、回指"前面…的问题"；新增 §2.0 原子任务切分（前置层0，每任务各跑三问）+ §2.0.2 意图推断三层（字面/上下文/推断）+ 锚点（作用于已有代码对象的动作→必改码，文档词不覆盖）
+  - planning-method：第2步先切任务再推断、第3步加调研归属规则（research/think 必须标 serves_task）
+  - schema + plan_validate：节点加 serves_task 字段，research/think 缺字段或指向不存在任务即 FAIL（已冒烟验证）
+  - conductor-subagent + dispatch + cost-tiers：判据从"≥3 独立/≤2 不派"改为"≥2 个独立大任务即派，任务独立性与工作量优先于数量；≤2 仅限单一小改动或碎任务"
+- 新增 `conductor-plan/references/cases.md` 反例库（本案例完整入册 + 模板），SKILL.md 六步管线加"规划前扫反例库"。
+- 测试基线 39/39、31/31、18/18；全局已同步。未 push。

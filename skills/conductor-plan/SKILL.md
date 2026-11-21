@@ -22,6 +22,7 @@ description: 通用的路径规划器官（流程图引擎），已吸收原 con
 ## 执行（六步管线）
 1. **事务分类**：分清任务相关 / 环境杂务 / 闲聊 / 外部操作 / 历史回指，只把任务画进图。
 2. **意图分析**：四问（产出物 / 对象 / 约束与习惯 / 信息够不够）→ 匹配模板。
+2.5 **扫反例库**：规划前扫 `references/cases.md`（真实失败案例），避免重犯同类错误。
 3. **澄清循环**：信息不足 → 一次问清 frontier（≤5 项，给候选）→ **等待用户输入**；<0.5 置信度禁止出图。
 4. **拓扑推导**：按依赖排序（生产者先、销毁后、闸门内联、失败路径显式、改码必带验证）。
 5. **步骤展开**：始终完整展开到动作级（kind: tool/skill/research/think/ask/gate/action + 控制节点），每步带 `action` + `exit_criteria` + 空转预算。
@@ -49,6 +50,7 @@ python scripts/plan_validate.py --plan execution-plan.json --mermaid
 - `SKILL.md`：角色、I/O、六步管线、降级
 - `references/execution-graph-schema.md`：图 DSL 契约（节点/边/控制流/校验规则）
 - `references/planning-method.md`：通用规划方法
+- `references/cases.md`：规划反例库（规划前必扫）
 - `references/templates/generic.md`：通用模板库（conductor 场景适配层在 conductor 机体的 01-routing/execution-graph-adapter.md）
 - `references/habits.md`：用户习惯适配
 - `scripts/plan_validate.py`：结构校验 + mermaid 生成
