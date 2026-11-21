@@ -18,7 +18,7 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 
 ## 输出
 - overview 内 `## 独立 review 报告`（多轮用 `### Round N`，内嵌不拆文件）或 lite 的轻量复核章节
-- `review_gate.py` 退出码 0 的机器证据
+- `review_gate.py` 退出码 0 的机器证据（含**反向验证**：传 `--diff/--plan/--contract` 时核对 overview 的省掉声明与客观信号是否冲突——声明"无代码改动"却 diff 有代码文件即 FAIL；判对了省钱、判错了被拦）
 
 ## 方法源
 `references/independent-review.md`（派单契约/fix-loop）、`engineering-code-review.md`（review 规矩）、`code-quality-review-SKILL.md`（七维方法）、`code-quality-review-output-contract.md`（输出契约）、`security-redlines.md`（安全红线）、`source-purity.md`（源码纯净门禁规则与豁免）、`removal-check.md`（待删项残留核对）。

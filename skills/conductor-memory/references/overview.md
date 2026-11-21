@@ -23,6 +23,7 @@ overviews/YYYY-MM-DD/<sid>-<主题>.details.md    ← 详情：L1/L2（按需打
 - 产物：<路径，无则"无">
 - 未完成：<≤3 条>
 - 下一步：<动作或下一场景>
+- 省掉：<步骤 + 一句依据 + 可核对信号>   ← 例："省掉 TDD（无代码改动；diff 仅 docs/）"；review_gate 反向验证会核对
 
 ## 独立 review 报告        ← 仅改码场景；standard/full 内嵌，多轮用 ### Round N
 - 结论：Blocker <N> / Should <N> / Nit <N>

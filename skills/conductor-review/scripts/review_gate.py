@@ -21,6 +21,7 @@ lite 档（--lite）：不派独立子代理，改查 overview 的「轻量复�
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -128,6 +129,93 @@ def find_embedded_report(text: str) -> str | None:
     for i, line in enumerate(lines):
         if is_report_heading(line):
             return "\n".join(lines[i + 1:])
+    return None
+
+
+# 反向验证：省掉声明 vs 客观信号（跳过判断的机器兜底）
+SKIP_SECTION_HINT = re.compile(r"省掉|跳[过掉]|未跑|不做", re.I)
+SKIP_TDD = re.compile(r"省掉[^\n]{0,80}(?:tdd|verify|source_purity)|(?:tdd|verify|source_purity)[^\n]{0,40}(?:省掉|跳过|未跑)", re.I)
+SKIP_DOC = re.compile(r"省掉[^\n]{0,80}文档同步|文档同步[^\n]{0,40}(?:省掉|跳过)", re.I)
+DELETE_VERBS = re.compile(r"删除|移除|替换|废弃|下线|delete|remove|drop", re.I)
+PUBLIC_CONTRACT = re.compile(r"公共契约|接口|签名|架构决策|API|contract", re.I)
+
+
+def check_skip_consistency(text: str, diff_text: str, plan_path: Path | None,
+                           contract_path: Path | None) -> tuple[bool, list[str]]:
+    """反向验证：AI 声明省掉的检查，与 diff/plan/contract 客观信号是否冲突。
+
+    只校验有客观信号来源时；无信号源 → 跳过本项并提示（不算 FAIL）。
+    冲突样例：声明"省掉 TDD/verify（无代码改动）"但 diff 有代码文件改动。
+    """
+    notes: list[str] = []
+    ok = True
+
+    def has_code_diff() -> bool:
+        # git diff --name-only 风格：.py/.ts/.go/... 等非文档文件
+        return bool(re.search(r"\.(py|ts|tsx|js|jsx|vue|go|rs|dart|java|kt|cs|rb|php)\b", diff_text, re.I))
+
+    if not diff_text and not plan_path and not contract_path:
+        notes.append("PASS — 未提供客观信号（--diff/--plan/--contract），跳过反向验证")
+        return ok, notes
+
+    skip_lines = [ln.strip() for ln in text.splitlines() if SKIP_SECTION_HINT.search(ln)]
+    if not skip_lines:
+        notes.append("PASS — overview 无省掉声明，无需反向验证")
+        return ok, notes
+    notes.append(f"PASS — 发现 {len(skip_lines)} 条省掉/跳过声明，开始反向验证")
+
+    skip_blob = "\n".join(skip_lines)
+
+    # 冲突 1：声明省掉 TDD/verify，但客观信号显示有代码改动
+    if SKIP_TDD.search(skip_blob):
+        code_signal = False
+        source = ""
+        if has_code_diff():
+            code_signal, source = True, "diff 含代码文件"
+        elif plan_path and plan_path.is_file():
+            try:
+                pdata = json.loads(plan_path.read_text(encoding="utf-8"))
+                if any(n.get("kind") in ("tool", "skill") and
+                       re.search(r"tdd|verify|代码", str(n.get("action", "")), re.I)
+                       for n in pdata.get("nodes", []) if isinstance(n, dict)):
+                    code_signal, source = True, "执行图含改码节点"
+            except (json.JSONDecodeError, OSError):
+                pass
+        if code_signal:
+            ok = False
+            notes.append(
+                f"FAIL — 声明省掉 TDD/verify，但{source}；跳过判断与客观信号冲突，"
+                "禁止以'无代码改动'为由省掉改码门禁（见 cases.md 案例1）"
+            )
+        else:
+            notes.append("PASS — 声明省掉 TDD/verify，客观信号无代码改动，跳过成立")
+
+    # 冲突 2：声明省掉文档同步，但契约含公共契约/删除语义
+    if SKIP_DOC.search(skip_blob) and contract_path and contract_path.is_file():
+        ctext = contract_path.read_text(encoding="utf-8", errors="ignore")
+        delta = _section_body(ctext, lambda l: bool(re.match(r"^##\s+Delta\s*$", l))) or ""
+        if PUBLIC_CONTRACT.search(delta) or DELETE_VERBS.search(delta):
+            ok = False
+            notes.append(
+                "FAIL — 声明省掉文档同步，但契约 Delta 含公共契约/删除语义；"
+                "必须核对设计文档同步或显式声明无影响"
+            )
+        else:
+            notes.append("PASS — 声明省掉文档同步，契约 Delta 无公共契约/删除语义，跳过成立")
+
+    return ok, notes
+
+
+def _section_body(text: str, is_heading) -> str | None:
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if is_heading(line):
+            out: list[str] = []
+            for nxt in lines[i + 1:]:
+                if re.match(r"^##\s", nxt):
+                    break
+                out.append(nxt)
+            return "\n".join(out)
     return None
 
 
@@ -270,6 +358,16 @@ def main() -> int:
     )
     ap.add_argument("--waiver-reason", default="", help="豁免理由（写入输出与 overview 证据）")
     ap.add_argument(
+        "--diff", default="",
+        help="git diff --name-only 输出（反向验证：省掉 TDD/verify 但 diff 含代码改动 → FAIL）",
+    )
+    ap.add_argument(
+        "--plan", help="执行图 JSON 路径（反向验证：省掉改码但图里有改码节点 → FAIL）",
+    )
+    ap.add_argument(
+        "--contract", help="change-contract 路径（反向验证：省掉文档同步但契约有公共契约/删除语义 → FAIL）",
+    )
+    ap.add_argument(
         "--lite",
         action="store_true",
         help="lite 档：校验 overview 的「轻量复核（lite）」章节，替代独立子代理 review",
@@ -287,6 +385,17 @@ def main() -> int:
     else:
         ok, notes = check(overview, args.waived, args.waiver_reason)
         title = "# 独立 review 门禁"
+
+    # 反向验证（跳过判断的机器兜底）：附加在门禁结果上，冲突即 FAIL
+    if not args.waived:
+        text = read_text(overview)
+        skip_ok, skip_notes = check_skip_consistency(
+            text, args.diff,
+            Path(args.plan).resolve() if args.plan else None,
+            Path(args.contract).resolve() if args.contract else None,
+        )
+        notes.extend(skip_notes)
+        ok = ok and skip_ok
 
     print(f"{title}\n")
     for n in notes:

@@ -41,6 +41,9 @@ def method_organs() -> None:
         "conductor-plan 图 DSL": ("conductor-plan/references/execution-graph-schema.md", ["节点", "边", "空转防护", "serves_task"]),
         "conductor-plan 规划方法": ("conductor-plan/references/planning-method.md", ["意图分析", "澄清循环", "步骤展开", "习惯"]),
         "conductor 场景适配层": ("conductor/references/01-routing/execution-graph-adapter.md", ["场景", "门禁", "ref"]),
+        "review 设计→代码对称": ("conductor-review/references/independent-review.md", ["改设计", "代码是否失配", "Blocker"]),
+        "cost-tiers 反向验证": ("conductor/references/01-routing/cost-tiers.md", ["反向验证", "判对了省钱", "判错了被拦"]),
+        "overview 省掉证据": ("conductor-memory/references/overview.md", ["省掉", "可核对信号", "反向验证"]),
         "conductor-brainstorm": ("conductor-brainstorm/references/grill-design-SKILL.md", ["设计树", "前沿", "结论"]),
         "conductor-brainstorm 规格方法": ("conductor-brainstorm/references/spec-method.md", ["抽取", "merge", "验收注入"]),
         "conductor-memory 沉淀方法": ("conductor-memory/references/learning-method.md", ["抽什么", "去重", "回写"]),
@@ -89,6 +92,26 @@ def executable_organs() -> None:
             encoding="utf-8")
         rc, out = run(rv_script, "--overview", "ov.md", "--lite", cwd=root)
         check("conductor-review lite 门禁放行", rc == 0, out.splitlines()[-1] if out else "")
+
+        # review_gate 反向验证：省掉声明 vs 客观信号（跳过判断的机器兜底）
+        rg_script = SKILLS / "conductor-review/scripts/review_gate.py"
+        (root / "skip-ov.md").write_text(
+            "## 独立 review 结果\nBlocker = 0\n\n## 独立 review 报告\n"
+            "- finding: 文件:行号 src/a.py:12\n- blocker: 0\n- 证据: 退出码 0\n\n"
+            "## 路由声明\n省掉：TDD/verify（无代码改动）、文档同步\n",
+            encoding="utf-8")
+        rc, out = run(rg_script, "--overview", "skip-ov.md", "--diff", "src/a.py", cwd=root)
+        check("反向验证：省掉TDD但diff有代码 → FAIL", rc == 1 and "冲突" in out,
+              out.splitlines()[0] if out else "")
+        rc, out = run(rg_script, "--overview", "skip-ov.md", "--diff", "docs/x.md", cwd=root)
+        check("反向验证：省掉TDD且diff仅文档 → PASS", rc == 0 and "跳过成立" in out,
+              out.splitlines()[0] if out else "")
+        (root / "skip-contract.md").write_text(
+            "# Change t\n## Delta\n- 替换公共接口 parse_config 的签名\n## Acceptance\n- 无\n",
+            encoding="utf-8")
+        rc, out = run(rg_script, "--overview", "skip-ov.md", "--contract", "skip-contract.md", cwd=root)
+        check("反向验证：省掉文档同步但契约有公共接口 → FAIL", rc == 1 and "文档同步" in out and "FAIL" in out,
+              out.splitlines()[0] if out else "")
 
         # impact：真实脚本找引用者
         imp_script = SKILLS / "conductor-impact/scripts/impact_analysis.py"
