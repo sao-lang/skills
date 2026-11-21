@@ -7,7 +7,7 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 
 > **器官类型**：审查（免疫系统） —— 输入 diff + 档位 → 输出报告 + review_gate 退出码；自查不算，必须换眼
 > conductor 机体的"免疫检查"：执行者自查不算，必须换眼并留证据。
-> 代码审查的机器证据也归本器官：`scan_gaps.py`（缺口）、`source_purity.py`（假实现/动态类型）、`intent_gaps.py`（意图空白）。
+> 代码审查的机器证据也归本器官：`scan_gaps.py`（缺口）、`source_purity.py`（假实现/动态类型/双轨兼容层）、`intent_gaps.py`（意图空白）、`removal_check.py`（待删项残留：该删没删）。
 
 ## 输入
 改动清单或 diff、意图源（规格/任务 brief）路径、档位、overview 路径。
@@ -21,7 +21,7 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 - `review_gate.py` 退出码 0 的机器证据
 
 ## 方法源
-`references/independent-review.md`（派单契约/fix-loop）、`engineering-code-review.md`（review 规矩）、`code-quality-review-SKILL.md`（七维方法）、`code-quality-review-output-contract.md`（输出契约）、`security-redlines.md`（安全红线）、`source-purity.md`（源码纯净门禁规则与豁免）。
+`references/independent-review.md`（派单契约/fix-loop）、`engineering-code-review.md`（review 规矩）、`code-quality-review-SKILL.md`（七维方法）、`code-quality-review-output-contract.md`（输出契约）、`security-redlines.md`（安全红线）、`source-purity.md`（源码纯净门禁规则与豁免）、`removal-check.md`（待删项残留核对）。
 
 ## 机器扫描（S4 门禁证据，本器官提供）
 
@@ -30,6 +30,7 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 | `../scripts/scan_gaps.py` | TODO/pass/fake/协议无实现/install 无调用 → 缺口台账草稿 |
 | `../scripts/source_purity.py` | fake 实现/不具体类型（数据驱动规则库+存量基线），默认合并 intent_gaps |
 | `../scripts/intent_gaps.py` | 无注释跨模块占位、声明未用且无说明的参数（函数级 AST） |
+| `../scripts/removal_check.py` | 从契约 Delta 提取待删项，扫全仓定义/引用，残留即 FAIL（该删没删） |
 
 ## 降级
 `references/code-quality-review-SKILL.md` 不可读 → 显式写「缺失/影响/降级」，用 `references/engineering-code-review.md` 内联七维清单；**拿不到 review_gate 证据禁止收尾**。lite 复核发现 Blocker>0 → 立即升 standard 重审。
@@ -37,4 +38,4 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 ## 本器官自带（可独立工作）
 - `SKILL.md`：角色、I/O、执行与降级
 - `references/`：从 conductor 拆分的方法文档 + 改名并入的协作 skill 原文 + source-purity 门禁规则
-- `scripts/`：review_gate.py / scan_gaps.py / source_purity.py / intent_gaps.py
+- `scripts/`：review_gate.py / scan_gaps.py / source_purity.py / intent_gaps.py / removal_check.py

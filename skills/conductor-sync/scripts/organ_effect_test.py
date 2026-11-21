@@ -41,6 +41,7 @@ def method_organs() -> None:
         "conductor-git": ("conductor-git/references/git-commit.md", ["提交", "精确", "hooks"]),
         "conductor-subagent": ("conductor-subagent/references/dispatch.md", ["brief", "全新", "评审"]),
         "conductor-sync": ("conductor-sync/references/install-verify.md", ["复制", "全局", "测试"]),
+        "conductor-review 残留核对": ("conductor-review/references/removal-check.md", ["删除", "残留", "退出码"]),
     }
     for organ, (rel, keywords) in static.items():
         p = SKILLS / rel
@@ -116,6 +117,22 @@ def executable_organs() -> None:
         td_script = SKILLS / "conductor-tdd/scripts/verify.py"
         rc, out = run(td_script, "--lang", "python", "--dry-run", cwd=root)
         check("conductor-tdd 产出验证命令", rc == 0 and ("ruff" in out or "pytest" in out),
+              out.splitlines()[0] if out else "")
+
+        # review（removal_check）：待删项残留 → FAIL；清除后 → PASS
+        rc_script = SKILLS / "conductor-review/scripts/removal_check.py"
+        (root / "contract.md").write_text(
+            "# Change: t1\n## Why\nx\n## Delta\n- 删除 `obsolete_fn` 函数\n"
+            "## Invariants\n- 无\n## Affected\n- a.py\n## Acceptance\n- 无\n## Open\n- 无\n",
+            encoding="utf-8")
+        (root / "src").mkdir(exist_ok=True)
+        (root / "src" / "m.py").write_text("def obsolete_fn():\n    return 1\n", encoding="utf-8")
+        rc, out = run(rc_script, "--contract", "contract.md", "--path", "src", cwd=root)
+        check("conductor-review 待删项残留被拦", rc == 1 and "残留：obsolete_fn" in out,
+              out.splitlines()[0] if out else "")
+        (root / "src" / "m.py").write_text("def fresh_fn():\n    return 2\n", encoding="utf-8")
+        rc, out = run(rc_script, "--contract", "contract.md", "--path", "src", cwd=root)
+        check("conductor-review 清除后放行", rc == 0 and "已清除：obsolete_fn" in out,
               out.splitlines()[0] if out else "")
 
 

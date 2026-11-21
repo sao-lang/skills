@@ -30,12 +30,13 @@
 | `migration_ledger.py`（shim） | conductor-ledger | 场景7 兼容 shim（底层委托 commitment_ledger，固定 source=module）：init 扫码建台账、next 断点、check --strict 收口门禁 | `python scripts/migration_ledger.py init --path src --project <名>`；新增模块 `--merge`；续接 `next`；收尾 `check --path src --strict`（见 `../../../conductor-ledger/references/migration-integrity.md`） |
 | `impact_analysis.py`（shim） | conductor-impact | 变更影响分析：从符号/改动文件/stdin diff 找引用者与建议跑的测试，辅助迭代/重构的影响面评估 | `python scripts/impact_analysis.py --symbols Foo,bar` / `--files src/a.py` / 管道 `--diff` |
 | `scan_gaps.py` | conductor-review | 扫 TODO/pass/fake/协议无实现/install 无调用，生成缺口台账草稿 | `python ../../conductor-review/scripts/scan_gaps.py --path src` |
-| `source_purity.py` | conductor-review | 源码纯净门禁：数据驱动规则库（27条+自定义）扫 fake 实现与不具体类型各语言多形状；**存量基线只卡新增/改到的文件**（重构场景）；purity-exempt 留痕豁免；排除 tests/；默认合并 intent_gaps | `scan --path src --strict`；重构 `baseline --path src` 后 `check --path src --baseline .purity-baseline.json --scope changed.txt --strict`；`rules` 列规则（见 `../../../conductor-review/references/source-purity.md`） |
+| `source_purity.py` | conductor-review | 源码纯净门禁：数据驱动规则库（30条+自定义）扫 fake 实现与不具体类型各语言多形状；**存量基线只卡新增/改到的文件**（重构场景）；purity-exempt 留痕豁免；排除 tests/；默认合并 intent_gaps | `scan --path src --strict`；重构 `baseline --path src` 后 `check --path src --baseline .purity-baseline.json --scope changed.txt --strict`；`rules` 列规则（见 `../../../conductor-review/references/source-purity.md`） |
 | `intent_gaps.py` | conductor-review | 意图空白扫描（函数级 AST）：无注释跨模块占位（pass/NotImplementedError）、声明未用且无说明的参数；合法豁免=注释说明/abstract/_前缀/docstring | `python ../../conductor-review/scripts/intent_gaps.py --path src --strict`；已默认并入 source_purity，`--no-intent` 可关 |
 | `debt_ledger.py` | conductor-ledger | 技术债台账：扫 TODO/FIXME/HACK 等标记，算债指数与热点文件，出草稿 | `python ../../conductor-ledger/scripts/debt_ledger.py --path src`；`--format json`；`--fail-over <N>` 卡口 |
 | `release_notes.py` | conductor-git | 发布说明草稿：从 conventional commits 生成 CHANGELOG 分组 + 语义化版本建议 | `python ../../conductor-git/scripts/release_notes.py --since <tag> --repo <path>` |
 | `contract_check.py` | conductor-brainstorm（spec 并入） | 变更契约检查：六段齐全 + Acceptance 非空，可只输出 Acceptance 条目喂台账 | `python ../../conductor-brainstorm/scripts/contract_check.py --contract change-contract.md`；`--acceptance-only` 管道到 `commitment_ledger.py init --stdin` |
 | `learn_capture.py` | conductor-memory（learn 并入） | 从 overview 抽可回写经验草稿，默认 dry-run，需 `--apply --out` 才落盘 | `python ../../conductor-memory/scripts/learn_capture.py --overview <path>`；确认后 `python ../../conductor-memory/scripts/learn_capture.py --overview <path> --out docs/conventions.md --apply` |
+| `removal_check.py` | conductor-review | 待删项残留核对：从契约 Delta 提取带符号名的删除条目，扫全仓定义/引用，有残留 exit 1 | `python ../../conductor-review/scripts/removal_check.py --contract change-contract.md --path src`；另可 `--symbols Foo,bar` / `--list removals.txt`（见 `../../../conductor-review/references/removal-check.md`） |
 | `sync-global.py` | conductor-sync | 统一安装/更新 conductor 家族 skill 到智能体全局目录（默认 conductor 家族，`--all` 全部） | `python ../../conductor-sync/scripts/sync-global.py`（`--dry-run` 只列差异） |
 | `organ_contract_test.py` / `organ_effect_test.py` / `script_parity_test.py` | conductor-sync | 完整性三测试：器官接线契约 / 真实输入→输出冒烟 / shim 不漂移 | `python ../../conductor-sync/scripts/<测试名>.py` |
 
@@ -49,7 +50,7 @@
 | `conductor-router` | 主流程 S1 | 自包含（routing + cost-tiers + I/O 契约） |
 | `conductor-brainstorm` | 主流程 S2（澄清 + 规格） | 自带 `../../../conductor-brainstorm/references/grill-design-SKILL.md`、`examples-to-spec.md`、`change-contract-template.md`、`spec-method.md`、`scripts/contract_check.py` |
 | `conductor-tdd` | 主流程 S3/S4 | 自带 `../../conductor-tdd/scripts/verify.py`、编码规则 |
-| `conductor-review` | 主流程 S4/S5 | 自带 `../../../conductor-review/references/code-quality-review-SKILL.md`、`source-purity.md`、`scripts/review_gate.py`、`scan_gaps.py`、`source_purity.py`、`intent_gaps.py` |
+| `conductor-review` | 主流程 S4/S5 | 自带 `../../../conductor-review/references/code-quality-review-SKILL.md`、`source-purity.md`、`removal-check.md`、`scripts/review_gate.py`、`scan_gaps.py`、`source_purity.py`、`intent_gaps.py`、`removal_check.py` |
 | `conductor-ledger` | 主流程 S0/S4/S5 | 自带 `../../conductor-ledger/scripts/commitment_ledger.py`、`migration_ledger.py`、`debt_ledger.py` |
 | `conductor-memory` | 主流程 S0/收尾/S5 沉淀 | 自带 `../../conductor-memory/scripts/overview_path.py`、`learn_capture.py`、overview L1 交接、两-tier 模板、learning-method、lessons-template |
 | `conductor-impact` | 条件 S1/S4 | 自带 `../../conductor-impact/scripts/impact_analysis.py`、架构契约 |
