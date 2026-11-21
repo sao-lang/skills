@@ -34,6 +34,6 @@ Acceptance 为空 → 契约无效，退回 S2。
 
 ## 4. 门禁边界
 
-- conductor-spec 只输出契约与脚本证据。
+- 本器官只输出契约与脚本证据。
 - 是否进 S3、是否放行，由 conductor 决定。
 - 契约存在不等于完成；Acceptance 全部 verified 且 ledger 零未勾销才算收口。

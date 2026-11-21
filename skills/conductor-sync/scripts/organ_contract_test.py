@@ -19,9 +19,9 @@ SCRIPTS = Path(__file__).resolve().parent
 SKILLS_ROOT = SCRIPTS.parents[1]          # .../skills
 CONDUCTOR = SKILLS_ROOT / "conductor"
 ORGANS = (
-    "conductor-router", "conductor-brainstorm", "conductor-spec",
-    "conductor-tdd", "conductor-review", "conductor-learn",
-    "conductor-ledger", "conductor-overview",
+    "conductor-router", "conductor-brainstorm",
+    "conductor-tdd", "conductor-review",
+    "conductor-ledger", "conductor-memory",
     "conductor-impact", "conductor-debug", "conductor-git",
     "conductor-subagent", "conductor-sync",
 )
@@ -55,13 +55,22 @@ def check_organs() -> None:
     merged = {
         "conductor-brainstorm": "grill-design-SKILL.md",
         "conductor-review": "code-quality-review-SKILL.md",
-        "conductor-overview": "handoff-SKILL.md",
+        "conductor-memory": "handoff-SKILL.md",
     }
     for organ, fname in merged.items():
         check(f"{organ} 已并入改名 skill", (SKILLS_ROOT / organ / "references" / fname).is_file())
 
-    for organ, script in (("conductor-spec", "contract_check.py"),
-                          ("conductor-learn", "learn_capture.py")):
+    merged_specs = {
+        "conductor-brainstorm": ("change-contract-template.md", "spec-method.md"),
+        "conductor-memory": ("learning-method.md", "lessons-template.md"),
+    }
+    for organ, fnames in merged_specs.items():
+        for fname in fnames:
+            check(f"{organ} 已并入方法 {fname}",
+                  (SKILLS_ROOT / organ / "references" / fname).is_file())
+
+    for organ, script in (("conductor-brainstorm", "contract_check.py"),
+                          ("conductor-memory", "learn_capture.py")):
         check(f"{organ} 执行脚本就位",
               (SKILLS_ROOT / organ / "scripts" / script).is_file())
 
@@ -80,7 +89,7 @@ def check_organs() -> None:
 
 def check_state_files() -> None:
     sys.path.insert(0, str(SKILLS_ROOT / "conductor-ledger" / "scripts"))
-    sys.path.insert(0, str(SKILLS_ROOT / "conductor-overview" / "scripts"))
+    sys.path.insert(0, str(SKILLS_ROOT / "conductor-memory" / "scripts"))
     import overview_path as op
     import commitment_ledger as cl
 
@@ -106,7 +115,7 @@ def check_state_files() -> None:
 
 
 def check_overview_template() -> None:
-    p = SKILLS_ROOT / "conductor-overview" / "references" / "overview.md"
+    p = SKILLS_ROOT / "conductor-memory" / "references" / "overview.md"
     text = p.read_text(encoding="utf-8") if p.is_file() else ""
     check("overview 两-tier 模板",
           "L0 索引卡（≤8 行）" in text and ".details.md" in text and len(text) < 5000,

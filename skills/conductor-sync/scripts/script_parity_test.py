@@ -22,7 +22,7 @@ SHIM_DIR = SKILLS / "conductor" / "scripts"   # 6 个薄 shim 仍留在 conducto
 SHIMS = {
     "verify.py": "conductor-tdd/scripts/verify.py",
     "review_gate.py": "conductor-review/scripts/review_gate.py",
-    "overview_path.py": "conductor-overview/scripts/overview_path.py",
+    "overview_path.py": "conductor-memory/scripts/overview_path.py",
     "commitment_ledger.py": "conductor-ledger/scripts/commitment_ledger.py",
     "migration_ledger.py": "conductor-ledger/scripts/migration_ledger.py",
     "impact_analysis.py": "conductor-impact/scripts/impact_analysis.py",

@@ -56,14 +56,14 @@
 
 | 器官 | 默认 | 跳过条件（任一命中即跳） | 必跑条件（任一命中即跑） |
 |---|---|---|---|
-| conductor-overview | ✓ | 续接且 L0 索引卡已含全部所需上下文 → 只 append 不重写 | 新会话 / 新任务 |
+| conductor-memory | ✓ | 续接且 L0 索引卡已含全部所需上下文 → 只 append 不重写 | 新会话 / 新任务 |
 | conductor-ledger | 视清单 | 规格里无多项承诺、无 finding、无模块清单 | 有隐含清单 / 多来源差异 / 迁移 |
 | conductor-impact | 视信号 | 单文件单符号、无跨模块引用信号 | 跨模块契约 / 公共接口变更 / full 档 |
-| conductor-spec | standard/full | bug 修复（降为轻量：根因+回归要求一行）；纯文档场景 | 改码且规格有多条验收 |
+| conductor-brainstorm 规格固化 | standard/full | bug 修复（降为轻量：根因+回归要求一行）；纯文档场景 | 改码且规格有多条验收 |
 | conductor-tdd | 改码必跑 | —（失败测试先行不可裁） | 一切改码 |
 | conductor-debug | — | 非报错/非行为不符场景不加载 | 出现报错栈、复现需求 |
 | conductor-review | 改码必跑 | —（门禁不可裁，lite 也有轻量复核） | 一切改码交付前 |
-| conductor-learn | standard/full | 无可复用经验 → 写"本次无新增"留痕（不算跳过）；用户要求赶时间且改动琐碎 | 有用户纠正 / 新约定 / 踩坑 |
+| conductor-memory 沉淀 | standard/full | 无可复用经验 → 写"本次无新增"留痕（不算跳过）；用户要求赶时间且改动琐碎 | 有用户纠正 / 新约定 / 踩坑 |
 | conductor-subagent | 条件触发 | 任务 ≤2 / 紧耦合 / 强依赖跨任务联想（根因探索类）/ 用户要求省 token 或直接写 | 任务集 ≥3 个独立单元 / 多文件显式契约衔接 / 会话已长（不限改码，调研/分析/文档/审查同样适用） |
 | conductor-git(commit) | 改码任务 GREEN 后 | 用户明确"先不提交" | 每任务 RED→GREEN 完成后 |
 
@@ -97,6 +97,6 @@ lite 不派子代理，但**必须换一种眼**做三项复核，写进 overvie
 - 档位判定的语义部分归 `routing.md`（场景/路径/置信度），本文件只管"跑多深"。
 - 独立 review 的完整规则归 `../../conductor-review/references/independent-review.md`：standard/full 仍强制子代理；本文件只定义 lite 的替代门禁。
 - 承诺台账的防漏规则归 `../../conductor-ledger/references/commitment-ledger.md`：lite 因"无隐含清单"才跳过；一旦发现清单必须补建台账并升档。
-- 变更契约的规则归 `conductor-spec`：standard/full 必出六段契约，Acceptance 注入台账；lite 跳过须声明。
-- 学习回写的规则归 `conductor-learn`：standard/full 收尾留痕，默认 dry-run，禁止自动污染 skill；lite 跳过须声明。
+- 变更契约的规则归 `conductor-brainstorm`（spec 已并入）：standard/full 必出六段契约，Acceptance 注入台账；lite 跳过须声明。
+- 沉淀回写的规则归 `conductor-memory`（learn 已并入）：standard/full 收尾留痕，默认 dry-run，禁止自动污染 skill；lite 跳过须声明。
 - 证据口径不变：测试证据只认 `verify.py`，源码污染只认 `source_purity --strict`，拿不出退出码不得标完成。

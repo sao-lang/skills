@@ -4,21 +4,19 @@
 > **14 场景是工作环境**（只声明本环境调用哪些器官）；方法文档与脚本已**从 conductor 拆到各器官目录**，conductor 的 `references/` 只留兼容指针。每个器官自带 `references/` 与需要的 `scripts/`，可独立工作。
 > 本表是"器官总线"：conductor 只按表调用，不在入口重复器官内部步骤。
 
-## 一、器官清单（13 个）
+## 一、器官清单（11 个）
 
 | 器官 skill | 职责 | 调用阶段 | 输入 → 输出 | 缺失降级 |
 |---|---|---|---|---|
 | `conductor-router` | 场景/路径/档位规划 | S1 | 用户原句 → 执行图 + 声明（含省掉步骤） | 降级只读 9/10，绝不猜改码 |
-| `conductor-brainstorm` | 需求澄清、设计拷问 | S2（场景 1/2/3/11） | 模糊需求/样例 → 规格要点 + 未决 + 假设 | 内联五问；用自带 `grill-design-SKILL.md` 方法 |
-| `conductor-spec` | 活规格、变更契约 | S2（standard/full；bug 轻量） | brainstorm 输出 → 六段 change-contract + Acceptance | 无基线建 baseline；脚本缺失登记未机器校验 |
+| `conductor-brainstorm` | 需求澄清、设计拷问、规格固化（spec 已并入） | S2（场景 1/2/3/5/6/7/8/11） | 模糊需求/样例 → 规格要点 + 未决 + 假设；standard/full 出六段 change-contract（`contract_check.py` 证据） | 内联五问；脚本缺失登记未机器校验；无基线建 baseline |
 | `conductor-tdd` | RED-GREEN-REFACTOR | S3（改码/13） | 一条行为 → 红/绿测试 + verify 证据 | 环境阻断登记，禁造假绿 |
 | `conductor-review` | 独立换眼 + review 门禁 + 代码审查机器证据 | S4/S5 | diff + 档位 → 报告 + gate 退出码 0；自带 `scan_gaps/source_purity/intent_gaps` 扫描 | 内联清单但门禁不放宽 |
-| `conductor-learn` | 学习回写、经验沉淀 | S5（standard/full） | overview → 触发→动作条目 + 回写目标 | 目标不可写登记阻塞；lite 跳过须声明 |
+| `conductor-memory` | 会话记录（两-tier 压缩）+ 学习沉淀回写（learn/overview 已并入） | S0/收尾/S5 沉淀（standard/full） | 主题+状态 → L0 主文件 + `.details.md`；overview → 触发→动作条目 + 回写目标（默认 dry-run） | 主文件 create；详情可缺；回写目标不可写登记阻塞；lite 跳过须声明 |
 | `conductor-ledger` | 承诺外置、断点、零未勾销 | S0/S4/S5 | 多来源 → 紧凑台账 + check 结论；自带 `debt_ledger.py` 技术债扫描 | 重建台账，禁刷状态 |
-| `conductor-overview` | 会话记录两-tier压缩 | S0/收尾 | 主题+状态 → L0 主文件 + `.details.md` | 主文件 create；详情可缺 |
 | `conductor-impact` | 影响面草稿 | S1/S4（5/7） | 符号/文件/diff → 引用者 + 建议测试 | 人工列直接引用者并声明未全量 |
 | `conductor-debug` | 根因与最小复现 | 场景 8 | 现象/报错 → 根因 + 复现 + 回归要求 | 复现不了停下问用户 |
-| `conductor-git` | 任务内提交与发版 | 条件触发（每任务 GREEN 后；发版走 `release_notes.py` + release-checklist） | 任务文件清单 → commit hash + overview 变更行 | 沙箱拒绝登记 git 阻塞；非 git 目录交回重路由 |
+| `conductor-git` | 版本动作：提交 + 发版 | 条件触发（每任务 GREEN 后提交；用户说发版/上线走 `release_notes.py` + release-checklist） | 任务文件清单 → commit hash + overview 变更行；tag/CHANGELOG/回滚清单 | 沙箱拒绝登记 git 阻塞；非 git 目录交回重路由 |
 | `conductor-subagent` | 子代理派发（全新上下文执行任务，省主上下文） | **任何适用多代理的场景**（改码 S3、批量调研、多文档产出、并行分析等）按判据条件触发 | 任务 brief → 子代理结果 + 评审/复核结论 | 无子代理能力则主上下文直做并声明；连续返修 ≥2 轮停下问用户 |
 | `conductor-sync` | 统一安装/更新 conductor 家族到智能体全局目录 + 完整性三测试 | 用户说同步/安装/更新 skill 时；改完 skill 落全局时 | 项目 skills/ → 全局复制清单 + 三测试通过计数 | 列差异交用户手动复制；测试失败如实报告禁交付 |
 
@@ -26,12 +24,12 @@
 
 | 阶段 | 必调器官 | 按触发调 | 门禁 |
 |---|---|---|---|
-| S0 | `conductor-overview` | `conductor-ledger`（有隐含清单） | overview L0 存在、状态文件已忽略 |
+| S0 | `conductor-memory` | `conductor-ledger`（有隐含清单） | overview L0 存在、状态文件已忽略 |
 | S1 | `conductor-router` | `conductor-impact`（跨模块/full） | 路由声明含场景/路径/档位/省掉 |
-| S2 | `conductor-brainstorm` | `conductor-spec`（standard/full）、自带 `design-spec-template` | 规格未确认不动手；契约未确认不进 S3 |
+| S2 | `conductor-brainstorm`（澄清 + 规格一体） | 自带 `design-spec-template`/`spec-method`；standard/full 固化 change-contract | 规格未确认不动手；契约未确认不进 S3 |
 | S3 | `conductor-tdd` | 自带编码规则（最小完整改动内联） | 先红后绿、编码规则已读 |
 | S4 | `conductor-tdd`（证据） | `conductor-impact`、`conductor-ledger` | `verify.py` + `source_purity --strict` |
-| S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full） | `review_gate.py` 退出 0、台账零未勾销；learn 留痕 |
+| S5 | `conductor-review` | `conductor-ledger`、`conductor-memory` 沉淀（standard/full） | `review_gate.py` 退出 0、台账零未勾销；沉淀留痕 |
 
 **路由纪律**：同一阶段可由多个器官协作，但**决策权只在 conductor**——器官给结论/证据，不自行推进阶段、不自行放行。
 
@@ -43,7 +41,7 @@
 |---|---|---|
 | `grill-design` | 6 | **改名并入** `conductor-brainstorm/references/grill-design-SKILL.md` |
 | `code-quality-review` | 6 | **改名并入** `conductor-review/references/code-quality-review-SKILL.md`（+ output-contract） |
-| `handoff` | 6 | **改名并入** `conductor-overview/references/handoff-SKILL.md` |
+| `handoff` | 6 | **改名并入** `conductor-memory/references/handoff-SKILL.md` |
 | `graphify` | 3 | DEPRECATE（冷启动成本高，与 impact 脚本重复） |
 | `ponytail` | 3 | DEPRECATE（最小改动原则已内联进 `conductor-tdd`） |
 | `caveman` / `grill-me` / `ponytail-review` / `caveman-compress` / `metago-code-review-deep` | ≤1 | DEPRECATE（重复或未被主链调用） |

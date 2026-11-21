@@ -1,6 +1,6 @@
 ---
 name: conductor
-description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：作为机体只做状态机、路由、门禁与器官调度；工程能力由 13 个器官 skill 执行。适用于支持 SKILL.md 的 agent。
+description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：作为机体只做状态机、路由、门禁与器官调度；工程能力由 11 个器官 skill 执行。适用于支持 SKILL.md 的 agent。
 ---
 
 # conductor · 开发工作流机体
@@ -19,14 +19,14 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 
 | 阶段 | 必调器官 | 按触发 |
 |---|---|---|
-| S0 | `conductor-overview` | `conductor-ledger`（有隐含清单） |
+| S0 | `conductor-memory` | `conductor-ledger`（有隐含清单） |
 | S1 | `conductor-router` | `conductor-impact`（跨模块/full） |
-| S2 | `conductor-brainstorm` | `conductor-spec`（standard/full）、自带拷问与规格模板 |
+| S2 | `conductor-brainstorm`（澄清 + 规格固化一体） | standard/full 出 change-contract；lite 只澄清不固化 |
 | S3 | `conductor-tdd` | `conductor-subagent`（任务集可并行时派发，条件触发，不限于改码）、自带编码规则 |
 | S4 | `conductor-tdd`（证据） | `conductor-ledger`、`conductor-impact` |
-| S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full） |
+| S5 | `conductor-review` | `conductor-ledger`、`conductor-memory`（沉淀，standard/full） |
 
-成本档位 lite/standard/full 由 `conductor-router` 判定；规则见器官自带 `../conductor-router/references/cost-tiers.md`。lite 省掉交接/环境探测/台账/影响面/活规格/学习回写/独立子代理，保留规格确认、TDD、`verify.py`、`source_purity`、review 门禁。
+成本档位 lite/standard/full 由 `conductor-router` 判定；规则见器官自带 `../conductor-router/references/cost-tiers.md`。lite 省掉交接/环境探测/台账/影响面/契约固化/沉淀回写/独立子代理，保留规格澄清、TDD、`verify.py`、`source_purity`、review 门禁。
 
 **条件加载**：同档位内器官是否真的跑，按 `../conductor-router/references/cost-tiers.md` 第三节的条件加载表判（如单任务不派子代理、无清单跳台账、用户"先不提交"跳提交）；每个跳过写进声明"省掉"并带依据，禁止静默跳过。
 
@@ -34,16 +34,16 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 
 | 场景 | 路径 | 器官链 |
 |---|---|---|
-| 1 初始化 / 4 开发 | 改码 | router → brainstorm → spec → subagent(条件) → tdd → git(commit，条件) → ledger → review → learn |
-| 2/3 设计 | 文档 | router → brainstorm（自带拷问方法；确认后可出 spec 草稿） |
-| 5 迭代 / 6 设计驱动重构 | 改码 | router → spec → impact → subagent(条件) → tdd → git(commit，条件) → ledger → review → learn |
-| 7 项目重构 | 改码 | router → ledger(migration shim) → spec → impact → tdd → git(commit，条件) → review → learn |
-| 8 解 bug | 改码 | router → debug → spec(轻量) → tdd → git(commit，条件) → review → learn |
-| 9 拷问 / 10 理解 | 只读 | router → brainstorm / impact → overview（结束） |
-| 11 文档同步 | 文档 | router → brainstorm → overview |
+| 1 初始化 / 4 开发 | 改码 | router → brainstorm(澄清→规格) → subagent(条件) → tdd → git(commit，条件) → ledger → review → memory(沉淀) |
+| 2/3 设计 | 文档 | router → brainstorm（自带拷问与规格方法；确认后可固化 change-contract） |
+| 5 迭代 / 6 设计驱动重构 | 改码 | router → brainstorm(规格) → impact → subagent(条件) → tdd → git(commit，条件) → ledger → review → memory(沉淀) |
+| 7 项目重构 | 改码 | router → ledger(migration shim) → brainstorm(规格) → impact → tdd → git(commit，条件) → review → memory(沉淀) |
+| 8 解 bug | 改码 | router → debug → brainstorm(轻量) → tdd → git(commit，条件) → review → memory(沉淀) |
+| 9 拷问 / 10 理解 | 只读 | router → brainstorm / impact → memory（结束） |
+| 11 文档同步 | 文档 | router → brainstorm → memory |
 | 12 门禁验收 | 验证 | router → review（+ledger） |
-| 13 测试补课 | 验证 | router → tdd → review → learn |
-| 14 文档清理 | 文档·清理 | router → overview（确认无依赖后执行，排链尾） |
+| 13 测试补课 | 验证 | router → tdd → review → memory(沉淀) |
+| 14 文档清理 | 文档·清理 | router → memory（确认无依赖后执行，排链尾） |
 
 场景细节与 I/O 契约见 `../conductor-router/references/scenarios.md`：**S1 只读 I/O 契约表，执行到某场景才读该节**。
 
@@ -57,8 +57,8 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 
 ## 参考与脚本
 
-- 参考文档按需加载，索引见 `references/05-meta/README.md`：`../conductor-router/references/routing.md`/`../conductor-router/references/cost-tiers.md`/`organ-registry.md` 在 S1 读，`../conductor-router/references/scenarios.md`、`../conductor-brainstorm/references/brainstorm-plan.md`、`../conductor-spec/references/spec-method.md`、`../conductor-learn/references/learning-method.md` 按节，其余触发才读。
+- 参考文档按需加载，索引见 `references/05-meta/README.md`：`../conductor-router/references/routing.md`/`../conductor-router/references/cost-tiers.md`/`organ-registry.md` 在 S1 读，`../conductor-router/references/scenarios.md`、`../conductor-brainstorm/references/brainstorm-plan.md`、`../conductor-brainstorm/references/spec-method.md`、`../conductor-memory/references/learning-method.md` 按节，其余触发才读。
 - **8 个本体入口**：`preflight / env_probe`（S0 预检与环境探测，本体实现）+ `overview_path / verify / review_gate / impact_analysis / commitment_ledger / migration_ledger`（6 个薄 shim，实现唯一真相源在器官目录，`script_parity_test.py` 防漂移）。
-- **已分流到器官的脚本**：缺口/纯净/意图扫描归 `../conductor-review/scripts/`（`scan_gaps.py` / `source_purity.py` / `intent_gaps.py`），技术债台账归 `../conductor-ledger/scripts/debt_ledger.py`，发版说明归 `../conductor-git/scripts/release_notes.py`；契约/学习脚本本就在 `conductor-spec` / `conductor-learn`。
+- **已分流到器官的脚本**：缺口/纯净/意图扫描归 `../conductor-review/scripts/`（`scan_gaps.py` / `source_purity.py` / `intent_gaps.py`），技术债台账归 `../conductor-ledger/scripts/debt_ledger.py`，发版说明归 `../conductor-git/scripts/release_notes.py`；契约脚本在 `conductor-brainstorm/scripts/`，沉淀脚本在 `conductor-memory/scripts/`。
 - **统一安装/更新与完整性测试**归 `conductor-sync`：`sync-global.py` + 三测试 + 协作审计，见其 SKILL.md；参数总表见 `skill-matrix.md`。
 - 外部 skill 缺失必须显式降级并在 overview 写「缺失 X / 影响 Y / 降级 Z」，禁止静默跳过。

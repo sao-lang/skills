@@ -64,7 +64,7 @@ skills/
 │   │   └── 05-meta/            ← 索引 + 路线图
 │   └── scripts/                ← 16 个工作流入口（6 个薄 shim）+ 4 个测试/审计脚本
 ├── conductor-router / -brainstorm / -spec / -tdd / -review / -learn / -ledger / -overview / -impact / -debug
-│                               ← 12 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
+│                               ← 11 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
 ├── (原协作 skill)              ← 全部 10 个原目录已删除：3 个方法并入器官，7 个判定废弃
 └── ...
 ```
@@ -152,22 +152,21 @@ python skills/conductor/scripts/preflight.py --project-root .
 
 ## 器官（原协作 skill 已并入或废弃）
 
-conductor 是唯一主控；下列 12 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
+conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
 
 | 器官 | 职责 |
 |---|---|
 | `conductor-router` | 场景/路径/档位路由 |
-| `conductor-brainstorm` | 需求澄清、设计拷问（已并入 grill-design） |
-| `conductor-spec` | 六段变更契约，Acceptance 入台账 |
+| `conductor-brainstorm` | 需求澄清、设计拷问、规格固化（已并入 grill-design 与 spec 的六段变更契约） |
 | `conductor-tdd` | RED-GREEN-REFACTOR 与验证证据 |
 | `conductor-review` | 独立换眼与七维审查（已并入 code-quality-review） |
-| `conductor-learn` | 交付后经验回写，默认 dry-run |
 | `conductor-ledger` | 承诺外置、断点、零未勾销 |
-| `conductor-overview` | 会话记录两-tier 压缩（已并入 handoff） |
+| `conductor-memory` | 会话记录两-tier 压缩（已并入 handoff）+ 交付后经验沉淀回写，默认 dry-run |
 | `conductor-impact` | 影响面草稿 |
 | `conductor-debug` | 根因与最小复现 |
-| `conductor-subagent` | 子代理派发：计划就绪后按判据把任务派给全新上下文子代理，省主上下文（条件触发，AI 看着选） |
-| `conductor-git` | git 操作：任务内提交（精确暂存 / message / hooks，条件触发） |
+| `conductor-subagent` | 子代理派发：任何适用多代理的场景按判据把任务派给全新上下文子代理，省主上下文（条件触发，AI 看着选） |
+| `conductor-git` | 版本动作：提交（精确暂存 / message / hooks）+ 发版（版本 / CHANGELOG / tag / 回滚） |
+| `conductor-sync` | 统一安装/更新 conductor 家族到智能体全局目录 + 完整性三测试 |
 
 原 `grill-me` / `metago-code-review-deep` / `graphify` / `ponytail` / `caveman` 系列经测试判定废弃并物理删除；历史见 `roadmap.md`。
 
@@ -238,7 +237,7 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 
 - `SKILL.md` 是唯一每次加载的入口，已从 9.8k 字符压到约 3.7k 字符（-63%），细节下沉到 reference。
 - `references/` 仅 8 份机体级文档；方法大文件已拆到器官 `references/`，按阶段/触发条件加载，不整份读。
-- **器官化**：12 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
+- **器官化**：11 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
 - **会话记录两-tier**：主文件只有 L0（≤8 行）+ review 章节，详情进 `.details.md`；续接默认只读主文件。
 - **状态文件最小化**：`.conductor-session.json` 只存 8 位 sid；`.commitment-ledger.json` 紧凑 JSON（40 条示例从 9.1k→1.8k 字符，-81%），首次生成自动加入 `.gitignore`。
 - **成本档位**：S1 判 lite/standard/full，lite 省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。

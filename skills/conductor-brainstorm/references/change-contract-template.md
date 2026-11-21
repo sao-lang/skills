@@ -17,7 +17,7 @@
 - 
 
 ## Affected
-<可能受影响的模块/符号/调用方。直接喂给 conductor-impact 做核实。>
+<可能受影响的模块/符号/调用方。交 conductor 编排影响面核实。>
 - 
 
 ## Acceptance
@@ -34,6 +34,6 @@
 - **Why** 不写"加了 X 函数"，写"用户反复遇到 Y，导致 Z"。
 - **Delta** 用动词开头：新增 / 删除 / 替换 / 重命名 / 约束。
 - **Invariants** 写"不许变"，不写"建议不变"。
-- **Affected** 允许是草稿，但必须标注"需 conductor-impact 核实"。
+- **Affected** 允许是草稿，但必须标注"需 conductor 编排的影响面核实"。
 - **Acceptance** 禁写"工作正常"，必须写可执行验证。
 - **Open** 非空时，conductor 不得把契约标为 confirmed。

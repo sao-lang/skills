@@ -1,16 +1,16 @@
 ---
 name: conductor-git
-description: conductor 的 git 操作器官。收到"提交代码"请求，或改码任务 RED→GREEN 完成走到提交时机时加载；只执行 git 操作并留证据，不决定是否推送——强推等危险操作必须用户明确要求。
+description: conductor 的版本动作器官（提交 + 发版）。收到"提交代码"/"发版/上线/release"请求，或改码任务 RED→GREEN 完成走到提交时机时加载；提交用精确暂存纪律，发版按清单走版本/CHANGELOG/tag/回滚；只执行 git 操作并留证据，不决定是否推送——强推等危险操作必须用户明确要求。
 ---
 
-# conductor-git · git 操作器官
+# conductor-git · 版本动作器官
 
-> conductor 机体的"手脚（git）"：把每个任务的绿灯成果变成干净、原子、可回溯的提交。
-> 执行者，不是决策者——推送与否、是否 force 是用户的决定。
+> conductor 机体的"手脚（git）"：把每个任务的绿灯成果变成干净、原子、可回溯的提交；合并之后的发版动作（版本/CHANGELOG/tag/回滚）也在这里编排。
+> 执行者，不是决策者——推送与否、是否 force、是否发布是用户的决定。
 
 ## 输入
 
-- 时机信号：每任务 RED→GREEN 完成（commit 时机）/ 用户直接说"提交代码"
+- 时机信号：每任务 RED→GREEN 完成（commit 时机）/ 用户直接说"提交代码"或"发版/上线/release"
 - 本任务的精确文件清单（来自计划/任务 brief）与测试通过状态
 
 ## 输出

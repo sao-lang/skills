@@ -34,8 +34,9 @@ def method_organs() -> None:
     static = {
         "conductor-router": ("conductor-router/references/routing.md", ["语义三问", "结构算子", "置信度"]),
         "conductor-brainstorm": ("conductor-brainstorm/references/grill-design-SKILL.md", ["设计树", "前沿", "结论"]),
-        "conductor-spec": ("conductor-spec/references/spec-method.md", ["抽取", "merge", "验收注入"]),
-        "conductor-learn": ("conductor-learn/references/learning-method.md", ["抽什么", "去重", "回写"]),
+        "conductor-brainstorm 规格方法": ("conductor-brainstorm/references/spec-method.md", ["抽取", "merge", "验收注入"]),
+        "conductor-memory 沉淀方法": ("conductor-memory/references/learning-method.md", ["抽什么", "去重", "回写"]),
+        "conductor-memory 记录方法": ("conductor-memory/references/overview.md", ["L0", "details", "脱敏"]),
         "conductor-debug": ("conductor-debug/references/engineering-debugging.md", ["根因", "复现", "纵深防御"]),
         "conductor-git": ("conductor-git/references/git-commit.md", ["提交", "精确", "hooks"]),
         "conductor-subagent": ("conductor-subagent/references/dispatch.md", ["brief", "全新", "评审"]),
@@ -52,13 +53,13 @@ def executable_organs() -> None:
     with tempfile.TemporaryDirectory() as d:
         root = Path(d)
 
-        # overview：create → append
-        ov_script = SKILLS / "conductor-overview/scripts/overview_path.py"
+        # memory：create → append
+        ov_script = SKILLS / "conductor-memory/scripts/overview_path.py"
         rc, out = run(ov_script, "--project-root", ".", "--topic", "效果测试", cwd=root)
         first = json.loads(out)["sid"] if rc == 0 else ""
         rc2, out2 = run(ov_script, "--project-root", ".", "--topic", "续写", cwd=root)
         second = json.loads(out2) if rc2 == 0 else {}
-        check("conductor-overview 续接同一会话", bool(first) and second.get("sid") == first,
+        check("conductor-memory 续接同一会话", bool(first) and second.get("sid") == first,
               f"{first} → {second.get('sid')}")
 
         # ledger：采集 → 门禁 → 全览
@@ -86,8 +87,8 @@ def executable_organs() -> None:
         rc, out = run(imp_script, "--path", ".", "--symbols", "target", cwd=root)
         check("conductor-impact 找到引用者", rc == 0 and "b.py" in out, out.splitlines()[0] if out else "")
 
-        # spec：契约检查与 Acceptance 输出
-        sp_script = SKILLS / "conductor-spec/scripts/contract_check.py"
+        # brainstorm（spec 并入）：契约检查与 Acceptance 输出
+        sp_script = SKILLS / "conductor-brainstorm/scripts/contract_check.py"
         (root / "change-contract.md").write_text(
             "# Change: t1 / 2026-01-01 / confirmed\n"
             "## Why\n验证活规格\n\n"
@@ -98,16 +99,16 @@ def executable_organs() -> None:
             "## Open\n- 无\n", encoding="utf-8")
         rc, out = run(sp_script, "--contract", "change-contract.md", cwd=root)
         rc2, items = run(sp_script, "--contract", "change-contract.md", "--acceptance-only", cwd=root)
-        check("conductor-spec 契约检查与 Acceptance 输出",
+        check("conductor-brainstorm 契约检查与 Acceptance 输出",
               rc == 0 and rc2 == 0 and "登录回归测试全绿" in items,
               out.splitlines()[0] if out else "")
 
-        # learn：dry-run 出草稿，不落盘
-        ln_script = SKILLS / "conductor-learn/scripts/learn_capture.py"
+        # memory（learn 并入）：dry-run 出草稿，不落盘
+        ln_script = SKILLS / "conductor-memory/scripts/learn_capture.py"
         (root / "learn-ov.md").write_text(
             "## 关键决策\n- 遇到 X 现象先查 Y 根因，避免重复踩坑\n", encoding="utf-8")
         rc, out = run(ln_script, "--overview", "learn-ov.md", cwd=root)
-        check("conductor-learn dry-run 出草稿",
+        check("conductor-memory dry-run 出草稿",
               rc == 0 and "触发条件" in out and "未写文件" in out,
               out.splitlines()[0] if out else "")
 

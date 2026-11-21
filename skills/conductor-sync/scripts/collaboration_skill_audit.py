@@ -27,7 +27,7 @@ DATA = {
 RENAME = {
     "grill-design": "conductor-brainstorm",
     "code-quality-review": "conductor-review",
-    "handoff": "conductor-overview",
+    "handoff": "conductor-memory",
     "graphify": "conductor-impact",
     "ponytail": "conductor-tdd",
 }

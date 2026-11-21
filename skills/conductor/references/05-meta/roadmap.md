@@ -86,7 +86,7 @@
 - 工程纪律内化：superpowers 的 7 步工作流 / 写计划 / TDD / 系统化调试 / 代码评审 / 4 理念，
   提取为 conductor 自己的 `engineering-{workflow,tdd,debugging,code-review}.md`（含来源致谢）。
 - 全文改造：SKILL.md（定位/阶段矩阵/铁律）、references/01-routing/skill-matrix.md（加载表/清单/加载原则）、
-  ../../../conductor-router/references/scenarios.md（委托内核→本 skill 执行）、../../../conductor-tdd/references/test-strategy.md、../../../conductor-overview/references/overview.md、preflight.py
+  ../../../conductor-router/references/scenarios.md（委托内核→本 skill 执行）、../../../conductor-tdd/references/test-strategy.md、../../../conductor-memory/references/overview.md、preflight.py
   （移除 superpowers 依赖检查）。
 - 项目自包含：conductor 用到的全部外部工具 skill 搬进 `.agents/skills/`，
   不再依赖用户级安装。
@@ -153,7 +153,7 @@
 ### overview 分层加载（🟢 已激活 2026-11-19）
 - 背景：实际 overview 半天从 91 行涨到 183 行 / 21.7KB，全量加载浪费 token；规范要求"引用不复制"却未执行，完整 review 报告被抄进主文件。
 - 方案：overview 分 L0 索引卡（≤12 行：场景/闸门/产物/未完成项/下一步）+ L1 摘要 + L2 详情引用；>30 行详情独立成 `.xxx.md`。S0 续接先只读 L0，按需读 L1/L2，禁止全量。
-- 已写入：`../../../conductor-overview/references/overview.md`（模板+加载协议+纪律第6条 L0 必填）、`SKILL.md`（S0 加载协议 + 会话记录节）。
+- 已写入：`../../../conductor-memory/references/overview.md`（模板+加载协议+纪律第6条 L0 必填）、`SKILL.md`（S0 加载协议 + 会话记录节）。
 
 ### 五项新能力 + SKILL.md 瘦身（🟢 已激活 2026-11-20）
 - 起因：用户反馈每次加载 conductor 消耗大量 token（SKILL.md 20KB 每次必读），且缺变更影响分析/技术债台账/接口迁移守卫/发布编排/缺陷复现入口。
@@ -253,14 +253,14 @@
 - 形态决策：conductor 降级为机体（状态机+门禁+决策权），新增 `skills/conductor-*`（与 conductor 同级） 下 10 个器官 skill（router/brainstorm/spec/tdd/review/learn/ledger/overview/impact/debug），每个只写 I/O、加载时机、降级；14 场景成为环境（只声明器官链）。`references/` 明确为"共享组织"，不是第二个大脑。
 - 新增 `../01-routing/organ-registry.md` 作为器官总线：8 器官映射、阶段调用表、废弃 skill 清单、状态文件纪律、测试入口。SKILL.md 重写为 3023 字符，器官各 685–979 字符。
 - 状态瘦身：`overview_path.py` 指针改为 `{"sid":"8位短hash"}`，兼容旧 session_id，`--end-session` 直接删文件，首次生成自动追加 4 个本地状态文件到 `.gitignore`；`commitment_ledger.py` 紧凑 JSON（省略空字段/重复 id/pending 默认），40 条示例 9060→1755 字符（-81%），`show/check` 完全兼容。
-- overview 两-tier：主文件只留 L0（≤8 行）+ review 章节，环境/L1/决策/证据/变更清单进 `.details.md`；`../../../conductor-overview/references/overview.md` 模板从 10.8k 压到约 3k 字符；`find_existing` 排除 `.details.md`。
+- overview 两-tier：主文件只留 L0（≤8 行）+ review 章节，环境/L1/决策/证据/变更清单进 `.details.md`；`../../../conductor-memory/references/overview.md` 模板从 10.8k 压到约 3k 字符；`find_existing` 排除 `.details.md`。
 - 协作 skill 裁剪：`metago-code-review-deep` 删营销/FAQ/重复分级表，只留五维+四级报告；`graphify` 删协议/license/竞品/FAQ 尾部（9370→5514 字符）；`grill-me` / `ponytail-review` / `caveman-compress` 标 DEPRECATED 并移出加载矩阵（不物理删除）；`ponytail` 明确不覆盖流程决策。
 - 测试补位：新增 `scripts/organ_contract_test.py` 与 `preflight.py --verify-organs`，验证器官接线、契约、降级路径、状态文件压缩与两-tier 模板；明确**不替代真实 LLM 会话效果评估**，后者用场景冒烟清单人工复核。
 - 关键决策：拆分的是"能力加载权"，不是"决策权"——器官给结论和证据，放行永远在 conductor；废弃 skill 只标记不删除，避免破坏既有安装；状态文件压缩但保留机器门禁可解析性。
 
 ### 器官化二次收敛 · 测试后筛选 + 文件真拆分（🟢 已激活 2026-11-21）
 - 用户追加要求：先测试筛选协作 skill，留下的改名并入器官；conductor 文件真拆到器官；每个器官可独立工作；做完测效果。
-- 新增 `scripts/collaboration_skill_audit.py`：按"被调用+3 / 产出门禁证据+3 / 与器官重复-2 / 超体积-1"打分。结果：grill-design / code-quality-review / handoff = 6 → 改名并入 `conductor-brainstorm` / `conductor-review` / `conductor-overview`；graphify / ponytail = 3，caveman 等 ≤1 → 全部废弃留桩。
+- 新增 `scripts/collaboration_skill_audit.py`：按"被调用+3 / 产出门禁证据+3 / 与器官重复-2 / 超体积-1"打分。结果：grill-design / code-quality-review / handoff = 6 → 改名并入 `conductor-brainstorm` / `conductor-review` / `conductor-memory`（原 conductor-overview，后与 learn 合并更名）；graphify / ponytail = 3，caveman 等 ≤1 → 全部废弃留桩。
 - 真拆分：conductor/references 下 routing/cost-tiers/router-prompt/scenarios、workflow/tdd/coding-rules、independent-review/code-review/security、commitment/migration/debt、overview、architecture/contract-migration、debugging 等复制到各器官 references/，conductor 原路径改成一行兼容指针；verify/review_gate/commitment_ledger/migration_ledger/overview_path/impact_analysis 复制到器官 scripts/，器官自包含。
 - 修复器官脚本跨目录依赖：ledger 自带 overview_path 副本；tdd 的 verify.py 改用器官内扁平 references 路径。
 - 测试：`organ_contract_test.py` 27/27 PASS（8 器官契约+自包含+3 个改名并入文件+注册表+状态文件）；新增 `organ_effect_test.py` 8/8 PASS（方法器官步骤断言；overview/ledger/review/impact/tdd 真实输入→输出冒烟）；preflight --verify-organs PASS。contract/effect 测试都不替代真实 LLM 会话评估。
@@ -292,3 +292,13 @@
 - **新增 `conductor-sync`（第 13 器官）**：统一安装/更新 conductor 家族到全局目录（sync-global.py 默认同步 conductor+conductor-*）+ 完整性三测试（organ_contract / organ_effect / script_parity）+ collaboration_skill_audit 迁入；SKILL.md + references/install-verify.md。
 - **subagent 泛化**：不限改码——任何可拆成独立/自包含/可验证单元的多代理场景（调研/分析/文档/审查）都按判据派发；brief 模板分改码/非改码两类；复核分改码两段评审与非码两查。conductor 侧 registry/matrix/catalog/cost-tiers/scenarios 同步改写。
 - 测试基线：organ_contract 39/39（含 conductor-sync 契约）、organ_effect 15/15（含 install-verify 方法断言）、script_parity 18/18（SHIM_DIR 修正为 conductor 本体）。
+
+## 六、2026-11-21 第四轮：器官合并 13→11，release 定位扩为版本动作
+
+- 背景：用户问 release 是否单独成 skill，担心器官过多；确认合并方向并给合并后的 skill 改名。
+- **release 去向**：不单独成 skill，留在 conductor-git；其职责定位从"git 操作器官"扩为"**版本动作器官**"（提交 + 发版：版本/CHANGELOG/tag/回滚）。release-checklist.md + release_notes.py 上一轮已迁入，本轮仅更新定位描述。
+- **spec 并入 brainstorm**（名称保持 `conductor-brainstorm`）：同属 S2，澄清输出即规格输入，流水线相邻；change-contract-template / spec-method / contract_check.py 随迁；lite 档本就跳过契约固化，条件加载不变。
+- **overview + learn 合并为新器官 `conductor-memory`**：短期记忆（两-tier 会话记录）+ 长期记忆（经验沉淀回写），输入输出直接衔接、lite 档同进退；overview_path.py / learn_capture.py 双脚本齐备。
+- **不合并**：impact✗review（S1 规划 vs S5 验收）、debug✗tdd（场景 8 可纯诊断）、router/ledger/subagent/sync（枢纽/横贯/横切/基础设施）。
+- 同步更新：organ-registry（11 器官）、skill-matrix、05-meta/README、conductor SKILL.md 场景链、router scenarios/cost-tiers、preflight ORGAN_SKILLS、三测试脚本（ORGANS/effect 断言/parity 映射）、overview_path shim 指向 conductor-memory、根 README。
+- 测试基线：organ_contract 39/39、organ_effect 16/16、script_parity 18/18。

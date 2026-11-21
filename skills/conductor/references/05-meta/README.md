@@ -25,13 +25,11 @@
 | `conductor-tdd` | engineering-tdd / test-strategy / coding-rules-* | verify.py |
 | `conductor-review` | independent-review / engineering-code-review / code-quality-review-SKILL / code-quality-review-output-contract / security-redlines / source-purity | review_gate.py / scan_gaps.py / source_purity.py / intent_gaps.py |
 | `conductor-ledger` | commitment-ledger / migration-integrity / tech-debt-ledger | commitment_ledger.py / migration_ledger.py / overview_path.py / debt_ledger.py |
-| `conductor-overview` | overview / handoff-SKILL | overview_path.py |
+| `conductor-memory` | overview / handoff-SKILL / learning-method / lessons-template | overview_path.py / learn_capture.py |
 | `conductor-impact` | architecture-contracts / contract-migration | impact_analysis.py |
 | `conductor-debug` | engineering-debugging | — |
 | `conductor-git` | git-commit / git-commit-rules / release-checklist | release_notes.py |
 | `conductor-subagent` | dispatch | — |
-| `conductor-spec` | change-contract-template / spec-method | contract_check.py |
-| `conductor-learn` | learning-method / lessons-template | learn_capture.py |
 | `conductor-sync` | install-verify | sync-global.py / organ_contract_test.py / organ_effect_test.py / script_parity_test.py / collaboration_skill_audit.py |
 
 > 加载纪律：S1 只读 organ-registry + routing + cost-tiers；scenarios 按节；其余触发才读。

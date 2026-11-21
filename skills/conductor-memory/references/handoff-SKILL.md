@@ -1,6 +1,6 @@
-# Overview L1 交接（原 handoff，已并入 conductor-overview）
+# Overview L1 交接（原 handoff，已并入 conductor-memory）
 
-> 本文件原名 `handoff`（来自 mattpocock/skills，MIT），现为 `conductor-overview` 的方法文档，
+> 本文件原名 `handoff`（来自 mattpocock/skills，MIT），现为 `conductor-memory` 的方法文档，
 > **不再是独立 skill**：没有触发词、没有独立 frontmatter、不写独立 handoff 文件。
 > 由 conductor 在 S0（续接定位）与 S5（收尾交接）时加载，配合 `overview.md` 的两-tier 模型使用。
 
