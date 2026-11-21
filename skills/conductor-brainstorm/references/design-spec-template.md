@@ -2,7 +2,7 @@
 
 > 用途：conductor 场景 1/2/3/4 的 `brainstorm` 产出物，也是 S2 `plan` 的 `Spec:` 输入——
 > **规格与计划同行**，计划里的每条任务都要能指回本规格的一条编号要求。
-> 纪律来源：`brainstorm-plan.md`（Approaches 必备）、`examples-to-spec.md`（样例之外覆盖）、
+> 纪律来源：`brainstorm-method.md`（Approaches 必备）、`examples-to-spec.md`（样例之外覆盖）、
 > `grill-design-SKILL.md`（设计树拷问，每分支必须有结论）。
 > 场景契约要求的架构五要素、接线四问等跨器官纪律由 conductor 在 S2 统一编排加载，本文件只提供落位章节。
 >

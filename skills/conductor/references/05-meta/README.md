@@ -20,8 +20,8 @@
 
 | 器官 | 自带 references（举例） | 自带 scripts |
 |---|---|---|
-| `conductor-router` | routing / cost-tiers / router-prompt / scenarios | — |
-| `conductor-brainstorm` | brainstorm-plan / grill-design-SKILL / examples-to-spec / design-spec-template | — |
+| `conductor-plan` | execution-graph-schema / planning-method / habits / router(planning-core, plan-prompt) / templates/generic | plan_validate.py |
+| `conductor-brainstorm` | brainstorm-method / grill-design-SKILL / examples-to-spec / design-spec-template | — |
 | `conductor-tdd` | engineering-tdd / test-strategy / coding-rules-* | verify.py |
 | `conductor-review` | independent-review / engineering-code-review / code-quality-review-SKILL / code-quality-review-output-contract / security-redlines / source-purity | review_gate.py / scan_gaps.py / source_purity.py / intent_gaps.py |
 | `conductor-ledger` | commitment-ledger / migration-integrity / tech-debt-ledger | commitment_ledger.py / migration_ledger.py / overview_path.py / debt_ledger.py |

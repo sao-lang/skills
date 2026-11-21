@@ -27,7 +27,7 @@ description: conductor 的澄清与规格器官。收到模糊需求、设计草
 7. 契约未生成、`contract_check.py` 非 0 → **不进 S3**。这是 conductor 的硬门禁，本器官只提供证据。
 
 ## 方法源
-- `references/brainstorm-plan.md`（brainstorm 与 plan 两能力的方法全文）
+- `references/brainstorm-method.md`（brainstorm 澄清/拷问方法全文；plan 能力已迁至 conductor-plan）
 - `references/design-spec-template.md`（规格输出模板）
 - `references/grill-design-SKILL.md`（平台原生拷问，优先使用）；`grill-me` 已废弃
 - `references/change-contract-template.md`（六段契约模板与填写口径）

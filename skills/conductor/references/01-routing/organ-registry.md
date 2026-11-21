@@ -8,7 +8,7 @@
 
 | 器官 skill | 类型 | 职责 | 调用阶段 | 输入 → 输出 | 缺失降级 |
 |---|---|---|---|---|---|
-| `conductor-router` | 路由（神经中枢） | 场景/路径/档位规划 | S1 | 用户原句 → 执行图 + 声明（含省掉步骤） | 降级只读 9/10，绝不猜改码 |
+| `conductor-plan` | 规划（蓝图设计） | S1（执行图规划）/ standalone | 用户原句+上下文+习惯 → JSON 执行图 + mermaid（循环/分支/重试/空转防护）；只出图不执行 | 信息不足停在 ask 不出图；模板不匹配用 generic 推导 |
 | `conductor-brainstorm` | 澄清与规格（感官 + 契约） | 需求澄清、设计拷问、规格固化（spec 已并入） | S2（场景 1/2/3/5/6/7/8/11） | 模糊需求/样例 → 规格要点 + 未决 + 假设；standard/full 出六段 change-contract（`contract_check.py` 证据） | 内联五问；脚本缺失登记未机器校验；无基线建 baseline |
 | `conductor-tdd` | 执行（肌肉） | RED-GREEN-REFACTOR | S3（改码/13） | 一条行为 → 红/绿测试 + verify 证据 | 环境阻断登记，禁造假绿 |
 | `conductor-review` | 审查（免疫系统） | 独立换眼 + review 门禁 + 代码审查机器证据 | S4/S5 | diff + 档位 → 报告 + gate 退出码 0；自带 `scan_gaps/source_purity/intent_gaps` 扫描 | 内联清单但门禁不放宽 |
@@ -20,12 +20,12 @@
 | `conductor-subagent` | 派发（外包车间） | 子代理派发（全新上下文执行任务，省主上下文） | **任何适用多代理的场景**（改码 S3、批量调研、多文档产出、并行分析等）按判据条件触发 | 任务 brief → 子代理结果 + 评审/复核结论 | 无子代理能力则主上下文直做并声明；连续返修 ≥2 轮停下问用户 |
 | `conductor-sync` | 安装同步（装机与质检车间） | 统一安装/更新 conductor 家族到智能体全局目录 + 完整性三测试 | 用户说同步/安装/更新 skill 时；改完 skill 落全局时 | 项目 skills/ → 全局复制清单 + 三测试通过计数 | 列差异交用户手动复制；测试失败如实报告禁交付 |
 
-## 二、阶段 → 器官调用（standard/full；lite 按 `../../../conductor-router/references/cost-tiers.md` 裁剪）
+## 二、阶段 → 器官调用（standard/full；lite 按 `../../../conductor/references/01-routing/cost-tiers.md` 裁剪）
 
 | 阶段 | 必调器官 | 按触发调 | 门禁 |
 |---|---|---|---|
 | S0 | `conductor-memory` | `conductor-ledger`（有隐含清单） | overview L0 存在、状态文件已忽略 |
-| S1 | `conductor-router` | `conductor-impact`（跨模块/full） | 路由声明含场景/路径/档位/省掉 |
+| S1 | `conductor-plan`（语义三问定场景+路径+档位，出完整执行图） | `conductor-impact`（跨模块/full） | 路由声明含场景/路径/档位/省掉 |
 | S2 | `conductor-brainstorm`（澄清 + 规格一体） | 自带 `design-spec-template`/`spec-method`；standard/full 固化 change-contract | 规格未确认不动手；契约未确认不进 S3 |
 | S3 | `conductor-tdd` | 自带编码规则（最小完整改动内联） | 先红后绿、编码规则已读 |
 | S4 | `conductor-tdd`（证据） | `conductor-impact`、`conductor-ledger` | `verify.py` + `source_purity --strict` |
@@ -33,7 +33,7 @@
 
 **路由纪律**：同一阶段可由多个器官协作，但**决策权只在 conductor**——器官给结论/证据，不自行推进阶段、不自行放行。
 
-**条件加载**：档位决定"跑多深"，器官是否真的加载由 `../../../conductor-router/references/cost-tiers.md` 第三节（器官级条件加载表）按当前环境与用户输入判——命中跳过条件就跳，但每个跳过必须写进路由声明"省掉"并带依据。
+**条件加载**：档位决定"跑多深"，器官是否真的加载由 `../../../conductor/references/01-routing/cost-tiers.md` 第三节（器官级条件加载表）按当前环境与用户输入判——命中跳过条件就跳，但每个跳过必须写进路由声明"省掉"并带依据。
 
 ## 三、协作 skill 筛选结果（审计脚本 `collaboration_skill_audit.py`，现归 conductor-sync）
 

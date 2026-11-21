@@ -2,7 +2,7 @@
 
 > 记录已激活与候选的场景/机制，便于追踪演进。
 > 本文件是历史决策记录；当前器官/脚本/路径以 `../01-routing/organ-registry.md` 与 `skill-matrix.md` 为准，旧路径仅作追溯。
-> 状态：`🟢 已激活`（已进 SKILL.md、../../../conductor-router/references/routing.md、../../../conductor-router/references/scenarios.md 生效）/ `🟡 候选`（已识别未实现）。
+> 状态：`🟢 已激活`（已进 SKILL.md、../../../conductor-plan/references/router/planning-core.md、../../../conductor/references/01-routing/scenarios.md 生效）/ `🟡 候选`（已识别未实现）。
 > 当前生效工作流：**十四场景 + 五路径（含文档·清理变体）+ S0–S5**。
 
 ## 一、已激活（🟢，方案 A 全部落地于 2026-11-19）
@@ -10,7 +10,7 @@
 ### 场景 10 · 代码库理解（只读路径）
 - 定位：补"先搞懂"缺口；加载 `graphify` + `scan_gaps.py` + `../../../conductor-impact/references/architecture-contracts.md`。
 - 产出：模块职责 + 调用链 + 断点清单 + 理解笔记 → overview。
-- 已写入：`../../../conductor-router/references/scenarios.md` 场景 10、`../../../conductor-router/references/routing.md` 判定表、`SKILL.md` 场景表。
+- 已写入：`../../../conductor/references/01-routing/scenarios.md` 场景 10、`../../../conductor-plan/references/router/planning-core.md` 判定表、`SKILL.md` 场景表。
 
 ### 场景 11 · 文档同步（文档路径）
 - 定位：治本项目 G07/G13/G15 类"文档-代码不一致"；加载 `grill-design` + `architecture-contracts`。
@@ -29,14 +29,14 @@
 - 已写入：同上三处。
 
 ### 机制 1 · 路径字段（改码/只读/文档/验证）
-- S1 除判场景外必判路径，决定后续阶段。已写入 `../../../conductor-router/references/routing.md` §2.5、`SKILL.md` 场景×阶段矩阵。
+- S1 除判场景外必判路径，决定后续阶段。已写入 `../../../conductor-plan/references/router/planning-core.md` §2.5、`SKILL.md` 场景×阶段矩阵。
 
 ### 机制 2 · 只读出口
 - 只读路径出口 = "清单已交付 + 证据可追溯"，非"测试全绿"；S4 拆改码/只读两变体。
-- 已写入 `SKILL.md` 与 `../../../conductor-router/references/scenarios.md` 的"只读出口"。
+- 已写入 `SKILL.md` 与 `../../../conductor/references/01-routing/scenarios.md` 的"只读出口"。
 
 ### 机制 3 · 场景 × 阶段矩阵
-- 散落的裁剪规则收敛成统一矩阵，作为 S1 硬输出。已写入 `SKILL.md` 与 `../../../conductor-router/references/routing.md`。
+- 散落的裁剪规则收敛成统一矩阵，作为 S1 硬输出。已写入 `SKILL.md` 与 `../../../conductor-plan/references/router/planning-core.md`。
 
 ### graphify 接入（场景 10/9）
 - 市场 skill `graphify`（代码知识图谱问答）+ 开源 `pip install graphifyy`。
@@ -56,8 +56,8 @@
 
 - 触发：用户一句话含多个有序动作（"先检查设计，然后写代码"）。
 - 能力：解析为有序场景链，逐段判场景+路径，前段产出喂给后段，设计闸门未过禁止写代码。
-- 已写入 `../../../conductor-router/references/routing.md` §3.5（切分规则/链内闸门/无顺序词默认）、声明模板（链版）、
-  `SKILL.md` S1、`../../../conductor-router/references/scenarios.md` 通用前置的场景链纪律。
+- 已写入 `../../../conductor-plan/references/router/planning-core.md` §3.5（切分规则/链内闸门/无顺序词默认）、声明模板（链版）、
+  `SKILL.md` S1、`../../../conductor/references/01-routing/scenarios.md` 通用前置的场景链纪律。
 - 示例："先检查 M4 设计是否完整，然后根据 M4 设计方案写代码" = 场景9（只读拷问设计）
   → 设计闸门 → 场景6（按设计改码）。
 
@@ -68,17 +68,17 @@
 - 结构化路由决策：场景链[]/路径/置信度(必填)/依据(语义)/待澄清/闸门。
 - 置信度分级：高≥0.8 直接走、中 0.5–0.8 声明确认、低<0.5 必须问用户给候选。
 - 声明模板带置信度与语义依据；可纠正兜底不变。
-- 已写入 `../../../conductor-router/references/routing.md`（§2 语义三问/§2.1 锚点表/§4 结构化决策/§4.5 声明模板）、`SKILL.md` S1。
+- 已写入 `../../../conductor-plan/references/router/planning-core.md`（§2 语义三问/§2.1 锚点表/§4 结构化决策/§4.5 声明模板）、`SKILL.md` S1。
 
 ## 二·重构、路由升级为规划器（🟢 已激活 2026-11-19）
 
 - 认知转变：路由不是"匹配场景"而是"规划执行图"（节点=场景/边=链分支/模式=路径）。
 - 有限结构算子表（顺序/条件/否定/并行/回指）是唯一枚举项；业务语义交语义理解。
-- 场景 I/O 契约表（../../../conductor-router/references/scenarios.md）：链式组合做类型校验，把"设计闸门"从特例泛化为契约推导，契约不符停下问。
+- 场景 I/O 契约表（../../../conductor/references/01-routing/scenarios.md）：链式组合做类型校验，把"设计闸门"从特例泛化为契约推导，契约不符停下问。
 - 决策结构加 `假设[]` 字段，必须明示让用户否决；失败降级到只读，绝不猜改码场景。
 - 执行中重规划：每节点完成后重评后续是否适用。
-- 已写入 ../../../conductor-router/references/routing.md（§1 五层管线/§1.5 结构算子/§4 假设/§5 重规划/§6 降级纪律）、
-  ../../../conductor-router/references/scenarios.md（I/O 契约表）、SKILL.md S1。
+- 已写入 ../../../conductor-plan/references/router/planning-core.md（§1 五层管线/§1.5 结构算子/§4 假设/§5 重规划/§6 降级纪律）、
+  ../../../conductor/references/01-routing/scenarios.md（I/O 契约表）、SKILL.md S1。
 
 ## 二·终、superpowers 内化 + 项目自包含（🟢 已激活 2026-11-19）
 
@@ -86,7 +86,7 @@
 - 工程纪律内化：superpowers 的 7 步工作流 / 写计划 / TDD / 系统化调试 / 代码评审 / 4 理念，
   提取为 conductor 自己的 `engineering-{workflow,tdd,debugging,code-review}.md`（含来源致谢）。
 - 全文改造：SKILL.md（定位/阶段矩阵/铁律）、references/01-routing/skill-matrix.md（加载表/清单/加载原则）、
-  ../../../conductor-router/references/scenarios.md（委托内核→本 skill 执行）、../../../conductor-tdd/references/test-strategy.md、../../../conductor-memory/references/overview.md、preflight.py
+  ../../../conductor/references/01-routing/scenarios.md（委托内核→本 skill 执行）、../../../conductor-tdd/references/test-strategy.md、../../../conductor-memory/references/overview.md、preflight.py
   （移除 superpowers 依赖检查）。
 - 项目自包含：conductor 用到的全部外部工具 skill 搬进 `.agents/skills/`，
   不再依赖用户级安装。
@@ -99,7 +99,7 @@
   11 个整合为具名能力、1 个并入场景链并行算子（dispatching-parallel-agents）、
   3 个舍弃（using-superpowers 入口/诊断自检/写 skill 元能力，均给理由）。
 - 具名能力各有输入输出契约（`brainstorm/plan/execute/tdd/debug/review/receive-review/verify`；当前全表见 `../02-engineering/engineering-catalog.md`）。
-- 重写 ../../../conductor-router/references/scenarios.md：13 场景全部写成显式**工程能力链** + 契约传递；
+- 重写 ../../../conductor/references/01-routing/scenarios.md：13 场景全部写成显式**工程能力链** + 契约传递；
   纯只读场景（9/10/12）明确"能力链：无"。
 - 效果：回答了"superpowers 的 skill 去哪了"和"怎么按它的流程工作"——场景链即答案。
 
@@ -108,7 +108,7 @@
 - 背景：用户指出遗漏 git 提交相关 skill。核查：superpowers 无独立 "git commit" skill，
   但 git 纪律散落在上游的隔离与分支收尾两个 skill 里，
   上一轮整合时压成了一句话，丢失了全部防呆细节。
-- 补进 `../../../conductor-brainstorm/references/engineering-workflow.md`（2026-11-21 已改名为 brainstorm-plan.md，隔离/分支收尾内容后经决策移除）：
+- 补进 `../../../conductor-brainstorm/references/engineering-workflow.md`（后改名 brainstorm-method.md，隔离/分支收尾内容经决策移除）：
   - 隔离工作区详解——检测已有隔离(含 submodule 陷阱)、原生工具优先、
     gitignore 先验并提交、目录优先级、沙箱 fallback、征求同意。
   - 分支收尾详解——验当前树测试、探环境三态、确认 base branch、精确菜单、
@@ -138,7 +138,7 @@
 - 补进细节（不简化、对照原文）：
   - ../../../conductor-tdd/references/engineering-tdd.md：Verify RED（fail vs error）/Verify GREEN（跑全项目套件，漏报即失真）/
     5 条最狠借口/红旗清单
-  - ../../../conductor-brainstorm/references/engineering-workflow.md（现 brainstorm-plan.md）：brainstorm 先调查再开口+首条消息+回述+两条红旗；
+  - ../../../conductor-brainstorm/references/brainstorm-method.md：brainstorm 先调查再开口+首条消息+回述+两条红旗；
     writing-plans 的 Interfaces(Consumes/Produces)+计划头+Self-Review 五问
   - ../../../conductor-review/references/engineering-code-review.md：subagent 派单契约(brief 唯一需求源/记 BASE/不许自派 reviewer/
     显式选 model)+fix-loop+完成台账+借口表
@@ -148,7 +148,7 @@
 ### review_gate.py 机器强制独立 review（🟢 已激活 2026-11-19）
 - 背景：独立 review 门禁虽写入 SKILL.md，但仍是纪律门禁靠自觉；用户多次观察到 AI 跳过步骤。
 - 方案：新增 `scripts/review_gate.py --overview <path>`，机器校验 overview 的「独立 review 结果」章节 + Blocker 清零结论 + 报告路径引用 + 报告文件真实存在（防假证据）；非改码场景 `--waived` 显式豁免。退出码非 0 禁止收尾。
-- 已写入：`SKILL.md`（脚本清单/S5/独立review门禁小节/铁律8）、`../01-routing/skill-matrix.md`（脚本表）、`../../../conductor-router/references/scenarios.md`（门禁总述）。5 组测试覆盖（无章节/无结论/报告不存在/完整/豁免）全通过。
+- 已写入：`SKILL.md`（脚本清单/S5/独立review门禁小节/铁律8）、`../01-routing/skill-matrix.md`（脚本表）、`../../../conductor/references/01-routing/scenarios.md`（门禁总述）。5 组测试覆盖（无章节/无结论/报告不存在/完整/豁免）全通过。
 
 ### overview 分层加载（🟢 已激活 2026-11-19）
 - 背景：实际 overview 半天从 91 行涨到 183 行 / 21.7KB，全量加载浪费 token；规范要求"引用不复制"却未执行，完整 review 报告被抄进主文件。
@@ -241,7 +241,7 @@
 ### 成本档位 · lite / standard / full（🟢 已激活 2026-11-21）
 - 起因：用户反馈"一次运行最低四五十积分就没了"。诊断：入口 SKILL.md 9834 字符每轮全量注入；S0 强制 handoff/env_probe/承诺台账；S5 强制全新上下文独立 review 子代理——小改动跑全套是结构性空转，不是某一条规则写错。
 - 形态决策：不删门禁，改为**按风险判档**——低风险小改动走 lite，高风险仍走 full；省掉的每一步必须在路由声明列出来，可纠正、可审计。
-- 新增 `../../../conductor-router/references/cost-tiers.md`：三档判定条件（规模/接口/清单/环境/设计/用户要求/置信度）、逐节点裁剪表、不可裁底线、lite 一行式声明、三问轻量复核与升档规则。
+- 新增 `../../../conductor/references/01-routing/cost-tiers.md`：三档判定条件（规模/接口/清单/环境/设计/用户要求/置信度）、逐节点裁剪表、不可裁底线、lite 一行式声明、三问轻量复核与升档规则。
 - `review_gate.py` 加 `--lite`：校验 overview 的「轻量复核（lite）」章节（档位标记 + Blocker 清零 + ≥3 条复核项 + ≥2 条行号/退出码证据），与 `--waived` 互斥，防"省成本"变"省门禁"。
 - 入口瘦身：SKILL.md 9834 → 3668 字符（-63%），场景表压缩、阶段矩阵改为要点、脚本清单收为一行；细节全部下沉到既有 reference，铁律与五道锁保留但合并为短句。
 - 挂载：SKILL.md（成本档位表 + S0–S5 按档裁剪 + 锁5 + 参考计数 33→34）、routing.md（§2.3 判档顺序 + 决策/声明模板加档位与"省掉"）、router-prompt.md（档位字段 + 管线 3.5）、scenarios.md（顶层裁切说明 + 通用前置 2b/3/5b 条件化 + review 门禁 lite 例外）、independent-review.md（档位裁切引言）、skill-matrix.md（矩阵裁剪说明 + review_gate --lite）、05-meta README（A 类 5→6、总数 33→34）、根 README。
@@ -302,3 +302,16 @@
 - **不合并**：impact✗review（S1 规划 vs S5 验收）、debug✗tdd（场景 8 可纯诊断）、router/ledger/subagent/sync（枢纽/横贯/横切/基础设施）。
 - 同步更新：organ-registry（11 器官）、skill-matrix、05-meta/README、conductor SKILL.md 场景链、router scenarios/cost-tiers、preflight ORGAN_SKILLS、三测试脚本（ORGANS/effect 断言/parity 映射）、overview_path shim 指向 conductor-memory、根 README。
 - 测试基线：organ_contract 39/39、organ_effect 16/16、script_parity 18/18。
+
+## 七、2026-11-21 第五轮：通用流程图引擎 conductor-plan（吸收 router + plan）
+
+- 背景：用户要求把任务解析成流程图那样的清晰路径（循环/分支/重试/每步动作类型/空转防护/非开发场景），并把 router 与 brainstorm 的 plan 合并。
+- **新增 `conductor-plan`（通用流程图引擎，第 11 器官之一）**：吸收原 conductor-router 的场景判定（语义三问/结构算子/置信度/消歧）与 brainstorm 的 plan 步骤展开。只规划出图，不执行。
+  - 输出：JSON 执行图（节点 kind=tool/skill/research/think/ask/gate/action + 控制节点 branch/loop/retry/parallel/subplan；边含 guard；budget 含 noop_limit 空转防护）+ mermaid 可视化 + 声明。
+  - 方法：六步管线（事务分类→意图分析→澄清循环（信息不足停下问）→拓扑推导→步骤展开→出图固化）+ 用户习惯适配。
+  - 模板：generic 11 类通用场景（生活/业务/决策/排查/项目/运维/学习/谈判/创作/采购/模糊需求）。
+  - `plan_validate.py`：结构校验（节点/边/控制流/退出判据/空转预算/置信度闸门）+ mermaid 生成。
+- **删除 `conductor-router`**：其通用判定方法（routing.md→planning-core.md、router-prompt.md→plan-prompt.md）迁入 conductor-plan/references/router/ 并去 conductor 化；conductor 特有的 scenarios.md/cost-tiers.md 移入 conductor 的 01-routing/；器官数 11 不变（plan 入 router 出）。
+- **场景适配层归 conductor**：原 conductor-plan/templates/conductor.md → conductor/references/01-routing/execution-graph-adapter.md（遵循"统一关联只在 conductor"原则，不放头脑风暴）。
+- **brainstorm 去 plan**：brainstorm-plan.md 改名 brainstorm-method.md，只留 brainstorm 澄清/拷问；plan 能力归 conductor-plan。
+- 测试基线：contract 39/39、effect 26/26（新增 plan 方法断言 + plan_validate 真实冒烟）、parity 18/18。

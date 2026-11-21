@@ -21,7 +21,7 @@ EXTERNAL_SKILLS: dict[str, str] = {}
 ORGAN_SKILLS: dict[str, str] = {
     name: "随 conductor 仓库安装到同级 skills 目录，或同步到 ~/.workbuddy/skills/"
     for name in (
-        "conductor-router", "conductor-brainstorm",
+        "conductor-plan", "conductor-brainstorm",
         "conductor-tdd", "conductor-review",
         "conductor-ledger", "conductor-memory",
         "conductor-impact", "conductor-debug", "conductor-git",

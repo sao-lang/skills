@@ -62,7 +62,7 @@ skills/
 │   │   ├── 02-engineering/     ← 工程纪律（内化自 superpowers）
 │   │   └── 05-meta/            ← 索引 + 路线图
 │   └── scripts/                ← 8 个工作流入口（6 个薄 shim）；测试套件在 conductor-sync
-├── conductor-router / -brainstorm / -tdd / -review / -memory / -ledger / -impact / -debug / -subagent / -git / -sync
+├── conductor-plan / -brainstorm / -tdd / -review / -memory / -ledger / -impact / -debug / -subagent / -git / -sync
 │                               ← 11 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
 ├── (原协作 skill)              ← 全部 10 个原目录已删除：3 个方法并入器官，7 个判定废弃
 └── ...
@@ -155,7 +155,7 @@ conductor 是唯一主控；下列 11 个器官各负责一种能力，方法与
 
 | 器官 | 类型 | 职责 |
 |---|---|---|
-| `conductor-router` | 路由（神经中枢） | 场景/路径/档位路由 |
+| `conductor-plan` | 规划（蓝图设计） | 通用流程图引擎：意图分析→澄清→执行图（吸收 router 场景判定与 brainstorm plan 能力）；被 conductor 调用时接 14 场景 |
 | `conductor-brainstorm` | 澄清与规格（感官 + 契约） | 需求澄清、设计拷问、规格固化（已并入 grill-design 与 spec 的六段变更契约） |
 | `conductor-tdd` | 执行（肌肉） | RED-GREEN-REFACTOR 与验证证据 |
 | `conductor-review` | 审查（免疫系统） | 独立换眼与七维审查（已并入 code-quality-review） |
@@ -261,7 +261,7 @@ python skills/conductor-sync/scripts/sync-global.py --dry-run     # 无"需同�
 
 - 编码规则：`skills/conductor-tdd/references/coding-rules-*.md`（通用 + 各语言）
 - 门禁与安全：`skills/conductor-review/references/`（源码纯净、安全红线）、`skills/conductor-git/references/release-checklist.md`（发布）
-- 场景与路由：`skills/conductor-router/references/`
+- 场景与路由：`skills/conductor/references/01-routing/`（scenarios / cost-tiers / 执行图适配层）；通用规划方法：`skills/conductor-plan/references/`
 
 改动前建议先看 `skills/conductor/references/05-meta/roadmap.md`，了解某能力为何这样设计；改完记得同步到你的全局目录。
 

@@ -18,8 +18,8 @@
 
 | # | superpowers skill | 去向 | conductor 能力名 | 挂载场景 / 阶段 | 详情文件 |
 |---|---|---|---|---|---|
-| 1 | brainstorming | ✅ 整合 | `brainstorm` | 场景 1/2/3/4/5 的 S2 | ../../../conductor-brainstorm/references/brainstorm-plan.md |
-| 2 | writing-plans | ✅ 整合 | `plan` | 场景 1/4/5/6 的 S2 | ../../../conductor-brainstorm/references/brainstorm-plan.md |
+| 1 | brainstorming | ✅ 整合 | `brainstorm` | 场景 1/2/3/4/5 的 S2 | ../../../conductor-brainstorm/references/brainstorm-method.md |
+| 2 | writing-plans | ✅ 独立成器官 | `conductor-plan` | 任何需要执行图的场景（通用+开发） | ../../../conductor-plan/SKILL.md |
 | 3 | （隔离工作区类上游 skill） | ❌ 不采用 | — | 直接在当前工作区小步提交；隔离带来的目录/环境成本高于收益（2026-11-21 决策） | — |
 | 4 | subagent-driven-development | ✅ 独立成器官 | `conductor-subagent` | **任何适用多代理的场景**按判据条件触发（改码 S3、批量调研/分析/文档/审查，不限于改码） | ../../../conductor-subagent/SKILL.md + ../../../conductor-subagent/references/dispatch.md |
 | 5 | executing-plans | ✅ 整合 | `execute`（分批模式） | 场景 4/5 S3 备选（需人在场） | —（一句话方法：分批执行 + 人工检查点，每批结束停下向用户汇报再继续） |
@@ -38,7 +38,7 @@
 
 ## 2. 具名工程能力契约（conductor 流程的节点）
 
-这些能力是 conductor 场景链里真正被调用的节点。每个都有输入/输出契约——场景衔接时按契约传递，与 `../../../conductor-router/references/scenarios.md` 的场景 I/O 契约表同构。
+这些能力是 conductor 场景链里真正被调用的节点。每个都有输入/输出契约——场景衔接时按契约传递，与 `../../../conductor/references/01-routing/scenarios.md` 的场景 I/O 契约表同构。
 
 | 能力名 | 一句话职责 | 输入契约 | 输出契约 | 入口阶段 |
 |---|---|---|---|---|
@@ -53,7 +53,7 @@
 
 ## 3. 能力编排规则
 
-1. **场景即能力链**：每个场景在 `../../../conductor-router/references/scenarios.md` 里写成 `能力A → 能力B → ...`，能力名必须在本表可查。
+1. **场景即能力链**：每个场景在 `../../../conductor/references/01-routing/scenarios.md` 里写成 `能力A → 能力B → ...`，能力名必须在本表可查。
 2. **契约传递**：前一能力的输出契约必须满足后一能力的输入契约；不满足则停下问用户（与 routing 的 I/O 校验同构）。
 3. **按需裁剪**：只读/文档/验证路径的场景只调用子集（如场景 9/10 不调用 `tdd`/`review` 的改码变体）。
 4. **方法已内化**：grill-design / code-quality-review / handoff 等方法已并入器官，graphify / ponytail 等已废弃，

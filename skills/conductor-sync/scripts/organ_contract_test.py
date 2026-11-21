@@ -19,7 +19,7 @@ SCRIPTS = Path(__file__).resolve().parent
 SKILLS_ROOT = SCRIPTS.parents[1]          # .../skills
 CONDUCTOR = SKILLS_ROOT / "conductor"
 ORGANS = (
-    "conductor-router", "conductor-brainstorm",
+    "conductor-plan", "conductor-brainstorm",
     "conductor-tdd", "conductor-review",
     "conductor-ledger", "conductor-memory",
     "conductor-impact", "conductor-debug", "conductor-git",

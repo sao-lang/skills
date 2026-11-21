@@ -2,14 +2,14 @@
 
 > 本文件回答两个问题：**每阶段调哪个器官 / 工具**、**这些 skill 从哪来 / 怎么装**。
 > 架构：conductor 是机体（状态机+门禁+决策），`skills/conductor-*`（与 conductor 同级） 是器官（单一能力），场景是环境；完整总线见 `organ-registry.md`。
-> **成本档位裁剪**：下表是 standard/full；lite 按 `../../../conductor-router/references/cost-tiers.md` 跳过 overview L1 交接/env_probe/台账/影响面/契约固化/沉淀回写/独立子代理（改 `review_gate.py --lite`）。省掉的步骤必须写进路由声明。
+> **成本档位裁剪**：下表是 standard/full；lite 按 `../../../conductor/references/01-routing/cost-tiers.md` 跳过 overview L1 交接/env_probe/台账/影响面/契约固化/沉淀回写/独立子代理（改 `review_gate.py --lite`）。省掉的步骤必须写进路由声明。
 
 ## 1. 完整阶段矩阵
 
 | 阶段 | 主控 | 加载 / 调用 | 本步禁止 | 出口条件 |
 |---|---|---|---|---|
 | S0 会话开始 | conductor | `preflight.py` → 器官 `conductor-memory`（L0 主文件 + `.details.md`，内含改名并入的 overview L1 交接方法）→ `env_probe.py`（有环境信号时）→ 器官 `conductor-ledger` init（有隐含清单时） | 禁止直接写代码 | 预检 + overview L0 + 状态文件已忽略 + 承诺已采集 |
-| S1 场景路由 | conductor | 器官 `conductor-router` 出执行图+声明；器官 `conductor-impact`（跨模块/full）；场景7 `migration_ledger.py init --merge` | 禁止跳过声明 | 路由声明含场景/路径/档位/省掉 |
+| S1 场景路由 | conductor | 器官 `conductor-plan` 出执行图+声明（场景判定方法见其 router/planning-core.md）；器官 `conductor-impact`（跨模块/full）；场景7 `migration_ledger.py init --merge` | 禁止跳过声明 | 路由声明含场景/路径/档位/省掉 |
 | S2 设计计划 | conductor | 器官 `conductor-brainstorm`（澄清 + 规格一体：自带 grill-design/规格模板，standard/full 固化六段 change-contract，Acceptance 灌入台账）；架构类由 `conductor-impact` 核契约 | 规格未确认不动手；契约未确认不进 S3 | 规格要点 + 未决清单 + 契约 `contract_check.py` 退出 0 |
 | S3 TDD 实现 | conductor | 器官 `conductor-subagent`（任务集可并行时派发，条件触发，不限于改码；判据见 cost-tiers 条件加载表）；器官 `conductor-tdd`（RED→GREEN，`verify.py` 证据，最小改动原则已内联）；写码后 `../../conductor-review/scripts/source_purity.py --strict` | 无失败测试不写实现；禁 fake/动态类型 | 红转绿、全量绿、无未豁免污染 |
 | S4 自省补强 | conductor | `../../conductor-review/scripts/scan_gaps.py` → `verify.py` → `../../conductor-ledger/scripts/debt_ledger.py` → `../../conductor-review/scripts/source_purity.py check --strict`；器官 `conductor-ledger` check；需要时 `conductor-impact`；安全/测试/接口按 guard 核对 | 未达标不许进 review | 覆盖率/缺口/纯净/台账五项达标 |
@@ -47,7 +47,6 @@
 
 | 器官 skill | 状态 | 执行器 / 工具 |
 |---|---|---|
-| `conductor-router` | 主流程 S1 | 自包含（routing + cost-tiers + I/O 契约） |
 | `conductor-brainstorm` | 主流程 S2（澄清 + 规格） | 自带 `../../../conductor-brainstorm/references/grill-design-SKILL.md`、`examples-to-spec.md`、`change-contract-template.md`、`spec-method.md`、`scripts/contract_check.py` |
 | `conductor-tdd` | 主流程 S3/S4 | 自带 `../../conductor-tdd/scripts/verify.py`、编码规则 |
 | `conductor-review` | 主流程 S4/S5 | 自带 `../../../conductor-review/references/code-quality-review-SKILL.md`、`source-purity.md`、`removal-check.md`、`scripts/review_gate.py`、`scan_gaps.py`、`source_purity.py`、`intent_gaps.py`、`removal_check.py` |

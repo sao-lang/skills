@@ -32,7 +32,10 @@ def run(script: Path, *args: str, cwd: Path, stdin: str = "") -> tuple[int, str]
 
 def method_organs() -> None:
     static = {
-        "conductor-router": ("conductor-router/references/routing.md", ["语义三问", "结构算子", "置信度"]),
+        "conductor-plan 场景判定": ("conductor-plan/references/router/planning-core.md", ["语义三问", "结构算子", "置信度"]),
+        "conductor-plan 图 DSL": ("conductor-plan/references/execution-graph-schema.md", ["节点", "边", "空转防护"]),
+        "conductor-plan 规划方法": ("conductor-plan/references/planning-method.md", ["意图分析", "澄清循环", "步骤展开", "习惯"]),
+        "conductor 场景适配层": ("conductor/references/01-routing/execution-graph-adapter.md", ["场景", "门禁", "ref"]),
         "conductor-brainstorm": ("conductor-brainstorm/references/grill-design-SKILL.md", ["设计树", "前沿", "结论"]),
         "conductor-brainstorm 规格方法": ("conductor-brainstorm/references/spec-method.md", ["抽取", "merge", "验收注入"]),
         "conductor-memory 沉淀方法": ("conductor-memory/references/learning-method.md", ["抽什么", "去重", "回写"]),
@@ -42,7 +45,7 @@ def method_organs() -> None:
         "conductor-subagent": ("conductor-subagent/references/dispatch.md", ["brief", "全新", "评审"]),
         "conductor-sync": ("conductor-sync/references/install-verify.md", ["复制", "全局", "测试"]),
         "conductor-review 残留核对": ("conductor-review/references/removal-check.md", ["删除", "残留", "退出码"]),
-        "router 条件加载判据": ("conductor-router/references/cost-tiers.md", ["删除推导", "removal_check", "文档同步核对", "双轨扫描", "机器可判"]),
+        "router 条件加载判据": ("conductor/references/01-routing/cost-tiers.md", ["删除推导", "removal_check", "文档同步核对", "双轨扫描", "机器可判"]),
         "tdd 两种最小化区分": ("conductor-tdd/references/coding-rules-common.md", ["变更面最小", "diff 行数最小", "hotfix", "退出条件"]),
     }
     for organ, (rel, keywords) in static.items():
@@ -135,6 +138,27 @@ def executable_organs() -> None:
         (root / "src" / "m.py").write_text("def fresh_fn():\n    return 2\n", encoding="utf-8")
         rc, out = run(rc_script, "--contract", "contract.md", "--path", "src", cwd=root)
         check("conductor-review 清除后放行", rc == 0 and "已清除：obsolete_fn" in out,
+              out.splitlines()[0] if out else "")
+
+        # plan：执行图校验 + mermaid 生成
+        pv_script = SKILLS / "conductor-plan/scripts/plan_validate.py"
+        good_plan = {
+            "version": "1.0", "goal": "效果测试", "mode": "conductor", "confidence": 0.9,
+            "nodes": [
+                {"id": "n1", "kind": "tool", "label": "跑测试", "action": "pytest", "exit_criteria": "退出码0"},
+                {"id": "n2", "kind": "gate", "label": "门禁", "action": "verify", "exit_criteria": "退出码0"},
+            ],
+            "edges": [{"from": "n1", "to": "n2", "type": "seq"}],
+            "budget": {"max_steps": 10, "noop_limit": 2},
+        }
+        (root / "plan.json").write_text(json.dumps(good_plan, ensure_ascii=False), encoding="utf-8")
+        rc, out = run(pv_script, "--plan", "plan.json", "--mermaid", cwd=root)
+        check("conductor-plan 合法图 PASS + mermaid", rc == 0 and "flowchart TD" in out,
+              out.splitlines()[0] if out else "")
+        bad_plan = dict(good_plan, budget={"max_steps": 10}, confidence=0.3)
+        (root / "plan-bad.json").write_text(json.dumps(bad_plan, ensure_ascii=False), encoding="utf-8")
+        rc, out = run(pv_script, "--plan", "plan-bad.json", cwd=root)
+        check("conductor-plan 缺空转预算/低置信度被拦", rc == 1 and "noop_limit" in out and "0.5" in out,
               out.splitlines()[0] if out else "")
 
 
