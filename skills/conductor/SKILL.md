@@ -1,6 +1,6 @@
 ---
 name: conductor
-description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：作为机体只做状态机、路由、门禁与器官调度；工程能力由 12 个器官 skill 执行。适用于支持 SKILL.md 的 agent。
+description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁移/修 bug/项目初始化/迭代/架构设计/拷问代码或设计/代码库理解/文档同步/门禁验收/测试补课/文档清理，或"别漏需求/模块""别写内存版假实现/别用 Any"类防漏与源码纯净需求时加载：作为机体只做状态机、路由、门禁与器官调度；工程能力由 13 个器官 skill 执行。适用于支持 SKILL.md 的 agent。
 ---
 
 # conductor · 开发工作流机体
@@ -22,7 +22,7 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 | S0 | `conductor-overview` | `conductor-ledger`（有隐含清单） |
 | S1 | `conductor-router` | `conductor-impact`（跨模块/full） |
 | S2 | `conductor-brainstorm` | `conductor-spec`（standard/full）、自带拷问与规格模板 |
-| S3 | `conductor-tdd` | `conductor-subagent`（计划 ≥3 独立任务时派发，条件触发）、自带编码规则 |
+| S3 | `conductor-tdd` | `conductor-subagent`（任务集可并行时派发，条件触发，不限于改码）、自带编码规则 |
 | S4 | `conductor-tdd`（证据） | `conductor-ledger`、`conductor-impact` |
 | S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full） |
 
@@ -50,7 +50,7 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 ## 硬门禁（不可下放给器官）
 
 - **规格未确认不动手**；**无失败测试不算实现**；**拿不出证据（命令+退出码/行号）不标完成**。
-- 测试证据只认 `scripts/verify.py`；写码后必跑 `scripts/source_purity.py check --strict`（fake 实现/动态类型/无注释占位，重构用 baseline + `--scope`）。
+- 测试证据只认 `scripts/verify.py`；写码后必跑 `../conductor-review/scripts/source_purity.py check --strict`（fake 实现/动态类型/无注释占位，重构用 baseline + `--scope`）。
 - 改码交付前必过 `scripts/review_gate.py`：standard/full 走独立子代理，lite 走 `--lite` 轻量复核；Blocker 未清零禁止收尾。
 - 有隐含清单必建台账，`commitment_ledger.py check --strict` 退出 0 才准收尾；禁止刷状态、禁止静默跳过。
 - 真实环境优先：无环境不砍功能、不写 fake 冒充 adapter、不留无注释跨模块占位；环境缺失登记「环境阻断」，禁改断言造假绿。
@@ -58,5 +58,7 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 ## 参考与脚本
 
 - 参考文档按需加载，索引见 `references/05-meta/README.md`：`../conductor-router/references/routing.md`/`../conductor-router/references/cost-tiers.md`/`organ-registry.md` 在 S1 读，`../conductor-router/references/scenarios.md`、`../conductor-brainstorm/references/brainstorm-plan.md`、`../conductor-spec/references/spec-method.md`、`../conductor-learn/references/learning-method.md` 按节，其余触发才读。
-- 16 个工作流入口：`preflight / overview_path / env_probe / verify / scan_gaps / review_gate / impact_analysis / debt_ledger / release_notes / commitment_ledger / migration_ledger / source_purity / intent_gaps / sync-global / contract_check / learn_capture`；其中 6 个重复入口是薄 shim，实现只在器官目录；另有 4 个测试/审计脚本 `collaboration_skill_audit / organ_contract_test / organ_effect_test / script_parity_test`；参数见 `skill-matrix.md`。
+- **8 个本体入口**：`preflight / env_probe`（S0 预检与环境探测，本体实现）+ `overview_path / verify / review_gate / impact_analysis / commitment_ledger / migration_ledger`（6 个薄 shim，实现唯一真相源在器官目录，`script_parity_test.py` 防漂移）。
+- **已分流到器官的脚本**：缺口/纯净/意图扫描归 `../conductor-review/scripts/`（`scan_gaps.py` / `source_purity.py` / `intent_gaps.py`），技术债台账归 `../conductor-ledger/scripts/debt_ledger.py`，发版说明归 `../conductor-git/scripts/release_notes.py`；契约/学习脚本本就在 `conductor-spec` / `conductor-learn`。
+- **统一安装/更新与完整性测试**归 `conductor-sync`：`sync-global.py` + 三测试 + 协作审计，见其 SKILL.md；参数总表见 `skill-matrix.md`。
 - 外部 skill 缺失必须显式降级并在 overview 写「缺失 X / 影响 Y / 降级 Z」，禁止静默跳过。

@@ -281,3 +281,14 @@
 
 新增场景前先判：它走哪条路径？现有三机制是否够用？若不够，先补流程机制再加场景——
 否则新场景会在 S3/S4 卡死或空跑（这是方案 A 的教训）。
+
+## 五、2026-11-21 第三轮：脚本分流 + conductor-sync 器官 + subagent 泛化
+
+- 背景：用户指出 conductor 本体脚本"很多和 conductor 关系不大"；统一安装/更新应独立成 skill；subagent 不应限于改码。
+- **脚本分流**（本体只留 preflight/env_probe + 6 shim）：
+  - `scan_gaps.py` / `source_purity.py` / `intent_gaps.py` → `conductor-review/scripts/`（代码审查机器证据归 review；04-guards/source-purity.md 一并迁入）
+  - `debt_ledger.py` → `conductor-ledger/scripts/`；`release_notes.py` + release-checklist.md → `conductor-git/`
+  - 04-guards 目录清空删除；conductor 本体 scripts 只剩 2 个本体脚本 + 6 个薄 shim
+- **新增 `conductor-sync`（第 13 器官）**：统一安装/更新 conductor 家族到全局目录（sync-global.py 默认同步 conductor+conductor-*）+ 完整性三测试（organ_contract / organ_effect / script_parity）+ collaboration_skill_audit 迁入；SKILL.md + references/install-verify.md。
+- **subagent 泛化**：不限改码——任何可拆成独立/自包含/可验证单元的多代理场景（调研/分析/文档/审查）都按判据派发；brief 模板分改码/非改码两类；复核分改码两段评审与非码两查。conductor 侧 registry/matrix/catalog/cost-tiers/scenarios 同步改写。
+- 测试基线：organ_contract 39/39（含 conductor-sync 契约）、organ_effect 15/15（含 install-verify 方法断言）、script_parity 18/18（SHIM_DIR 修正为 conductor 本体）。

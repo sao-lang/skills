@@ -19,7 +19,7 @@
 
 - 遵循语义化版本 `MAJOR.MINOR.PATCH`：
   - breaking 变更 → MAJOR；向下兼容的新功能 → MINOR；仅修复 → PATCH。
-  - 可用 `scripts/release_notes.py` 根据 conventional commits 给版本建议（feat→MINOR、fix→PATCH、BREAKING→MAJOR）。
+  - 可用 `../scripts/release_notes.py` 根据 conventional commits 给版本建议（feat→MINOR、fix→PATCH、BREAKING→MAJOR）。
 - 预发布用 `-alpha.N` / `-rc.N`，正式版去掉后缀。
 
 ## CHANGELOG

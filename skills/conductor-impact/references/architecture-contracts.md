@@ -67,13 +67,13 @@
 
 > 与 §2「fake 冒充实现」同源：那里查"测试绿但生产零实现"，这里查"因为没环境连生产实现都没写"。
 > **机器门禁**：`source_purity.py --path src --strict` 自动扫内存/假实现信号（类名/注释/文件名），
-> 命中即 FAIL，把本节软约束变成退出码；完整规则与豁免见 `../../conductor/references/04-guards/source-purity.md`。
+> 命中即 FAIL，把本节软约束变成退出码；脚本与完整规则/豁免由 conductor 在 S4 编排加载（脚本归属见 conductor 的 skill-matrix）。
 > 环境报错时（连接被拒/容器起不来）的处理协议：先分代码 bug vs 环境缺失，
 > 后者如实告知用户"AI 解决不了"、登记「环境阻断」后可暂忽略，禁止静默跳过或造假绿
 > （测试策略的完整细则由 conductor 编排测试器官提供）。
 
 ## 5. 使用方式
 
-- 实现每个模块后：跑 `../../conductor/scripts/scan_gaps.py` 生成草稿 → 按本清单四问逐条核实 → 结果写入 overview。
+- 实现每个模块后：跑缺口扫描（`scan_gaps.py`，由 conductor 编排，见 skill-matrix）生成草稿 → 按本清单四问逐条核实 → 结果写入 overview。
 - 拷问代码场景：本清单是"功能断点"专项检查的权威依据。
 - 与新设计/补充设计相关的重构：先列出新旧契约差异，再逐条核对接线（具体场景编排由 conductor 路由决定）。

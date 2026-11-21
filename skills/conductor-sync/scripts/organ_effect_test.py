@@ -39,6 +39,7 @@ def method_organs() -> None:
         "conductor-debug": ("conductor-debug/references/engineering-debugging.md", ["根因", "复现", "纵深防御"]),
         "conductor-git": ("conductor-git/references/git-commit.md", ["提交", "精确", "hooks"]),
         "conductor-subagent": ("conductor-subagent/references/dispatch.md", ["brief", "全新", "评审"]),
+        "conductor-sync": ("conductor-sync/references/install-verify.md", ["复制", "全局", "测试"]),
     }
     for organ, (rel, keywords) in static.items():
         p = SKILLS / rel

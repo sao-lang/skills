@@ -21,7 +21,7 @@
 | 1 | brainstorming | ✅ 整合 | `brainstorm` | 场景 1/2/3/4/5 的 S2 | ../../../conductor-brainstorm/references/brainstorm-plan.md |
 | 2 | writing-plans | ✅ 整合 | `plan` | 场景 1/4/5/6 的 S2 | ../../../conductor-brainstorm/references/brainstorm-plan.md |
 | 3 | （隔离工作区类上游 skill） | ❌ 不采用 | — | 直接在当前工作区小步提交；隔离带来的目录/环境成本高于收益（2026-11-21 决策） | — |
-| 4 | subagent-driven-development | ✅ 独立成器官 | `conductor-subagent` | 计划就绪进入实现阶段，条件触发 | ../../../conductor-subagent/SKILL.md + ../../../conductor-subagent/references/dispatch.md |
+| 4 | subagent-driven-development | ✅ 独立成器官 | `conductor-subagent` | **任何适用多代理的场景**按判据条件触发（改码 S3、批量调研/分析/文档/审查，不限于改码） | ../../../conductor-subagent/SKILL.md + ../../../conductor-subagent/references/dispatch.md |
 | 5 | executing-plans | ✅ 整合 | `execute`（分批模式） | 场景 4/5 S3 备选（需人在场） | —（一句话方法：分批执行 + 人工检查点，每批结束停下向用户汇报再继续） |
 | 6 | test-driven-development | ✅ 整合 | `tdd` | 场景 4/5/6/7/8/13 的 S3 | ../../../conductor-tdd/references/engineering-tdd.md |
 | 7 | requesting-code-review | ✅ 整合 | `review` | 所有改码场景（每任务间 + S5） | ../../../conductor-review/references/engineering-code-review.md |
@@ -44,7 +44,7 @@
 |---|---|---|---|---|
 | `brainstorm` | 苏格拉底式提问逼清需求，逐块确认设计 | 粗糙需求 | 用户签字的设计文档 | S2 |
 | `plan` | 拆成 2-5 分钟、精确到文件与验证的任务 | 设计文档 | 可执行实施计划 | S2 |
-| `subagent` | 按判据派全新上下文子代理执行任务，两段评审 | 自包含任务 brief | 任务结论（一行）+ 两段评审通过 | S3（条件触发） |
+| `subagent` | 按判据派全新上下文子代理执行任务，按任务类型复核（改码=两段评审；非码=正确性+覆盖完整性） | 自包含任务 brief | 任务结论（一行）+ 复核通过 | 任何多代理场景（条件触发，不限于改码 S3） |
 | `tdd` | RED→GREEN→REFACTOR，测试前代码一律删 | 期望行为描述 | 通过测试的实现 + 证据 | S3（每任务内） |
 | `debug` | 4 阶段根因：复现→追踪→纵深防御→条件等待 | 故障现象 | 根因 + 修复 + 回归测试 | 场景 8 主体 |
 | `review` | 对照计划逐条查，按严重度分级 | 任务产出 + 计划 | 分级评审结论（Critical 阻断） | 每任务间 + S5 |

@@ -30,6 +30,7 @@ description: conductor 的 git 操作器官。收到"提交代码"请求，或�
 
 - `references/git-commit.md`（提交纪律摘要）
 - `git-commit-rules.md`（完整提交规则：message 规范、暂存纪律、红线、检查清单）
+- `references/release-checklist.md`（发版清单：版本、CHANGELOG、tag、回滚；配 `../scripts/release_notes.py` 出草稿）
 
 ## 降级
 
@@ -41,4 +42,5 @@ description: conductor 的 git 操作器官。收到"提交代码"请求，或�
 
 - `SKILL.md`：角色、I/O、执行与降级
 - `references/git-commit.md`：提交纪律摘要
-- `scripts/`：无（git 操作由宿主执行，本器官只定纪律与红线）
+- `references/release-checklist.md`：发版清单
+- `scripts/release_notes.py`：从 conventional commits 生成 CHANGELOG 草稿与版本建议

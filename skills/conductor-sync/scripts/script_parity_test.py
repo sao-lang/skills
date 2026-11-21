@@ -16,7 +16,8 @@ import tempfile
 from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent
-SKILLS = SCRIPTS.parents[1]          # .../skills
+SKILLS = SCRIPTS.parents[1]          # .../skills（本测试已随测试套件迁至 conductor-sync/scripts）
+SHIM_DIR = SKILLS / "conductor" / "scripts"   # 6 个薄 shim 仍留在 conductor 本体
 
 SHIMS = {
     "verify.py": "conductor-tdd/scripts/verify.py",
@@ -38,7 +39,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def check_shims() -> None:
     for name, rel in SHIMS.items():
-        shim = SCRIPTS / name
+        shim = SHIM_DIR / name
         target = SKILLS / rel
         if not shim.is_file():
             check(f"{name} shim 存在", False, f"缺 {shim}")
@@ -68,7 +69,7 @@ def check_forwarding() -> None:
     with tempfile.TemporaryDirectory() as d:
         for name in SHIMS:
             proc = subprocess.run(
-                [sys.executable, "-B", str(SCRIPTS / name), "--help"],
+                [sys.executable, "-B", str(SHIM_DIR / name), "--help"],
                 cwd=d, capture_output=True, text=True, timeout=30,
             )
             check(f"{name} 转发 --help", proc.returncode == 0,

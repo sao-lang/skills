@@ -12,7 +12,7 @@
 
 ## 两个来源
 
-1. **代码内标记**：`TODO` / `FIXME` / `HACK` / `XXX` / `DEBT` / `SAFETY`，运行 `../../conductor/scripts/debt_ledger.py` 得草稿。
+1. **代码内标记**：`TODO` / `FIXME` / `HACK` / `XXX` / `DEBT` / `SAFETY`，运行 `../scripts/debt_ledger.py` 得草稿。
 2. **overview 未完成项**：各轮 overview 的「L0 未完成项」+「L1 未完成项与下一步」里未关闭的 failure / 缺口，人工并入台账。
 
 ## 债指数（量化口径）

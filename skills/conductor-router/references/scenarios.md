@@ -83,7 +83,7 @@
 - **下一站**：补充确认→若涉及既有代码改动，进入设计驱动重构。
 
 ## 场景 4 · 项目开发
-- **能力链**（最完整）：`brainstorm`→`plan`→`subagent`（条件：≥3 独立任务才派）→每任务内嵌 `tdd`+`git`(commit，条件)→`review`（每任务间）→`verify`(S4)→`review`（终审）。subagent/git(commit) 按 cost-tiers 条件加载表可跳。
+- **能力链**（最完整）：`brainstorm`→`plan`→`subagent`（条件：≥3 独立任务才派；不限改码，其他多代理场景同样适用）→每任务内嵌 `tdd`+`git`(commit，条件)→`review`（每任务间）→`verify`(S4)→`review`（终审）。subagent/git(commit) 按 cost-tiers 条件加载表可跳。
 - **契约**：设计→计划→任务产出→评审结论→验证证据→全绿变更，逐级喂下一能力；任一环断裂停下。
 - **工具**：S0 预检+S4 自省脚本；`tdd` 阶段遵守 coding-rules（ponytail/caveman 已内联为最小改动原则）。
 - **样例补全**：`brainstorm`/`plan` 按 `examples-to-spec.md` 补全用户举例为完整规格（含异常/边界/同类项）；`execute` 按补全清单实现，别只做点名的那几个。
@@ -151,8 +151,8 @@
 
 ## 场景 12 · 门禁验收 / 发布（验证路径）
 - **路径**：跳过新功能设计，S4 全量验证→S5 交付判定。**能力链**：无（只验证）。
-- **主导**：`preflight.py`→`verify.py --lang <每个语言>`→`scan_gaps.py`→`debt_ledger.py`→`conductor-review` 七维审查（Blocker 清零门禁）。
-- **出口**：门禁全绿+全部证据入 overview，否则**禁止合并/发布**。涉及发布按 `release-checklist.md` 走版本/CHANGELOG/tag/回滚，`release_notes.py --since <tag>` 出草稿。
+- **主导**：`preflight.py`→`verify.py --lang <每个语言>`→`scan_gaps.py`（conductor-review）→`debt_ledger.py`（conductor-ledger）→`conductor-review` 七维审查（Blocker 清零门禁）。
+- **出口**：门禁全绿+全部证据入 overview，否则**禁止合并/发布**。涉及发布按 release-checklist（conductor-git 自带）走版本/CHANGELOG/tag/回滚，`release_notes.py --since <tag>` 出草稿。
 - **禁止**：带 Critical/阻塞项收尾；用"测试大概没问题"代替退出码。**下一站**：全绿→交付→写 overview。
 
 ## 场景 13 · 测试补课（验证路径，TDD 变体）
@@ -181,10 +181,10 @@
 
 脚本生成草稿，人工逐条核实——脚本给线索，判断归 AI，两者都不省：
 ```bash
-python ../../conductor/scripts/scan_gaps.py --path src     # 缺口台账草稿
-python ../../conductor/scripts/verify.py --lang <lang>    # 验证命令退出码
-python ../../conductor/scripts/debt_ledger.py --path src  # 技术债台账草稿
-python ../../conductor/scripts/commitment_ledger.py check --ledger .commitment-ledger.json --strict  # 承诺台账收口门禁（全场景，零未勾销）
+python ../../conductor-review/scripts/scan_gaps.py --path src     # 缺口台账草稿
+python ../../conductor/scripts/verify.py --lang <lang>            # 验证命令退出码（薄 shim）
+python ../../conductor-ledger/scripts/debt_ledger.py --path src   # 技术债台账草稿
+python ../../conductor/scripts/commitment_ledger.py check --ledger .commitment-ledger.json --strict  # 承诺台账收口门禁（全场景，零未勾销，薄 shim）
 python ../../conductor/scripts/migration_ledger.py check --ledger .migration-ledger.json --path src --strict  # 迁移收口门禁（场景7 shim）
 ```
 > 技术债登记口径见 `tech-debt-ledger.md`——债标记≠已登记，未关闭项必须进 overview「未完成项」。

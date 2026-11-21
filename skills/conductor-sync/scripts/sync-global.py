@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""把项目内 skill 同步到 WorkBuddy 全局 skills 目录。
+"""把 conductor 家族 skill 统一安装/更新到 WorkBuddy 全局 skills 目录（conductor-sync 器官）。
 
 背景：Windows 无符号链接权限，全局安装采用复制，两份独立。
 项目 skills/ 是唯一真相源；改完跑本脚本同步到 ~/.workbuddy/skills/。
 
 用法：
-    python scripts/sync-global.py                # 只同步 conductor（默认）
-    python scripts/sync-global.py --all          # 同步全部 skill（含同级器官与裁剪后的协作 skill）
-    python scripts/sync-global.py --all --dry-run
+    python scripts/sync-global.py                # 同步 conductor 家族（conductor + conductor-*，默认）
+    python scripts/sync-global.py --all          # 同步全部 skill（含非 conductor 家族的协作 skill）
+    python scripts/sync-global.py --dry-run      # 只列差异，不复制
 """
 from __future__ import annotations
 
@@ -17,8 +17,7 @@ import shutil
 import sys
 from pathlib import Path
 
-SKILL_ROOT = Path(__file__).resolve().parents[1]          # .../skills/conductor
-SKILLS_BASE = SKILL_ROOT.parent                            # .../skills
+SKILLS_BASE = Path(__file__).resolve().parents[2]         # .../skills
 GLOBAL_BASE = Path.home() / ".workbuddy" / "skills"
 
 
@@ -55,21 +54,22 @@ def sync_tree(src_root: Path, dst_root: Path, dry_run: bool) -> tuple[int, int]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="同步 skill 到全局目录")
+    ap = argparse.ArgumentParser(description="conductor 家族 skill 统一安装/更新到全局目录")
     ap.add_argument("--dry-run", action="store_true", help="只列差异，不复制")
     ap.add_argument("--all", action="store_true",
-                    help="同步全部 skill（conductor + 同级器官 + 协作 skill）")
+                    help="同步全部 skill（默认只同步 conductor 家族：conductor + conductor-*）")
     args = ap.parse_args()
 
-    if not SKILL_ROOT.is_dir():
-        print(f"[sync] 源目录不存在：{SKILL_ROOT}", file=sys.stderr)
+    if not SKILLS_BASE.is_dir():
+        print(f"[sync] 源目录不存在：{SKILLS_BASE}", file=sys.stderr)
         return 1
 
     if args.all:
         targets = [(p, GLOBAL_BASE / p.name) for p in sorted(SKILLS_BASE.iterdir())
                    if p.is_dir() and not p.name.startswith(".")]
     else:
-        targets = [(SKILL_ROOT, GLOBAL_BASE / "conductor")]
+        targets = [(p, GLOBAL_BASE / p.name) for p in sorted(SKILLS_BASE.glob("conductor*"))
+                   if p.is_dir()]
 
     total = stale_total = 0
     for src, dst in targets:
@@ -82,7 +82,7 @@ def main() -> int:
     else:
         print(f"[sync] 完成，同步 {total} 个文件。")
     if stale_total:
-        print(f"[sync] 注意：全局有 {stale_total} 个源已删除的文件，需手动确认。")
+        print(f"[sync] 注意：全局有 {stale_total} 个源已删除的文件，需手动确认后删除。")
     return 0
 
 

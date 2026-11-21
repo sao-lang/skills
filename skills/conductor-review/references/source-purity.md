@@ -34,7 +34,7 @@
 | Ruby/PHP | YARD 注释缺类型（warn）；`mixed` |
 
 ```bash
-python scripts/source_purity.py rules --lang python     # 列出生效规则
+python ../scripts/source_purity.py rules --lang python     # 列出生效规则
 ```
 **扩展**（项目特有反模式）：`--rules custom.json` 追加规则，`--disable-rule <id>` 禁用某规则：
 ```json
@@ -45,7 +45,7 @@ python scripts/source_purity.py rules --lang python     # 列出生效规则
 
 ## 二·补、意图空白（函数级语义扫描）
 
-行级正则抓不到"函数体结构"类问题，由 `scripts/intent_gaps.py` 用 Python AST 精确分析
+行级正则抓不到"函数体结构"类问题，由 `../scripts/intent_gaps.py` 用 Python AST 精确分析
 （其他语言降级为人工核对，见下方边界）。`source_purity.py scan/check` 默认自动合并其结果。
 
 ### 1. unexplained_placeholder —— 跨模块占位无注释
@@ -74,8 +74,8 @@ def calculate(self, flag: bool, _reserved_for_v2: str):  # flag 由调度模块�
 抽象/接口方法；`purity-exempt` 留痕。
 
 ```bash
-python scripts/intent_gaps.py --path src                # 单独跑
-python scripts/intent_gaps.py --path src --strict --format json
+python ../scripts/intent_gaps.py --path src                # 单独跑
+python ../scripts/intent_gaps.py --path src --strict --format json
 ```
 **语言边界**：v1 精准支持 Python（AST）；TS/Go/Java 等的占位/未用参数由 lint 规则
 （如 TS `noUnusedParameters`、Go 编译器未用参数检查）或人工核对承担——本脚本不假装覆盖。
@@ -84,18 +84,18 @@ python scripts/intent_gaps.py --path src --strict --format json
 
 ```bash
 # S3 写码后即时自查
-python scripts/source_purity.py scan --path src
-python scripts/source_purity.py scan --path src --strict          # 严格：error 命中即 1
+python ../scripts/source_purity.py scan --path src
+python ../scripts/source_purity.py scan --path src --strict          # 严格：error 命中即 1
 # S4 常规收尾（无基线时全部算新增）
-python scripts/source_purity.py check --path src --strict
+python ../scripts/source_purity.py check --path src --strict
 # 查特定语言 / JSON 输出
-python scripts/source_purity.py scan --path src --lang python --format json
+python ../scripts/source_purity.py scan --path src --lang python --format json
 # 关闭函数级语义扫描（只看行级类型/fake 模式）
-python scripts/source_purity.py scan --path src --no-intent
+python ../scripts/source_purity.py scan --path src --no-intent
 # 单独跑意图空白扫描
-python scripts/intent_gaps.py --path src --strict
+python ../scripts/intent_gaps.py --path src --strict
 # 旧式调用仍兼容
-python scripts/source_purity.py --path src --strict
+python ../scripts/source_purity.py --path src --strict
 ```
 > 一条 `source_purity.py scan/check` 同时覆盖行级模式（类型/fake）与函数级语义（占位/未用参数），
 > 两者命中都进同一个门禁、同一份存量基线。intent_gaps 缺失或报错时静默跳过主门禁不中断（stderr 提示）。
@@ -104,12 +104,12 @@ python scripts/source_purity.py --path src --strict
 
 ```bash
 # 1) 重构开始前：快照当前污染为基线（一次性）
-python scripts/source_purity.py baseline --path src --out .purity-baseline.json
+python ../scripts/source_purity.py baseline --path src --out .purity-baseline.json
 # 2) 重构过程中/收尾：只卡新增；存量单列 TODO，不强迫一次清零
-python scripts/source_purity.py check --path src --baseline .purity-baseline.json --strict
+python ../scripts/source_purity.py check --path src --baseline .purity-baseline.json --strict
 # 3) 改到了某个老文件：让它的存量进入"本次需负责"范围
 git diff --name-only > changed.txt
-python scripts/source_purity.py check --path src --baseline .purity-baseline.json \
+python ../scripts/source_purity.py check --path src --baseline .purity-baseline.json \
   --scope changed.txt --strict
 ```
 
