@@ -3,9 +3,11 @@ name: conductor-ledger
 description: conductor 的防漏台账器官。收到规格/差异/finding/模块清单需要逐条勾销时加载；外置承诺、定位断点、卡零未勾销，靠台账不靠记忆。
 ---
 
-# conductor-ledger · 记忆外置器官
+# conductor-ledger · 防漏台账器官
 
-> conductor 机体的"长期记忆"：把隐含承诺变成机器可校验事实。
+> conductor 机体的"账本"：把隐含承诺变成机器可校验事实，欠账必须清零。
+> 定位区分：台账是**负债表**（open items，收尾前必须勾销，是收尾门禁的前置条件）；
+> 跨会话的记忆（overview 记录、经验沉淀）归 `conductor-memory`，那边是资产表，只留痕不清零。
 
 ## 输入
 来源任选可叠加：`--from-modules` 源码扫描 / `--from-list` 文档列表 / `--from-json` / `--stdin`（接 impact 与 review 输出）/ `--manual`。
