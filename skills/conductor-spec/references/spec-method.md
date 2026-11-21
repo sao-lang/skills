@@ -24,9 +24,9 @@
 ## 3. 验收注入
 
 ```bash
-python scripts/contract_check.py --contract change-contract.md
-python scripts/contract_check.py --contract change-contract.md --acceptance-only | \
-  python ../conductor-ledger/scripts/commitment_ledger.py init --ledger .commitment-ledger.json --stdin
+python ../scripts/contract_check.py --contract change-contract.md
+python ../scripts/contract_check.py --contract change-contract.md --acceptance-only | \
+  python ../../conductor-ledger/scripts/commitment_ledger.py init --ledger .commitment-ledger.json --stdin
 ```
 
 Acceptance 为空 → 契约无效，退回 S2。

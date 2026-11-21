@@ -1,17 +1,9 @@
----
-name: code-quality-review
-display_name: 代码质量审查
-display_name_en: Code Quality Review
-description: Reviews a diff, a pull request, or a single file the way a careful teammate would, and returns findings that are ranked, located and actionable instead of a list of stylistic opinions. It separates blocking defects from suggestions, cites the exact file and line for each finding, explains why it matters in this codebase, and proposes a concrete diff. A runnable pass grades the change on seven dimensions and refuses to ship a review that contains only vague praise or unlocated complaints. Use when the user asks 代码审查、审一下这段代码、review 一下、看看这个 PR、这段代码有问题吗、帮我看看改动、代码质量、有没有 bug、逻辑对不对、边界情况、空指针、异常处理、并发问题、资源泄露、性能隐患、命名规范、重复代码、可读性、可维护性、圈复杂度、函数太长、耦合、硬编码、魔法数字、日志缺失、错误码、单元测试、回归风险、上线风险、重构建议、diff 审查、分支对比、提交前检查, or says code review, review this PR, review my code, check this diff, is this correct, any bugs, edge cases, null check, error handling, race condition, resource leak, performance issue, naming convention, duplicated code, readability, maintainability, cyclomatic complexity, too long, coupling, hardcoded value, magic number, missing logs, unit test coverage, regression risk, refactor suggestion, pre-commit check.
-description_zh: 按七维（正确性、错误处理、并发、资源、性能、安全、可维护性）扫描代码或 PR，结论按阻塞/应该改/可选三级排序，每条挂文件与行号、说清后果并给出可直接应用的改法。
-description_en: Reviews code or a PR across seven dimensions and ranks findings blocker/should/nit, with every finding located to file:line, explained by consequence, and shipped with a concrete diff.
-category: engineering
-version: 1.0.0
-author: 昆仑增长
-allowed-tools: Read, Write, Bash, Glob, Grep
----
-
 # Code Quality Review
+
+> 本文件原名 `code-quality-review`（独立 skill），现为 `conductor-review` 的方法文档，
+> **不再是独立 skill**：没有触发词、没有独立 frontmatter。加载时机由 conductor 决定——
+> standard/full 档由 conductor-review 派**全新上下文子代理**按本文件执行；lite 档不派子代理。
+> 输出结构见 `code-quality-review-output-contract.md`，安全项见 `security-redlines.md`。
 
 把「帮我 review 一下」变成一份**能直接照着改**的清单：每条结论都有位置、有理由、有改法，
 并且**按严重程度排序**。

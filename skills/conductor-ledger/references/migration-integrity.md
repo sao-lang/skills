@@ -74,7 +74,7 @@ python ../scripts/migration_ledger.py check --ledger .migration-ledger.json --pa
 ### §5 断点续接 —— 任何时刻可停可续
 ```bash
 # 会话中断/压缩后，先定位断点，不靠记忆
-python scripts/migration_ledger.py next --ledger .migration-ledger.json --limit 5
+python ../scripts/migration_ledger.py next --ledger .migration-ledger.json --limit 5
 ```
 - 中断时把当前项设为 `in_progress`，`checkpoint` 写清"迁到哪、下一步做什么、已改了哪些文件"。
 - 换会话/换 agent：①读台账 ②`next` 取下一批（优先输出 in_progress 断点项）③只看那一个模块的源码。

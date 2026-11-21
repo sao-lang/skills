@@ -24,12 +24,12 @@ description: conductor 的 TDD 器官。收到"实现某行为/修 bug 后补回
 5. 五个"不写测试"借口逐条拒绝（见方法源）。
 
 ## 方法源
-`references/engineering-tdd.md`（循环、Verify、5 借口、红旗）。
+`references/engineering-tdd.md`（循环、Verify、5 借口、红旗）、`test-strategy.md`（测试策略）、`coding-rules-common.md` + `coding-rules-<lang>.md`（实现写成什么样，7 种语言）。
 
 ## 降级
 环境缺失导致无法跑红/绿 → 登记「环境阻断」（报错 + 所需环境），禁止改断言、换 fake 或标完成；交回 conductor 决定是否升档/停下问用户。
 
 ## 本器官自带（可独立工作）
 - `SKILL.md`：角色、I/O、执行与降级
-- `references/`：从 conductor 拆分的方法文档 + 改名并入的协作 skill 原文
-- `scripts/`：器官专属确定性脚本（如有）
+- `references/`：从 conductor 拆分的 TDD 方法、测试策略与通用 + 7 语言编码规则
+- `scripts/verify.py`：验证命令聚合与退出码证据

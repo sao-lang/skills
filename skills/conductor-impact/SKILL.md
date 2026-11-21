@@ -28,5 +28,5 @@ description: conductor 的影响面器官。改码/迭代/重构需要知道"改
 
 ## 本器官自带（可独立工作）
 - `SKILL.md`：角色、I/O、执行与降级
-- `references/`：从 conductor 拆分的方法文档 + 改名并入的协作 skill 原文
-- `scripts/`：器官专属确定性脚本（如有）
+- `references/`：从 conductor 拆分的架构契约文档（architecture-contracts / contract-migration）
+- `scripts/impact_analysis.py`：影响面草稿

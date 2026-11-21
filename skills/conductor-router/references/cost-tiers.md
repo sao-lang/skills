@@ -40,7 +40,7 @@
 | S4 verify.py | ✓（唯一测试证据） | ✓ | ✓ |
 | S4 source_purity --strict | ✓（只扫改动文件） | ✓ | ✓（重构用 baseline + --scope） |
 | S4 commitment_ledger check | ✗ | 有台账时 ✓ | ✓ |
-| S5 独立 review 子代理 | ✗ → 轻量复核 | ✓ | ✓（高风险可再叠 metago） |
+| S5 独立 review 子代理 | ✗ → 轻量复核 | ✓ | ✓（高风险可加多轮复审） |
 | S5 review_gate.py | `--lite`（见第五节） | 默认 | 默认 |
 | S5 learn 回写 | ✗（须声明省掉） | ✓（dry-run → 人工确认后回写） | ✓（含被否决方案） |
 | S5 overview L1 交接 | ✗（overview L1 一行即可） | ✓ | ✓ |

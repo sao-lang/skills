@@ -22,7 +22,7 @@ description: conductor 的会话记录器官。S0 建/续 overview、收尾写�
 4. 改码交付时 review 报告内嵌主文件（门禁要求），其余大块详情一律进 `.details.md`。
 
 ## 方法源
-`references/overview.md`（两-tier 模板、过滤规则、加载协议）。
+`references/overview.md`（两-tier 模板、过滤规则、加载协议）、`handoff-SKILL.md`（L1 交接纪律，原 handoff 已并入）。
 
 ## 降级
 主文件不存在 → `overview_path.py` create；详情缺失 → 跳过不影响续接；写 overview 前必须脱敏。

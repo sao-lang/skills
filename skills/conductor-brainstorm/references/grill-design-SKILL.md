@@ -1,16 +1,8 @@
----
-name: grill-design
-display_name: 需求拷问
-display_name_en: Design Grilling
-description: 「需求拷问」——把一份方案 / 设计 / 想法，用「设计树 + 前沿」一轮轮拷问，直到每个分支都定了、没有静默假设。触发词：拷问我、帮我把这个方案打穿、这个想法有哪些坑、压力测试一下我的设计、挑战一下我的计划、这个方案靠不靠谱。
-description_zh: 用「设计树 + 前沿」一轮轮拷问一份方案或想法，直到每个分支都有结论、没有静默假设；事实由 agent 自己查、决策交用户，收尾给结构化结论。
-description_en: Grill a plan or design round by round with a design tree and a frontier of answerable questions, until every branch is decided and no silent assumption remains. The agent looks facts up; the user keeps the decisions.
-category: productivity
-version: 1.0.0
-author: Dolikas
----
-
 # 需求拷问（把方案打穿）
+
+> 本文件原名 `grill-design`（独立 skill），现为 `conductor-brainstorm` 的方法文档，
+> **不再是独立 skill**：没有触发词、没有独立 frontmatter，不自行决定何时使用——
+> 何时加载、何时收口，由 conductor-brainstorm 与 conductor 决定。加载时机见 `../SKILL.md`。
 
 把用户的一个方案 / 设计 / 想法，当成一棵「设计树」来拷问，直到达成共识。
 
@@ -61,4 +53,4 @@ author: Dolikas
 > including without limitation the rights to use, copy, modify, merge, publish, distribute,
 > sublicense, and/or sell copies of the Software, subject to the inclusion of the above copyright
 > notice and this permission notice in all copies or substantial portions of the Software.
-原版 `grill-me` 是个空壳指针（只调 `grilling`），本技能直接合并为单体。
+原版 `grill-me` 是个空壳指针（只调 `grilling`），本文件是单体完整版，已并入 conductor-brainstorm。

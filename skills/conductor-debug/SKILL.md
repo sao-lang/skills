@@ -30,5 +30,5 @@ description: conductor 的调试器官。收到报错栈、行为不符、故障
 
 ## 本器官自带（可独立工作）
 - `SKILL.md`：角色、I/O、执行与降级
-- `references/`：从 conductor 拆分的方法文档 + 改名并入的协作 skill 原文
-- `scripts/`：器官专属确定性脚本（如有）
+- `references/`：从 conductor 拆分的调试方法文档（engineering-debugging）
+- `scripts/`：无（调试靠方法与复现，不需要确定性脚本）

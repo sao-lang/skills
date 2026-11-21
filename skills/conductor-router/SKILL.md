@@ -37,5 +37,5 @@ description: conductor 的场景路由器官。收到用户原句需要判断走
 
 ## 本器官自带（可独立工作）
 - `SKILL.md`：角色、I/O、执行与降级
-- `references/`：从 conductor 拆分的方法文档 + 改名并入的协作 skill 原文
-- `scripts/`：器官专属确定性脚本（如有）
+- `references/`：从 conductor 拆分的路由方法文档（scenarios / cost-tiers / routing / router-prompt）
+- `scripts/`：无（路由是纯规划，不需要确定性脚本）

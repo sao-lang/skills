@@ -19,7 +19,7 @@ description: conductor 的独立 review 器官。改码交付前加载：standar
 - `review_gate.py` 退出码 0 的机器证据
 
 ## 方法源
-`references/independent-review.md`、`engineering-code-review.md`（派单契约/fix-loop）。
+`references/independent-review.md`（派单契约/fix-loop）、`engineering-code-review.md`（review 规矩）、`code-quality-review-SKILL.md`（七维方法）、`code-quality-review-output-contract.md`（输出契约）、`security-redlines.md`（安全红线）。
 
 ## 降级
 `references/code-quality-review-SKILL.md` 不可读 → 显式写「缺失/影响/降级」，用 `references/engineering-code-review.md` 内联七维清单；**拿不到 review_gate 证据禁止 finish**。lite 复核发现 Blocker>0 → 立即升 standard 重审。

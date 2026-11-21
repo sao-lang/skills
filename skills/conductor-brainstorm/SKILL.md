@@ -24,6 +24,7 @@ description: conductor 的头脑风暴/需求澄清器官。收到模糊需求�
 
 ## 方法源
 - `references/engineering-workflow.md` 的 brainstorm 节
+- `references/design-spec-template.md`（规格输出模板）
 - 改名并入的本器官方法：`references/grill-design-SKILL.md`（平台原生拷问，优先使用）；`grill-me` 已废弃。
 
 ## 降级

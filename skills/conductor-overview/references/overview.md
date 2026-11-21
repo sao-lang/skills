@@ -66,7 +66,7 @@ overviews/YYYY-MM-DD/<sid>-<主题>.details.md    ← 详情：L1/L2（按需打
 
 ## 加载协议
 
-1. S0 跑 `scripts/overview_path.py` 定位主文件；`action=append` 追加，`create` 新建。
+1. S0 跑 `../scripts/overview_path.py` 定位主文件；`action=append` 追加，`create` 新建。
 2. 只读 L0；需要历史决策/验证细节 → 打开 `.details.md`；再需要才进其他 `.xxx.md`。
 3. 详情 >30 行才再拆独立文件，主文件只留一行路径。
 4. review 报告必须内嵌主文件（门禁要求），不拆成 `.review.md`。

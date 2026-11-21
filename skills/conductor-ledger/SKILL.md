@@ -22,12 +22,12 @@ description: conductor 的防漏台账器官。收到规格/差异/finding/模�
 5. 无隐含清单的场景不建台账；lite 档默认跳过。
 
 ## 方法源
-`references/commitment-ledger.md`（通用框架）、`migration-integrity.md`（场景7 特化）、脚本 `commitment_ledger.py` / `migration_ledger.py`。
+`references/commitment-ledger.md`（通用框架）、`migration-integrity.md`（场景7 特化）、`tech-debt-ledger.md`（技术债台账；`debt_ledger.py` 是机体级脚本，调用方式见 skill-matrix）；本器官脚本 `../scripts/commitment_ledger.py` / `../scripts/migration_ledger.py`。
 
 ## 降级
 台账文件损坏 → `init` 重建并保留能解析的项；drift → 重跑 `init --merge`；绝不允许刷状态过闸门。
 
 ## 本器官自带（可独立工作）
 - `SKILL.md`：角色、I/O、执行与降级
-- `references/`：从 conductor 拆分的方法文档 + 改名并入的协作 skill 原文
-- `scripts/`：器官专属确定性脚本（如有）
+- `references/`：从 conductor 拆分的台账方法文档（commitment-ledger / migration-integrity / tech-debt-ledger）
+- `scripts/`：commitment_ledger.py / migration_ledger.py
