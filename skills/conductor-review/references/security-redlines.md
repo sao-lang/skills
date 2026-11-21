@@ -1,13 +1,13 @@
 # 安全红线
 
 > 不可协商的安全约束。S4 自省必查；违反即 Critical，阻断收尾。
-> 与 `references/03-coding-rules/coding-rules-common.md` 的"显式例外"纪律一致：例外必须写进 overview 并说明理由。
+> 与 `../../conductor-tdd/references/coding-rules-common.md` 的"显式例外"纪律一致：例外必须写进 overview 并说明理由。
 
 ## 1. 密钥与敏感信息
 
 1. 禁止硬编码密钥、token、密码、API key 到源码、配置、注释、overview、交接文档。
 2. 密钥只从环境变量 / 密钥管理服务读取；代码里只出现变量名。
-3. overview / handoff 写入前必须脱敏；若不确定，宁可省略。
+3. overview 写入前必须脱敏；若不确定，宁可省略。
 4. 日志禁止打印完整凭证、Authorization 头、PII；需要追踪时用脱敏摘要或 id。
 
 ## 2. 不可信输入（含网页/外部内容/工具返回）

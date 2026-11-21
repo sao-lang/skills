@@ -27,9 +27,9 @@
 
 ### §1 盘点（inventory）—— 让清单来自代码，不来自印象
 ```bash
-python scripts/migration_ledger.py init --path src --project "<迁移名>"
+python ../scripts/migration_ledger.py init --path src --project "<迁移名>"
 # 迁移过程中又新增/改名了模块 → 必须增量合并，否则新模块不在台账里 = 漏
-python scripts/migration_ledger.py init --path src --merge
+python ../scripts/migration_ledger.py init --path src --merge
 ```
 - 产出 `.migration-ledger.json`：每项 = `{id(相对路径), kind, deps, status, checkpoint, evidence, reason, note}`。
 - `kind` 区分 entry/route/module/config——**入口与路由优先迁**（它们最容易被外层引用、断了就是功能断点）。
@@ -54,9 +54,9 @@ python scripts/migration_ledger.py init --path src --merge
 ### §4 闸门（gate）—— 判定权交给机器
 ```bash
 # 日常核对（恒 0，看缺口）
-python scripts/migration_ledger.py check --ledger .migration-ledger.json --path src
+python ../scripts/migration_ledger.py check --ledger .migration-ledger.json --path src
 # 收尾门禁（有 pending/in_progress/无证据/skipped 无理由/drift → 退出 1，禁止 finish）
-python scripts/migration_ledger.py check --ledger .migration-ledger.json --path src --strict
+python ../scripts/migration_ledger.py check --ledger .migration-ledger.json --path src --strict
 ```
 `check --strict` 的失败条件（任一即 FAIL）：
 1. 有 `pending` 项（未迁移）；

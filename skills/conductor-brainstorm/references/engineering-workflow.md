@@ -7,7 +7,7 @@
 
 1. **测试驱动**——永远先写测试，没有失败测试不算实现。
 2. **系统化优先于临场发挥**——用流程取代猜测。
-3. **降低复杂度是首要目标**——简单优于聪明（配合 `ponytail` 的 YAGNI 梯）。
+3. **降低复杂度是首要目标**——简单优于聪明（配合最小改动原则；原 ponytail 已内联）。
 4. **证据优于声称**——宣布完成前先验证，拿不出证据不得标完成。
 
 ## 7 步基础工作流
@@ -20,8 +20,8 @@
 | 2 | 隔离工作区 git worktree | 设计确认后 | 独立分支/worktree，不污染主分支；确认测试基线干净（全绿或全空） | 干净基线 + 隔离区就绪 |
 | 3 | 写实施计划 writing-plans | 有规格后 | 拆成 2-5 分钟小任务，每个含精确路径、完整改法、验证步骤 | 计划经用户确认；变更回头改计划，不悄悄改 |
 | 4 | 子代理驱动开发 subagent-driven | 计划就绪 | 每任务派全新上下文子代理（任务说明+计划片段+两段式评审）；主代理只编排 | 两段评审都过（规格符合度+代码质量） |
-| 5 | TDD | 实现中 | RED→GREEN→REFACTOR→提交，见 `engineering-tdd.md` | 每循环测试全绿 |
-| 6 | 代码评审 code-review | 每任务完成、进下一任务前 | 对照计划逐条检查，按严重度报告，见 `engineering-code-review.md` | Critical 清零才推进 |
+| 5 | TDD | 实现中 | RED→GREEN→REFACTOR→提交，见 `../../conductor-tdd/references/engineering-tdd.md` | 每循环测试全绿 |
+| 6 | 代码评审 code-review | 每任务完成、进下一任务前 | 对照计划逐条检查，按严重度报告，见 `../../conductor-review/references/engineering-code-review.md` | Critical 清零才推进 |
 | 7 | 收尾 finish | 所有任务完成 | 跑完整测试套件；给用户 4 选项（合并/开PR/保留/丢弃）说明后果；清理 worktree | 全绿+用户决策+已清理 |
 
 **备选执行模式**：`executing-plans`——分批执行+人工检查点，适合需人在场的场景。
@@ -132,4 +132,4 @@
 宣布完成前先跑**能证明真的完成**的命令，证据是测试输出/linter 退出码/覆盖率数字，不是感觉。与 conductor 的 S4 门禁（scan_gaps+verify）叠加，不重复造流程。
 
 ## 在 conductor 中的挂载
-S2 设计计划→brainstorm+plan（架构类加 `architecture-contracts.md`）；隔离工作区→改码场景设计确认后；收尾→S5 finish。调试见 `engineering-debugging.md`，TDD 见 `engineering-tdd.md`，评审见 `engineering-code-review.md`。
+S2 设计计划→brainstorm+plan（架构类加 `../../conductor-impact/references/architecture-contracts.md`）；隔离工作区→改码场景设计确认后；收尾→S5 finish。调试见 `../../conductor-debug/references/engineering-debugging.md`，TDD 见 `../../conductor-tdd/references/engineering-tdd.md`，评审见 `../../conductor-review/references/engineering-code-review.md`。

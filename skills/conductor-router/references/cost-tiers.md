@@ -27,12 +27,12 @@
 |---|---|---|---|
 | S0 preflight | ✓ | ✓ | ✓ |
 | S0 overview L0 | ✓（只建/续 + 一行 L1） | ✓ | ✓ |
-| S0 handoff | ✗（除非续接且 L0 信息不足） | ✓（有上次交接时） | ✓ |
+| S0 overview L1 交接 | ✗（除非续接且 L0 信息不足） | ✓（有上次交接时） | ✓ |
 | S0 env_probe | ✗ | 仅出现真实环境依赖信号时 | ✓ |
 | S0 commitment_ledger init | ✗ | 有隐含清单时 | ✓ |
 | S1 路由声明 | 一行式（场景+路径+档位+脚本） | 完整模板 | 完整模板 + 执行图细节 |
 | S1 impact_analysis | ✗ | 无跨模块信号时 ✗ | ✓ |
-| S2 brainstorm/plan | 一句话规格确认 | 精简（只写 Interfaces + 未决项） | 完整 + grill-design / design-spec-template |
+| S2 brainstorm/plan | 一句话规格确认 | 精简（只写 Interfaces + 未决项） | 完整 + grill-design-SKILL.md / design-spec-template.md |
 | S2 change-contract | ✗ | ✓ 六段契约 + `contract_check.py` | ✓ 六段契约 + Acceptance 入台账 |
 | S3 TDD | ✓ RED→GREEN（小步） | ✓ | ✓ |
 | S3 编码规则 | common + 当前语言 | 同 lite | 同 lite |
@@ -43,7 +43,7 @@
 | S5 独立 review 子代理 | ✗ → 轻量复核 | ✓ | ✓（高风险可再叠 metago） |
 | S5 review_gate.py | `--lite`（见第五节） | 默认 | 默认 |
 | S5 learn 回写 | ✗（须声明省掉） | ✓（dry-run → 人工确认后回写） | ✓（含被否决方案） |
-| S5 handoff 文档 | ✗（overview L1 一行即可） | ✓ | ✓ |
+| S5 overview L1 交接 | ✗（overview L1 一行即可） | ✓ | ✓ |
 
 **不可裁剪的底线**（任何档位）：规格确认、失败测试先行、`verify.py` 证据、`source_purity --strict` 退出码 0、review 门禁（lite 也有自己的门禁）、overview L0。
 **允许省掉的只是**：重复声明、全量工程文档、与本机风险无关的扫描、外部 skill 加载、独立子代理（仅 lite）。
@@ -53,7 +53,7 @@
 lite 一行式：
 ```
 场景 N / 路径 X / 档位 lite；脚本：overview_path, verify, source_purity, review_gate --lite；
-省掉：handoff, env_probe, 承诺台账, 影响面, 变更契约(spec), 学习回写(learn), 独立 review 子代理。如判断有误请直接纠正。
+省掉：overview L1 交接, env_probe, 承诺台账, 影响面, 变更契约(spec), 学习回写(learn), 独立 review 子代理。如判断有误请直接纠正。
 ```
 standard/full 用 routing.md §4.5 的完整模板，末尾追加 `成本档位：<standard|full>` 与 `省掉：<列表或无>`。
 
@@ -73,8 +73,8 @@ lite 不派子代理，但**必须换一种眼**做三项复核，写进 overvie
 ## 五、与其他文档的关系
 
 - 档位判定的语义部分归 `routing.md`（场景/路径/置信度），本文件只管"跑多深"。
-- 独立 review 的完整规则归 `independent-review.md`：standard/full 仍强制子代理；本文件只定义 lite 的替代门禁。
-- 承诺台账的防漏规则归 `commitment-ledger.md`：lite 因"无隐含清单"才跳过；一旦发现清单必须补建台账并升档。
+- 独立 review 的完整规则归 `../../conductor-review/references/independent-review.md`：standard/full 仍强制子代理；本文件只定义 lite 的替代门禁。
+- 承诺台账的防漏规则归 `../../conductor-ledger/references/commitment-ledger.md`：lite 因"无隐含清单"才跳过；一旦发现清单必须补建台账并升档。
 - 变更契约的规则归 `conductor-spec`：standard/full 必出六段契约，Acceptance 注入台账；lite 跳过须声明。
 - 学习回写的规则归 `conductor-learn`：standard/full 收尾留痕，默认 dry-run，禁止自动污染 skill；lite 跳过须声明。
 - 证据口径不变：测试证据只认 `verify.py`，源码污染只认 `source_purity --strict`，拿不出退出码不得标完成。

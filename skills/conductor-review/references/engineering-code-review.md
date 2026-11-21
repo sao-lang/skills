@@ -71,9 +71,9 @@
 ## 与 conductor 评审工具的分工
 
 - 本文件定义**评审纪律与严重度口径**（何时评审、Critical 阻断、两段式）。
-- `code-quality-review`（市场 skill）做**七维也审查**（正确性/错误处理/并发/资源/性能/安全/可维护性，带行号）。
-- `metago-code-review-deep`（市场 skill）做**深度四级报告**（Critical/Major/Minor/Info）。
-- 三者叠加：本文件定规矩，市场 skill 出证据，Critical 必须清零才进 finish。
+- 七维审查由本器官 `code-quality-review-SKILL.md` 承担（原市场 skill 已改名并入）。
+- 深度四级报告（原 `metago-code-review-deep`）已判定废弃，不再作为主链依赖。
+- 本文件定规矩，器官出证据，Critical 必须清零才进 finish。
 
 ## 在 conductor 中的挂载
 

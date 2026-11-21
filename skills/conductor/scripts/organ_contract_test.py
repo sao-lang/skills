@@ -78,7 +78,8 @@ def check_organs() -> None:
 
 
 def check_state_files() -> None:
-    sys.path.insert(0, str(SCRIPTS))
+    sys.path.insert(0, str(SKILLS_ROOT / "conductor-ledger" / "scripts"))
+    sys.path.insert(0, str(SKILLS_ROOT / "conductor-overview" / "scripts"))
     import overview_path as op
     import commitment_ledger as cl
 

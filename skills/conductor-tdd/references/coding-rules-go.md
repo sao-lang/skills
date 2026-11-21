@@ -1,6 +1,6 @@
 # 编码规则 · Go
 
-> 语言特定规则，与 `references/03-coding-rules/coding-rules-common.md` 一起遵守。目标版本：Go 1.22+。
+> 语言特定规则，与 `coding-rules-common.md` 一起遵守。目标版本：Go 1.22+。
 
 ## 注释方案（Go Doc Comment，中文）
 
@@ -43,5 +43,5 @@ range over int / func（1.22）、`min`/`max`/`clear` 内置、泛型、`errors.
 gofmt -l .                         # 格式（有输出即失败）
 go vet ./...                       # 静态检查
 staticcheck ./...                  # lint
-go test ./... -coverprofile=coverage.out   # 测试 + 覆盖率（阈值在项目脚本/CI 固化，见 references/04-guards/test-strategy.md）
+go test ./... -coverprofile=coverage.out   # 测试 + 覆盖率（阈值在项目脚本/CI 固化，见 test-strategy.md）
 ```

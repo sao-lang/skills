@@ -9,7 +9,7 @@
 | 器官 skill | 职责 | 调用阶段 | 输入 → 输出 | 缺失降级 |
 |---|---|---|---|---|
 | `conductor-router` | 场景/路径/档位规划 | S1 | 用户原句 → 执行图 + 声明（含省掉步骤） | 降级只读 9/10，绝不猜改码 |
-| `conductor-brainstorm` | 需求澄清、设计拷问 | S2（场景 1/2/3/11） | 模糊需求/样例 → 规格要点 + 未决 + 假设 | 内联五问；用自带 `grill-design` 方法 |
+| `conductor-brainstorm` | 需求澄清、设计拷问 | S2（场景 1/2/3/11） | 模糊需求/样例 → 规格要点 + 未决 + 假设 | 内联五问；用自带 `grill-design-SKILL.md` 方法 |
 | `conductor-spec` | 活规格、变更契约 | S2（standard/full；bug 轻量） | brainstorm 输出 → 六段 change-contract + Acceptance | 无基线建 baseline；脚本缺失登记未机器校验 |
 | `conductor-tdd` | RED-GREEN-REFACTOR | S3（改码/13） | 一条行为 → 红/绿测试 + verify 证据 | 环境阻断登记，禁造假绿 |
 | `conductor-review` | 独立换眼 + review 门禁 | S5 | diff + 档位 → 报告 + gate 退出码 0 | 内联清单但门禁不放宽 |
@@ -59,6 +59,8 @@
 
 ```bash
 python skills/conductor/scripts/organ_contract_test.py
+python skills/conductor/scripts/organ_effect_test.py
+python skills/conductor/scripts/script_parity_test.py
 python skills/conductor/scripts/preflight.py --project-root . --verify-organs
 ```
 

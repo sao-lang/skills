@@ -1,6 +1,7 @@
 # 路线图 · 场景与流程增强记录
 
 > 记录已激活与候选的场景/机制，便于追踪演进。
+> 本文件是历史决策记录；当前器官/脚本/路径以 `../01-routing/organ-registry.md` 与 `skill-matrix.md` 为准，旧路径仅作追溯。
 > 状态：`🟢 已激活`（已进 SKILL.md、../../../conductor-router/references/routing.md、../../../conductor-router/references/scenarios.md 生效）/ `🟡 候选`（已识别未实现）。
 > 当前生效工作流：**十四场景 + 五路径（含文档·清理变体）+ S0–S5**。
 

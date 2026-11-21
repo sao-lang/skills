@@ -26,7 +26,7 @@
    - Dart: `Object?` 仅在 JSON 边界，配合类型守卫收窄
 4. 禁止裸 `Any` 散落；每次使用需在注释写明"为何无法静态描述"。
 5. **机器门禁**：`source_purity.py --path src --strict` 扫生产源码的 `Any`/`object`/`dict[str, object]`/
-   `interface{}` 等动态类型，命中即 FAIL；确需动态类型的边界用 `purity-exempt` 写理由或具名别名集中定义（见 `references/04-guards/source-purity.md`）。
+   `interface{}` 等动态类型，命中即 FAIL；确需动态类型的边界用 `purity-exempt` 写理由或具名别名集中定义（见 `../../conductor/references/04-guards/source-purity.md`）。
 
 ---
 
@@ -127,7 +127,7 @@ if user.status is UserStatus.ACTIVE and role is Role.ADMIN:
 
 规则从"建议"变"门禁"，靠三道锁，缺一不可：
 
-- **锁 1 · 写码前（流程约束）**：本会话首次写码前必须先读 `references/03-coding-rules/coding-rules-common.md` + 当前语言文件；未读禁止产生代码。**违反后果**：该步无效、回退重做。
+- **锁 1 · 写码前（流程约束）**：本会话首次写码前必须先读 `本文件` + 当前语言文件；未读禁止产生代码。**违反后果**：该步无效、回退重做。
 - **锁 2 · 写码中（生成约束）**：每写一个函数/类/循环，边写边对照注释模板、类型原则、禁魔法字符串、长度基线，不攒到最后改。**违反后果**：S4 必被 linter 拦下，返工成本更高。
 - **锁 3 · 写码后（机器门禁，真强制）**：跑 formatter --check + linter + type checker + 注释检查，全绿才算达标。**违反后果**：退出码非 0 → 禁止进 review、禁止标完成。
 

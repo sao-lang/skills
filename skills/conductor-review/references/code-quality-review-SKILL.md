@@ -40,7 +40,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 
 ### 第 2 步：七维扫描
 
-按 `references/review-dimensions.md` 逐维过。每个维度都规定了对应用法：
+按本文件七维表逐维过（原 review-dimensions.md 已并入本文件）。每个维度都规定了对应用法：
 
 | 维度 | 一句话判据 |
 |---|---|
@@ -76,7 +76,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 
 ### 第 5 步：跑一遍自检
 
-交付前过 `references/output-contract.md` 的闸门，拦下：
+交付前过 `code-quality-review-output-contract.md` 的闸门，拦下：
 
 - 没有位置的结论（`文件:行号` 缺失）
 - 没有改法的结论
@@ -94,5 +94,5 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 
 ## References
 
-- `references/review-dimensions.md` —— 七维判据与典型反例
-- `references/output-contract.md` —— 输出格式、分级规则与交付闸门
+- 七维判据与典型反例：已并入本文件第 2 步
+- `code-quality-review-output-contract.md` —— 输出格式、分级规则与交付闸门

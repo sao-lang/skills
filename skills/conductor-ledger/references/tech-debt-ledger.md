@@ -12,7 +12,7 @@
 
 ## 两个来源
 
-1. **代码内标记**：`TODO` / `FIXME` / `HACK` / `XXX` / `DEBT` / `SAFETY`，运行 `scripts/debt_ledger.py` 得草稿。
+1. **代码内标记**：`TODO` / `FIXME` / `HACK` / `XXX` / `DEBT` / `SAFETY`，运行 `../../conductor/scripts/debt_ledger.py` 得草稿。
 2. **overview 未完成项**：各轮 overview 的「L0 未完成项」+「L1 未完成项与下一步」里未关闭的 failure / 缺口，人工并入台账。
 
 ## 债指数（量化口径）
@@ -36,7 +36,7 @@
 
 1. S4 自省：`debt_ledger.py` 出草稿 → 逐条核对影响面与优先级（静态标记有误报）。
 2. 合并 overview 未完成项，按上表补齐字段，写入 overview「L1 技术债台账」段（>30 行独立成 `.debts.md`，主文件只留路径）。
-3. S5 收尾：把未关闭的债同步进 L0「未完成项」（≤3 条，超出写"详见 L1"）与 handoff，确保跨会话不丢。
+3. S5 收尾：把未关闭的债同步进 L0「未完成项」（≤3 条，超出写"详见 L1"）与 overview L1，确保跨会话不丢。
 4. 偿还后：勾销条件达成 → 从台账移除并记勾销证据；禁止无声删除。
 
 ## 与其他脚本的分工

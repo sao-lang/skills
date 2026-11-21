@@ -35,4 +35,4 @@ AI 解 bug 最常见的失败是**不先造复现就猜原因**。从 issue/报�
 
 ## 在 conductor 中的挂载
 
-由 conductor 在**场景 8（解 bug）**加载：`systematic-debugging`（4 阶段根因法）→ TDD 写复现测试（`references/02-engineering/engineering-tdd.md`）→ 代码评审（`references/02-engineering/engineering-code-review.md`）。产出根因台账 + 回归证据写入 overview。
+由 conductor 在**场景 8（解 bug）**加载：本器官四阶段根因法 → TDD 写复现测试（`../../conductor-tdd/references/engineering-tdd.md`）→ 代码评审（`../../conductor-review/references/engineering-code-review.md`）。产出根因台账 + 回归证据写入 overview。

@@ -49,6 +49,6 @@
 1. **场景即能力链**：每个场景在 `../../../conductor-router/references/scenarios.md` 里写成 `能力A → 能力B → ...`，能力名必须在本表可查。
 2. **契约传递**：前一能力的输出契约必须满足后一能力的输入契约；不满足则停下问用户（与 routing 的 I/O 校验同构）。
 3. **按需裁剪**：只读/文档/验证路径的场景只调用子集（如场景 9/10 不调用 `tdd`/`review` 的改码变体）。
-4. **外部工具 ≠ 工程能力**：grill-design / graphify / code-quality-review 等是被能力调用的工具，
-   它们不占据能力链节点；例如 `brainstorm` 可调用 grill-design 做设计拷问。
+4. **方法已内化**：grill-design / code-quality-review / handoff 等方法已并入器官，graphify / ponytail 等已废弃，
+   它们不占据能力链节点；例如 `brainstorm` 使用 `grill-design-SKILL.md` 做设计拷问。
 5. **缺失降级**：某能力的详情文件缺失 → 按该能力"一句话职责 + 契约"最小执行，并在 overview 标注，禁止静默跳过。

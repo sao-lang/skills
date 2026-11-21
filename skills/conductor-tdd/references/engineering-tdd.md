@@ -1,6 +1,6 @@
 # 测试驱动开发 TDD（conductor 内置工程纪律）
 
-> 来源致谢：提取自 obra/superpowers 上游的 `test-driven-development/SKILL.md`，本地化重述。
+> 来源致谢：提取自 obra/superpowers 上游的 `本文件`，本地化重述。
 
 强制 RED-GREEN-REFACTOR 循环。没有"先写实现再补测试"的捷径。
 
@@ -52,7 +52,7 @@
 | "删掉这几小时可惜" | 沉没成本；真正的选择是"用 TDD 重写（高置信）"还是"留着后补测试（低置信、大概率有 bug）" |
 | "精神实质一样，不必拘泥形式" | 后测回答"这做了什么"，先测回答"这该做什么"；后测被已有代码偏见污染 |
 
-> 完整 13 条借口表见上游 `obra/superpowers` 的 `test-driven-development/SKILL.md`；此处保留最致命的 5 条。
+> 完整 13 条借口表见上游 `obra/superpowers` 的 `本文件`；此处保留最致命的 5 条。
 
 ## 红旗清单（出现即停下重来）
 
@@ -67,9 +67,9 @@
 ## 与 conductor 测试策略的分工
 
 - 本文件管**怎么执行 TDD 循环**（红→绿→重构的纪律）。
-- `references/04-guards/test-strategy.md` 管**测试层级选择**（金字塔/Mock 边界/覆盖率达标口径/假绿识别）。
+- `test-strategy.md` 管**测试层级选择**（金字塔/Mock 边界/覆盖率达标口径/假绿识别）。
 - 场景 13（测试补课）用 TDD 变体：只补 characterization test 锁现有行为，不写新业务实现。
 
 ## 在 conductor 中的挂载
 
-由 conductor 在 **S3（TDD 实现）** 阶段加载，配合 `coding-rules-*.md`（实现写成什么样）与 `ponytail`（砍过度设计）并行遵守——三者正交，可同时满足。
+由 conductor 在 **S3（TDD 实现）** 阶段加载，配合 `coding-rules-*.md`（实现写成什么样）与最小改动原则（原 ponytail 已内联）并行遵守——三者正交，可同时满足。

@@ -26,10 +26,10 @@
 | **14 场景 + 5 路径** | 初始化/架构/设计/开发/迭代/重构/解 bug/拷问/理解/文档同步/门禁/测试补课/文档清理等；路径=改码/只读/文档/文档·清理变体/验证，决定跳过哪些阶段 |
 | **S0–S5 阶段机** | 会话开始 → 场景路由（同时判成本档位）→ 设计计划 → TDD 实现 → 自省补强 → review 收尾 |
 | **机体—器官—环境架构** | conductor 只做状态机/门禁/决策；10 个 `skills/conductor-*` 是单一能力器官（路由/头脑风暴/活规格/TDD/review/学习回写/台账/overview/影响面/调试），14 场景是工作环境；入口 SKILL.md 约 3.0k 字符 |
-| **成本档位 lite/standard/full** | 小改动只跑必要步骤（省掉 handoff/env_probe/台账/影响面/独立子代理），高风险仍跑全套；判档与"省掉"写进路由声明可纠正 |
+| **成本档位 lite/standard/full** | 小改动只跑必要步骤（省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立子代理），高风险仍跑全套；判档与"省掉"写进路由声明可纠正 |
 | **结构化路由** | 不靠关键词匹配，用"语义三问 + 有限结构算子"把一句话解析成执行图，带置信度、假设明示、可纠正 |
 | **五道锁 + 铁律** | 写码前/中/后、提交前、交付前独立 review，把"建议"变"门禁" |
-| **确定性脚本** | 16 个 Python 脚本做预检、环境探测、验证、缺口扫描、review 证据校验（含 lite 档）、影响面、技术债、承诺/迁移台账、源码纯净、发布说明、overview 路径定位、变更契约检查、学习回写草稿 |
+| **确定性脚本** | 16 个工作流入口 + 4 个测试/审计脚本；其中 6 个重复入口是薄 shim，实现唯一真相源在器官目录，`script_parity_test.py` 防漂移 |
 | **真实环境纪律** | 无 Docker/DB 时**不砍功能**：生产实现照写，只在真实环境能验证的部分标「待验证」；用户要真实测试时跑真实入口（如 `tests/integration/`），不复用 mock 命令 |
 | **会话记录** | **一个会话一个 overview**，由会话指针 `.conductor-session.json` 锚定（同会话多轮归同一文件，跨 agent 通用、零环境变量依赖；换任务 `--new-session`），按"记什么/不记什么"过滤，问题带状态；分层加载（L0 索引卡 / L1 摘要 / L2 详情引用） |
 
@@ -62,12 +62,11 @@ skills/
 │   ├── references/             ← 8 份机体级文档（方法已拆到器官）
 │   │   ├── 01-routing/         ← 器官总线、路由、成本档位、场景、overview 规范、skill 矩阵
 │   │   ├── 02-engineering/     ← 工程纪律（内化自 superpowers）
-│   │   ├── 03-coding-rules/    ← 通用 + 7 种语言编码规则
-│   │   ├── 04-guards/          ← 规则与门禁（安全/接线/技术债/发布等）
+│   │   ├── 04-guards/          ← 机体门禁（源码纯净/提交/发布）
 │   │   └── 05-meta/            ← 索引 + 路线图
-│   └── scripts/                ← 16 个确定性脚本（输出即证据）
+│   └── scripts/                ← 16 个工作流入口（6 个薄 shim）+ 4 个测试/审计脚本
 ├── conductor-router / -brainstorm / -spec / -tdd / -review / -learn / -ledger / -overview / -impact / -debug
-│                               ← 10 个器官 skill（与 conductor 同级目录）
+│                               ← 10 个器官 skill（与 conductor 同级目录；编码规则在 conductor-tdd/references）
 ├── (原协作 skill)              ← 全部 10 个原目录已删除：3 个方法并入器官，7 个判定废弃
 └── ...
 ```
@@ -88,7 +87,6 @@ git clone https://github.com/sao-lang/skills.git
 
 ```bash
 npx skills add sao-lang/skills --skill conductor
-npx skills add sao-lang/skills --skill handoff
 ```
 
 ### 方式三：手动拷贝
@@ -141,7 +139,7 @@ python skills/conductor/scripts/preflight.py --project-root .
 ```
 我判断本轮走【场景 5：项目迭代】，路径【改码】，置信度【0.9】。
 依据（语义）：产出物=调整后代码，对象=具体功能，结构算子=无。
-将走阶段：S0→S1→S2→S3→S4→S5；加载 skill：handoff, ponytail, caveman...
+将走阶段：S0→S1→S2→S3→S4→S5；加载器官：brainstorm → spec → tdd → ledger → review → learn...
 如判断有误，直接说"这是场景 X"，我立即重路由。
 ```
 
@@ -154,22 +152,24 @@ python skills/conductor/scripts/preflight.py --project-root .
 
 ---
 
-## 依赖的协作 Skill
+## 器官（原协作 skill 已并入或废弃）
 
-conductor 是主控，下列 skill 由它在特定阶段调用（均已随仓库提供，无需单独安装）：
+conductor 是唯一主控；下列 10 个器官各负责一种能力，方法与脚本已自包含，无需单独安装外部 skill：
 
-| Skill | 用途 | 来源 |
-|---|---|---|
-| `handoff` | 会话压缩交接（S0/S5 关键依赖） | 市场 handoff（原 mattpocock/skills） |
-| `grill-design` | 设计拷问（设计树，每分支必有结论） | WorkBuddy 市场 |
-| `grill-me` | 深度追问方案/代码 | WorkBuddy 市场 |
-| `code-quality-review` | 代码七维审查（带行号、结论分级） | WorkBuddy 市场 |
-| `metago-code-review-deep` | 深度代码审查（Critical/Major/Minor/Info） | WorkBuddy 市场 |
-| `graphify` | 代码知识图谱（跨文件调用链/影响面） | 市场 graphify；开源 `pip install graphifyy` |
-| `ponytail` | 精简代码（YAGNI 七级梯） | DietrichGebert/ponytail |
-| `caveman` | 精简输出（省 token） | JuliusBrussee/caveman |
+| 器官 | 职责 |
+|---|---|
+| `conductor-router` | 场景/路径/档位路由 |
+| `conductor-brainstorm` | 需求澄清、设计拷问（已并入 grill-design） |
+| `conductor-spec` | 六段变更契约，Acceptance 入台账 |
+| `conductor-tdd` | RED-GREEN-REFACTOR 与验证证据 |
+| `conductor-review` | 独立换眼与七维审查（已并入 code-quality-review） |
+| `conductor-learn` | 交付后经验回写，默认 dry-run |
+| `conductor-ledger` | 承诺外置、断点、零未勾销 |
+| `conductor-overview` | 会话记录两-tier 压缩（已并入 handoff） |
+| `conductor-impact` | 影响面草稿 |
+| `conductor-debug` | 根因与最小复现 |
 
-配套（非主流程必需）：`ponytail-review`、`caveman-compress`。
+原 `grill-me` / `metago-code-review-deep` / `graphify` / `ponytail` / `caveman` 系列经测试判定废弃并物理删除；历史见 `roadmap.md`。
 
 ## 与 Superpowers 的关系与致谢
 
@@ -177,17 +177,17 @@ conductor 的工程纪律**提取并本地化重述自 [obra/superpowers](https:
 目的是让 conductor 成为单一主控、避免两套工作流并存：
 
 - **11 个整合**为具名工程能力：`brainstorm` / `plan` / `worktree` / `execute` / `tdd` / `debug` /
-  `review` / `receive-review` / `verify` / `finish`，方法论固化在 `references/02-engineering/engineering-*.md`（各文件含来源致谢）。
+  `review` / `receive-review` / `verify` / `finish`，方法论固化在各器官 `references/`（索引见 `skills/conductor/references/05-meta/README.md`，各文件含来源致谢）。
 - **1 个并入**：`dispatching-parallel-agents` 合入路由的并行算子。
 - **3 个舍弃**：`using-superpowers`（conductor 自身即入口）、`diagnosing-superpowers`、`writing-skills`（非开发流程）。
 
-逐个去向见 `references/02-engineering/engineering-catalog.md`。上游方法论版权归原作者，此处为本地化重述与精简。
+逐个去向见 `skills/conductor/references/02-engineering/engineering-catalog.md`。上游方法论版权归原作者，此处为本地化重述与精简。
 
 ---
 
 ## 更新与维护（重要）
 
-本仓库会持续迭代：conductor 的规则/脚本会改进，配套协作 skill 也会更新。
+本仓库会持续迭代：conductor 的规则/脚本与器官方法会改进。
 **本地副本不会自动更新，需要你定期手动拉取。**
 
 ### 1. 拉取最新版本
@@ -238,16 +238,16 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 
 - `SKILL.md` 是唯一每次加载的入口，已从 9.8k 字符压到约 3.7k 字符（-63%），细节下沉到 reference。
 - `references/` 仅 8 份机体级文档；方法大文件已拆到器官 `references/`，按阶段/触发条件加载，不整份读。
-- **器官化**：10 个器官 skill 各 ≤1k 字符，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
+- **器官化**：10 个器官 skill 保持精简，方法文档与脚本已从 conductor 拆到各器官目录，可独立工作；原 10 个协作 skill 目录已全部物理删除（3 个方法并入器官，7 个经测试判定废弃）。映射见 `organ-registry.md`。
 - **会话记录两-tier**：主文件只有 L0（≤8 行）+ review 章节，详情进 `.details.md`；续接默认只读主文件。
 - **状态文件最小化**：`.conductor-session.json` 只存 8 位 sid；`.commitment-ledger.json` 紧凑 JSON（40 条示例从 9.1k→1.8k 字符，-81%），首次生成自动加入 `.gitignore`。
-- **成本档位**：S1 判 lite/standard/full，lite 省掉 handoff/env_probe/台账/影响面/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。
+- **成本档位**：S1 判 lite/standard/full，lite 省掉 overview L1 交接/env_probe/台账/影响面/活规格/学习回写/独立 review 子代理（改用 `review_gate.py --lite` 的轻量复核），高风险仍走全套；判档与省掉的步骤写进路由声明可纠正。
 - overview 采用 L0 索引卡（≤12 行）+ L1 摘要 + L2 详情引用，续接先只读 L0。
 
 ### 安全与隐私
 
 - overview / 交接文档写入前必须脱敏（无密钥 / token / PII）。
-- 安全红线（`references/04-guards/security-redlines.md`）：密钥不硬编码、不可信输入 fail-closed、危险操作路由、成本闸门。
+- 安全红线（`skills/conductor-review/references/security-redlines.md`）：密钥不硬编码、不可信输入 fail-closed、危险操作路由、成本闸门。
 
 ### 故障排查
 
@@ -262,11 +262,11 @@ cd skills/conductor && python scripts/sync-global.py --dry-run   # 无"需同步
 
 规则集中在 `references/`，可按项目裁剪：
 
-- 编码规则：`references/03-coding-rules/`（通用 + 各语言）
-- 门禁与安全：`references/04-guards/`
-- 场景与路由：`references/01-routing/`
+- 编码规则：`skills/conductor-tdd/references/coding-rules-*.md`（通用 + 各语言）
+- 门禁与安全：`skills/conductor/references/04-guards/`
+- 场景与路由：`skills/conductor-router/references/`
 
-改动前建议先看 `references/05-meta/roadmap.md`，了解某能力为何这样设计；改完记得同步到你的全局目录。
+改动前建议先看 `skills/conductor/references/05-meta/roadmap.md`，了解某能力为何这样设计；改完记得同步到你的全局目录。
 
 ---
 

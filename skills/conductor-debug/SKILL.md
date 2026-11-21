@@ -23,7 +23,7 @@ description: conductor 的调试器官。收到报错栈、行为不符、故障
 4. 禁止改断言、换 fake、mock 掉失败来造假绿；生产实现照真实基础设施写。
 
 ## 方法源
-`references/engineering-debugging.md`、`test-strategy.md` §5.5、`architecture-contracts.md` §4.5。
+`./references/engineering-debugging.md`、`../conductor-tdd/references/test-strategy.md` §5.5、`../conductor-impact/references/architecture-contracts.md` §4.5。
 
 ## 降级
 复现不了 → 停下问用户要步骤/日志，交回 conductor 重路由（可能不是场景8）；环境阻断登记后可暂忽略该项，但禁止标完成。

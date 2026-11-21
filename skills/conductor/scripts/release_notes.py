@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """发布说明草稿：从 conventional commits 生成 CHANGELOG 段落 + 版本号建议。
 
-用途：conductor 发布编排（references/04-guards/release-checklist.md）——
+用途：conductor 发布编排（../references/04-guards/release-checklist.md）——
 把 `git log` 的 conventional commits 按类型分组，生成 CHANGELOG 草稿，并据提交类型
 给出语义化版本号建议。草稿需人工润色为"用户可理解的变化"，不直接当最终版发布。
 

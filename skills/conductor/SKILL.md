@@ -26,7 +26,7 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 | S4 | `conductor-tdd`（证据） | `conductor-ledger`、`conductor-impact` |
 | S5 | `conductor-review` | `conductor-ledger`、`conductor-learn`（standard/full） |
 
-成本档位 lite/standard/full 由 `conductor-router` 判定；规则见器官自带 `../conductor-router/references/cost-tiers.md`（conductor 内为兼容指针）。lite 省掉交接/环境探测/台账/影响面/活规格/学习回写/独立子代理，保留规格确认、TDD、`verify.py`、`source_purity`、review 门禁。
+成本档位 lite/standard/full 由 `conductor-router` 判定；规则见器官自带 `../conductor-router/references/cost-tiers.md`。lite 省掉交接/环境探测/台账/影响面/活规格/学习回写/独立子代理，保留规格确认、TDD、`verify.py`、`source_purity`、review 门禁。
 
 ## 十四场景 = 工作环境（只声明器官，不重复步骤）
 
@@ -55,6 +55,6 @@ description: 通用的 AI 开发工作流主控 skill。收到开发/重构/迁�
 
 ## 参考与脚本
 
-- 37 份 reference 的加载时机见 `references/05-meta/README.md`：`../conductor-router/references/routing.md`/`../conductor-router/references/cost-tiers.md`/`organ-registry.md` 在 S1 读，`../conductor-router/references/scenarios.md`、`../conductor-brainstorm/references/engineering-workflow.md`、`../conductor-spec/references/spec-method.md`、`../conductor-learn/references/learning-method.md` 按节，其余触发才读。
-- 16 个确定性脚本：`preflight / overview_path / env_probe / verify / scan_gaps / review_gate / impact_analysis / debt_ledger / release_notes / commitment_ledger / migration_ledger / source_purity / intent_gaps / sync-global / contract_check / learn_capture`；参数见 `skill-matrix.md`。
+- 参考文档按需加载，索引见 `references/05-meta/README.md`：`../conductor-router/references/routing.md`/`../conductor-router/references/cost-tiers.md`/`organ-registry.md` 在 S1 读，`../conductor-router/references/scenarios.md`、`../conductor-brainstorm/references/engineering-workflow.md`、`../conductor-spec/references/spec-method.md`、`../conductor-learn/references/learning-method.md` 按节，其余触发才读。
+- 16 个工作流入口：`preflight / overview_path / env_probe / verify / scan_gaps / review_gate / impact_analysis / debt_ledger / release_notes / commitment_ledger / migration_ledger / source_purity / intent_gaps / sync-global / contract_check / learn_capture`；其中 6 个重复入口是薄 shim，实现只在器官目录；另有 4 个测试/审计脚本 `collaboration_skill_audit / organ_contract_test / organ_effect_test / script_parity_test`；参数见 `skill-matrix.md`。
 - 外部 skill 缺失必须显式降级并在 overview 写「缺失 X / 影响 Y / 降级 Z」，禁止静默跳过。

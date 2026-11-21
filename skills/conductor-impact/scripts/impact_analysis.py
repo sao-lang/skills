@@ -2,7 +2,7 @@
 """变更影响分析：给定改动的符号/文件，静态找出「谁引用它」「该跑哪些测试」（S1/S2 影响面）。
 
 输出必改文件/必跑测试的草稿，喂给计划与 TDD。启发式需人工核实，
-**不替代 graphify 精确调用图**（有则优先用）。退出码恒 0，--fail-on-refs 有外部引用即 1。
+**只出草稿，不替代源码核对**。退出码恒 0，--fail-on-refs 有外部引用即 1。
 
 输入（三选一，可叠加）：
   --symbols  Foo,bar        直接给符号名（函数/类/方法）
@@ -199,7 +199,7 @@ def main() -> int:
     else:
         print("- 未匹配到测试文件——若该行为重要，按 TDD 补 characterization test（见 test-strategy.md）")
     print()
-    print("> 草稿仅供核对：静态匹配含同名误报，动态调用查不到；graphify 可用时以其精确调用图为准。")
+    print("> 草稿仅供核对：静态匹配含同名误报，动态调用查不到；关键边必须打开源码核对。")
     return 1 if (args.fail_on_refs and refs) else 0
 
 

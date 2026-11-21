@@ -2,7 +2,7 @@
 
 > 用途：conductor 交付前的最后一道独立闸门。**凡涉及代码改动的场景，finish 前必须由全新上下文子代理跑一次独立 code-quality-review，Blocker 清零才准交付。**
 > SKILL.md 只保留一句话指针 + 铁律第 6 条，完整规则在此；本文件由 S5 阶段加载。
-> **档位裁切**：standard/full 走本文件全文；lite 档不派子代理，按 `cost-tiers.md` §4 写「轻量复核（lite）」章节并跑 `review_gate.py --lite`。升档后本节规则自动恢复。
+> **档位裁切**：standard/full 走本文件全文；lite 档不派子代理，按 `../../conductor-router/references/cost-tiers.md` §4 写「轻量复核（lite）」章节并跑 `review_gate.py --lite`。升档后本节规则自动恢复。
 
 ## 起因与根因
 
@@ -28,7 +28,7 @@ L3（功能遗漏 / 功能断点 / 接线断裂）靠自觉。本门禁把"交�
    (b) 改动文件清单或 diff（`git diff <base>..HEAD`），
    (c) 报告写回位置——**主 overview 的 `## 独立 review 报告` 章节**（报告内嵌，不另建 .review.md）。**禁止让写代码的执行者自己审自己**。
 2. **七维扫描**：按 `code-quality-review` 的七维（正确性/错误处理/并发/资源/性能/安全/可维护性）
-   + 接线四问（`references/04-guards/architecture-contracts.md`）审；重点看**功能遗漏与功能断点**（L3），
+   + 接线四问（`../../conductor-impact/references/architecture-contracts.md`）审；重点看**功能遗漏与功能断点**（L3），
    不只是代码风格。
 3. **分级输出**：Blocker / Should / Nit（Nit ≤3），每条带 `文件:行号` + 后果 + 改法，
    写到 overview 的「独立 review 结果」一节。
@@ -44,7 +44,7 @@ L3（功能遗漏 / 功能断点 / 接线断裂）靠自觉。本门禁把"交�
 
 ## 机器强制
 
-`scripts/review_gate.py --overview <path>` 自动核对上述证据——检查「独立 review 结果」章节、
+`../scripts/review_gate.py --overview <path>` 自动核对上述证据——检查「独立 review 结果」章节、
 Blocker 清零结论、以及 review 证据（内嵌报告章节有分级/证据，或外部报告文件真实存在——兼容旧文档）；任一缺失退出码非 0，
 **禁止 finish / 标完成**。非改码场景（只读/纯文档）用 `--waived --waiver-reason "<理由>"`
 显式豁免，禁止默默跳过。

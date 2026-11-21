@@ -41,13 +41,13 @@ AI 漏东西有五类根因，三道防线分别覆盖：
 ### 1. S0 采集——机器能扫的自动扫，人只填语义
 ```bash
 # 开发/重构：从设计规格列表提取承诺
-python scripts/commitment_ledger.py init --ledger .commitment-ledger.json \
+python ../scripts/commitment_ledger.py init --ledger .commitment-ledger.json \
   --from-list docs/spec.md --list-source spec --project "<任务>"
 # 迭代/解bug：把影响分析 / review / 差异清单的输出灌进来
-python scripts/impact_analysis.py --symbols Foo | \
-  python scripts/commitment_ledger.py init --ledger .commitment-ledger.json --stdin --stdin-source impact
+python ../../conductor-impact/scripts/impact_analysis.py --symbols Foo | \
+  python ../scripts/commitment_ledger.py init --ledger .commitment-ledger.json --stdin --stdin-source impact
 # 场景7 重构：用兼容 shim（底层同一引擎）
-python scripts/migration_ledger.py init --path src --merge
+python ../scripts/migration_ledger.py init --path src --merge
 ```
 - **增量合并**：重跑 `init` 默认保留已填的 `status/evidence/reason/checkpoint`，只补新增项——
   这同时解决了"中途新增模块/需求被漏"（drift）和"重复劳动"。
@@ -67,9 +67,9 @@ pending ─开始─> in_progress ─验证通过─> verified（必须填 evide
 ### 3. S4/S5 闸门——零未勾销才放行
 ```bash
 # 日常核对（恒 0，看缺口）
-python scripts/commitment_ledger.py check --ledger .commitment-ledger.json --modules src
+python ../scripts/commitment_ledger.py check --ledger .commitment-ledger.json --modules src
 # 收尾门禁（有缺口即退出 1，禁止 finish / 标完成）
-python scripts/commitment_ledger.py check --ledger .commitment-ledger.json --modules src --strict
+python ../scripts/commitment_ledger.py check --ledger .commitment-ledger.json --modules src --strict
 ```
 `--strict` 失败条件（任一即 FAIL）：
 1. 有 `pending`（未勾销承诺）；
